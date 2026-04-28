@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReadyKiddo - Chameleon OS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-theme="space" data-vibe="calm">
+  
+  <!-- Procedural Background Layers -->
+  <div class="bg-layer bg-base"></div>
+  <div class="bg-layer bg-stars"></div>
+  <div class="bg-layer bg-gears">
+    <div class="gear gear-1"></div>
+    <div class="gear gear-2"></div>
+    <div class="gear gear-3"></div>
+  </div>
+
+  <!-- ONBOARDING VIEW -->
+  <div id="onboarding-view" class="view-layer view-active">
+    <div class="glass-panel onboarding-panel">
+      <h1>Welcome to ReadyKiddo!</h1>
+      <p>Let's set up your world.</p>
+      
+      <div class="form-group">
+        <label>What's your name?</label>
+        <input type="text" id="ob-name" placeholder="Your Name">
+      </div>
+
+      <div class="form-group">
+        <label>Choose your Theme:</label>
+        <div class="toggle-group">
+          <input type="radio" id="theme-space" name="theme" value="space" checked>
+          <label for="theme-space" class="btn">Deep Space</label>
+          <input type="radio" id="theme-horology" name="theme" value="horology">
+          <label for="theme-horology" class="btn">Clockwork Gears</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Choose your Vibe:</label>
+        <div class="toggle-group">
+          <input type="radio" id="vibe-calm" name="vibe" value="calm" checked>
+          <label for="vibe-calm" class="btn">Calm & Quiet</label>
+          <input type="radio" id="vibe-active" name="vibe" value="active">
+          <label for="vibe-active" class="btn">Active & Bright</label>
+        </div>
+      </div>
+
+      <button id="start-btn" class="action-btn">Enter World</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD VIEW -->
+  <div id="dashboard-view" class="view-layer">
+    <header class="glass-panel">
+      <div class="logo-container">
+        <h2 style="margin:0; font-weight:900; letter-spacing:1px; background:var(--gradient-text); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">ReadyKiddo</h2>
+      </div>
+      <div class="header-actions">
+        <div class="search-bar">
+          <input type="text" placeholder="Search shows, games...">
+        </div>
+        <div class="profile-info" style="display:flex; align-items:center;">
+          <span id="display-name" style="margin-right:10px; font-weight:700;"></span>
+          <img src="assets/astronaut_profile.png" alt="Profile" class="profile-pic" onerror="this.style.display='none'">
+        </div>
+      </div>
+    </header>
+
+    <main class="dashboard-content">
+      <section class="ribbon-section">
+        <h3>PLAY</h3>
+        <div class="ribbon" id="play-ribbon">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <section class="ribbon-section">
+        <h3>WATCH</h3>
+        <div class="ribbon" id="watch-ribbon">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- GAME VIEW -->
+  <div id="game-view" class="view-layer">
+    <div class="game-header">
+      <button id="back-to-world-btn" class="glass-panel action-btn" style="width:auto; padding: 0.8rem 1.5rem;">&#8592; Back to World</button>
+      <h2 id="current-game-title" style="color:white; margin:0;">Game Title</h2>
+      <div style="width:150px;"></div> <!-- Spacer for centering -->
+    </div>
+    <div id="game-container" class="glass-panel" style="flex:1; display:flex; align-items:center; justify-content:center;">
+      <h1 id="game-loading-text" style="color:white; animation: pulse var(--animation-speed) infinite alternate;">Loading Game...</h1>
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

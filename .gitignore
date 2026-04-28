@@ -1,0 +1,9 @@
+# Compressed files
+*.zip
+
+# Node modules (just in case)
+node_modules/
+
+# OS generated files
+.DS_Store
+Thumbs.db
