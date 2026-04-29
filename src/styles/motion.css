@@ -1,0 +1,139 @@
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--motion-route);
+  animation-timing-function: var(--motion-ease);
+}
+
+::view-transition-old(root) {
+  animation-name: rk-fade-scale-out;
+}
+
+::view-transition-new(root) {
+  animation-name: rk-fade-slide-in;
+}
+
+@keyframes rk-fade-scale-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(.985);
+    filter: blur(12px);
+  }
+}
+
+@keyframes rk-fade-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(.992);
+    filter: blur(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+[data-sensory="low"] {
+  --motion-scale: .02;
+  --motion-route: 1ms;
+  --motion-card: 1ms;
+  --motion-micro: 1ms;
+  --blur: 0px;
+}
+
+[data-sensory="gentle"] {
+  --motion-scale: .35;
+  --motion-route: 520ms;
+  --motion-card: 320ms;
+  --motion-micro: 160ms;
+}
+
+[data-sensory="balanced"] {
+  --motion-scale: .78;
+  --motion-route: 680ms;
+  --motion-card: 420ms;
+}
+
+[data-sensory="lively"] {
+  --motion-scale: 1.05;
+  --motion-route: 760ms;
+  --motion-card: 480ms;
+}
+
+[data-sensory="high"] {
+  --motion-scale: 1.35;
+  --motion-route: 880ms;
+  --motion-card: 560ms;
+}
+
+[data-sensory="low"] *,
+[data-sensory="low"] *::before,
+[data-sensory="low"] *::after {
+  animation-duration: .001ms !important;
+  animation-iteration-count: 1 !important;
+  scroll-behavior: auto !important;
+  transition-duration: .001ms !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    --motion-scale: .02;
+    --motion-route: 1ms;
+    --motion-card: 1ms;
+    --motion-micro: 1ms;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .001ms !important;
+  }
+}
+
+@keyframes rk-float {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(-1deg);
+  }
+  50% {
+    transform: translate3d(0, calc(-16px * var(--motion-scale)), 0) rotate(1deg);
+  }
+}
+
+@keyframes rk-drift {
+  from {
+    transform: translate3d(-2vw, 0, 0);
+  }
+  to {
+    transform: translate3d(2vw, calc(-22px * var(--motion-scale)), 0);
+  }
+}
+
+@keyframes rk-orbit {
+  from {
+    transform: rotate(0deg) translateX(calc(8px * var(--motion-scale))) rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg) translateX(calc(8px * var(--motion-scale))) rotate(-360deg);
+  }
+}
+
+@keyframes rk-draw {
+  from {
+    stroke-dashoffset: 1200;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}

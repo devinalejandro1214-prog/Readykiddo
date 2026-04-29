@@ -1,0 +1,103 @@
+/* ReadyKiddo V4 Sector Detail System */
+
+.sector-hero-copy h1 {
+  font-size: clamp(2.8rem, 7vw, 6.8rem);
+  line-height: .88;
+  margin-bottom: .85rem;
+}
+
+.sector-hero-copy p {
+  max-width: 700px;
+  color: var(--muted);
+  font-size: 1.05rem;
+}
+
+.activity-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.activity-card::after {
+  content: "";
+  position: absolute;
+  right: -3rem;
+  top: -3rem;
+  width: 8rem;
+  height: 8rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  filter: blur(12px);
+  pointer-events: none;
+}
+
+.activity-card[data-complete="true"] {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--accent) 16%, var(--surface-strong)), color-mix(in srgb, var(--accent-2) 12%, var(--surface-strong)));
+}
+
+.activity-card[data-complete="true"]::before {
+  content: "✓";
+  position: absolute;
+  right: .9rem;
+  top: .85rem;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  color: white;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  font-weight: 1000;
+}
+
+.quest-console {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: .75rem;
+  align-items: center;
+  border-radius: var(--radius-lg);
+  padding: .95rem;
+  background: color-mix(in srgb, var(--surface-strong) 66%, transparent);
+  box-shadow: var(--shadow-pin);
+}
+
+.quest-console p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.orbit-menu {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.orbit-menu span {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border: 1px solid rgba(255,255,255,.7);
+  border-radius: 20px;
+  color: white;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  box-shadow: var(--shadow-soft);
+  font-weight: 1000;
+  animation: rk-orbit calc(12s / max(var(--motion-scale), .2)) linear infinite;
+}
+
+.orbit-menu span:nth-child(1) { left: 14%; top: 18%; }
+.orbit-menu span:nth-child(2) { right: 14%; top: 28%; animation-delay: -3s; }
+.orbit-menu span:nth-child(3) { right: 24%; bottom: 18%; animation-delay: -6s; }
+.orbit-menu span:nth-child(4) { left: 20%; bottom: 22%; animation-delay: -9s; }
+
+[data-sensory="low"] .orbit-menu span {
+  animation: none;
+}
+
+@media (max-width: 680px) {
+  .quest-console {
+    grid-template-columns: 1fr;
+  }
+}

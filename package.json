@@ -1,0 +1,10 @@
+{
+  "name": "readykiddo-motion-first-spa-v4",
+  "version": "4.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Netlify-ready motion-first ReadyKiddo SPA prototype",
+  "scripts": {
+    "check": "node --check src/js/app.js && node --check src/js/router.js"
+  }
+}

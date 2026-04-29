@@ -1,0 +1,332 @@
+.route {
+  min-height: calc(100vh - 140px);
+}
+
+.hero-route {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(360px, .72fr);
+  align-items: center;
+  gap: clamp(1.2rem, 4vw, 3rem);
+}
+
+.hero-copy h1 {
+  max-width: 860px;
+  margin: 0 0 1rem;
+  font-size: clamp(3.4rem, 8vw, 7.9rem);
+  line-height: .88;
+}
+
+.hero-copy p.hero-text {
+  max-width: 690px;
+  color: var(--muted);
+  font-size: clamp(1.05rem, 2vw, 1.3rem);
+}
+
+.action-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .85rem;
+  margin-top: 2rem;
+}
+
+.route-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, .42fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 1.1rem;
+}
+
+.side-panel {
+  position: sticky;
+  top: 96px;
+  display: grid;
+  gap: 1rem;
+}
+
+.journey-panel {
+  display: grid;
+  gap: 1rem;
+}
+
+.panel-topline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.1rem;
+}
+
+.panel-topline h1 {
+  margin: 0;
+  font-size: clamp(2.25rem, 4.8vw, 4.7rem);
+  line-height: .93;
+}
+
+.helper-card {
+  border: 1px solid color-mix(in srgb, var(--accent) 16%, rgba(255,255,255,.8));
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--surface-strong) 66%, transparent);
+  box-shadow: var(--shadow-pin);
+}
+
+.name-lane {
+  display: grid;
+  gap: .75rem;
+}
+
+.name-lane label {
+  color: var(--muted);
+  font-weight: 900;
+}
+
+.name-row {
+  display: flex;
+  gap: .65rem;
+  align-items: center;
+}
+
+.name-row input {
+  width: min(390px, 100%);
+}
+
+.chip-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .55rem;
+}
+
+.path-controls,
+.journey-actions,
+.sector-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+}
+
+.path-controls {
+  justify-content: center;
+}
+
+.world-route {
+  display: grid;
+  gap: 1rem;
+}
+
+.reveal-stage {
+  position: relative;
+  min-height: 640px;
+  overflow: hidden;
+}
+
+.reveal-grid {
+  display: grid;
+  grid-template-columns: minmax(320px, .75fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.world-map {
+  position: relative;
+  min-height: 640px;
+  border-radius: calc(var(--radius-xl) - 10px);
+  overflow: hidden;
+}
+
+.stage-surface {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 22% 22%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 14rem),
+    radial-gradient(circle at 76% 68%, color-mix(in srgb, var(--accent-2) 20%, transparent), transparent 17rem),
+    linear-gradient(150deg, color-mix(in srgb, var(--surface-solid) 70%, transparent), transparent);
+}
+
+.sector-node {
+  position: absolute;
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  width: min(230px, 42vw);
+  min-height: 150px;
+  border: 1px solid rgba(255,255,255,.74);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  color: var(--ink);
+  background: color-mix(in srgb, var(--surface-strong) 78%, transparent);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(var(--blur));
+  text-decoration: none;
+  transition:
+    transform var(--motion-card) var(--motion-ease),
+    box-shadow var(--motion-card) var(--motion-ease);
+}
+
+.sector-node:hover,
+.sector-node:focus-visible {
+  transform: translateY(calc(-5px * var(--motion-scale))) scale(calc(1 + (.012 * var(--motion-scale))));
+  box-shadow: var(--shadow-deep);
+}
+
+.sector-node[data-sector="stream"] { left: 8%; top: 9%; }
+.sector-node[data-sector="create"] { right: 7%; top: 18%; }
+.sector-node[data-sector="calm"] { left: 14%; bottom: 12%; }
+.sector-node[data-sector="quest"] { right: 11%; bottom: 9%; }
+
+.sector-node .glyph {
+  margin-bottom: .65rem;
+}
+
+.sector-node strong {
+  font-size: 1.2rem;
+  letter-spacing: -.035em;
+}
+
+.sector-node span {
+  margin-top: .3rem;
+  color: var(--muted);
+  font-size: .9rem;
+  line-height: 1.35;
+}
+
+.profile-stack {
+  display: grid;
+  gap: .85rem;
+}
+
+.profile-hero {
+  min-height: 250px;
+  display: grid;
+  align-content: center;
+  justify-items: start;
+}
+
+.profile-hero h1 {
+  margin: .6rem 0 .4rem;
+  font-size: clamp(2.4rem, 5vw, 4.9rem);
+  line-height: .9;
+}
+
+.reward-dock {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0,1fr));
+  gap: .65rem;
+}
+
+.reward-tile {
+  border-radius: var(--radius-md);
+  padding: .85rem;
+  background: color-mix(in srgb, var(--surface-strong) 72%, transparent);
+  box-shadow: var(--shadow-pin);
+  text-align: center;
+}
+
+.reward-tile.is-active {
+  color: white;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+}
+
+.sector-detail {
+  display: grid;
+  grid-template-columns: minmax(280px, .48fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.sector-art {
+  position: relative;
+  min-height: 520px;
+  overflow: hidden;
+}
+
+.sector-art .world-orb {
+  margin: 4rem auto;
+}
+
+.activity-stack {
+  display: grid;
+  gap: .85rem;
+}
+
+.activity-card {
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  background: color-mix(in srgb, var(--surface-strong) 74%, transparent);
+  box-shadow: var(--shadow-pin);
+}
+
+.activity-card h3 {
+  margin-bottom: .35rem;
+  font-size: 1.25rem;
+}
+
+.activity-card p {
+  margin: 0;
+  color: var(--muted);
+}
+
+@media (max-width: 980px) {
+  .hero-route,
+  .route-grid,
+  .reveal-grid,
+  .sector-detail {
+    grid-template-columns: 1fr;
+  }
+
+  .side-panel {
+    position: relative;
+    top: auto;
+  }
+
+  .hero-visual,
+  .reveal-stage,
+  .world-map {
+    min-height: 500px;
+  }
+}
+
+@media (max-width: 680px) {
+  .hero-copy h1 {
+    font-size: clamp(3.2rem, 16vw, 5rem);
+  }
+
+  .panel-topline,
+  .name-row,
+  .journey-actions,
+  .path-controls,
+  .sector-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .motion-progress {
+    justify-items: start;
+  }
+
+  .progress-track {
+    width: 100%;
+  }
+
+  .sector-node {
+    position: relative;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    width: 100%;
+    margin-bottom: .75rem;
+  }
+
+  .world-map {
+    display: grid;
+    align-content: center;
+    padding: 1rem;
+  }
+
+  .reward-dock {
+    grid-template-columns: 1fr;
+  }
+}
