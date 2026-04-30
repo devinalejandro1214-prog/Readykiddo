@@ -1,0 +1,426 @@
+:root {
+  --cream: #FEF5E3;
+  --cream-soft: #FFF8EC;
+  --navy: #023257;
+  --slate: #294B65;
+  --orange: #FA8D1C;
+  --tan: #F2D0A2;
+  --sun: #FFD99B;
+  --shadow: rgba(71, 39, 12, 0.18);
+  --glass: rgba(254, 245, 227, 0.72);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--cream);
+  color: var(--navy);
+  overflow: hidden;
+}
+
+.rk-landing {
+  position: relative;
+  width: 100vw;
+  height: 100svh;
+  min-height: 640px;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 50% 31%, rgba(255, 222, 170, 0.84), transparent 30%),
+    linear-gradient(180deg, #fffaf1 0%, #fde9ca 50%, #efb66d 100%);
+}
+
+.rk-landing::before {
+  content: '';
+  position: absolute;
+  inset: -8%;
+  z-index: 3;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 35%, transparent 0 42%, rgba(255, 255, 255, 0.16) 62%, rgba(2, 50, 87, 0.14) 100%);
+  mix-blend-mode: soft-light;
+}
+
+.rk-landing::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18), transparent 18%, transparent 74%, rgba(76, 39, 8, 0.12)),
+    radial-gradient(circle at center, transparent 35%, rgba(2, 50, 87, 0.12) 100%);
+}
+
+.grain {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: 0.16;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(2, 50, 87, 0.12) 0 1px, transparent 1px),
+    radial-gradient(circle at 70% 60%, rgba(250, 141, 28, 0.12) 0 1px, transparent 1px);
+  background-size: 34px 34px, 46px 46px;
+}
+
+.ambient {
+  position: absolute;
+  z-index: 1;
+  border-radius: 999px;
+  filter: blur(36px);
+  pointer-events: none;
+}
+
+.ambient-one {
+  width: 420px;
+  height: 420px;
+  left: -150px;
+  top: 13vh;
+  background: rgba(250, 141, 28, 0.20);
+}
+
+.ambient-two {
+  width: 460px;
+  height: 460px;
+  right: -170px;
+  top: 26vh;
+  background: rgba(2, 50, 87, 0.11);
+}
+
+.brand {
+  position: absolute;
+  top: max(22px, env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 8;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 18px 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.58);
+  border-radius: 999px;
+  background: var(--glass);
+  box-shadow: 0 18px 60px rgba(103, 62, 15, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.brand-mark {
+  width: clamp(42px, 5vw, 56px);
+  height: clamp(42px, 5vw, 56px);
+  flex: 0 0 auto;
+}
+
+.brand-mark svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 8px 16px rgba(2, 50, 87, 0.10));
+}
+
+.brand-copy {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(1.62rem, 3vw, 2.38rem);
+  font-weight: 900;
+  letter-spacing: -0.055em;
+  line-height: 0.95;
+  white-space: nowrap;
+}
+
+.brand-ready { color: var(--navy); }
+.brand-kiddo { color: var(--orange); }
+
+.hero-copy {
+  position: absolute;
+  top: clamp(126px, 18vh, 190px);
+  left: 50%;
+  z-index: 7;
+  width: min(820px, calc(100% - 40px));
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 14px;
+  padding: 8px 15px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.43);
+  color: rgba(41, 75, 101, 0.92);
+  font-size: clamp(0.82rem, 1.4vw, 0.96rem);
+  font-weight: 900;
+  letter-spacing: 0.01em;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.42), 0 12px 32px rgba(93, 52, 14, 0.08);
+}
+
+.eyebrow::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--orange);
+  box-shadow: 0 0 0 5px rgba(250, 141, 28, 0.16);
+}
+
+.hero-copy h1 {
+  max-width: 850px;
+  margin: 0 auto;
+  color: var(--navy);
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(3.05rem, 7.1vw, 6.75rem);
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: -0.078em;
+  text-wrap: balance;
+  text-shadow: 0 16px 52px rgba(95, 73, 34, 0.14);
+}
+
+.subhead {
+  width: min(650px, 100%);
+  margin: clamp(16px, 2.2vh, 24px) auto 0;
+  color: rgba(41, 75, 101, 0.84);
+  font-size: clamp(1.02rem, 1.8vw, 1.36rem);
+  font-weight: 800;
+  line-height: 1.46;
+  text-wrap: balance;
+}
+
+.world-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+}
+
+.journey-art {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: translateY(0);
+}
+
+.clouds path,
+.learning-piece,
+.sparkles circle,
+.sparkles path,
+.figures-svg,
+.path-center,
+.main-path {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.clouds path:first-child { animation: cloud-left 18s ease-in-out infinite alternate; }
+.clouds path:last-child { animation: cloud-right 20s ease-in-out infinite alternate; }
+.sparkles circle,
+.sparkles path { animation: sparkle 4.8s ease-in-out infinite alternate; }
+.learning-piece { animation: float-piece 7.6s ease-in-out infinite alternate; }
+.piece-a { animation-delay: -1s; }
+.piece-book { animation-delay: -2.4s; }
+.piece-shapes { animation-delay: -4s; }
+.path-center { animation: path-warmth 5.4s ease-in-out infinite alternate; }
+.figures-svg { transform-origin: center bottom; animation: figure-breathe 5.2s ease-in-out infinite alternate; }
+
+@keyframes cloud-left {
+  from { transform: translateX(-10px); }
+  to { transform: translateX(22px); }
+}
+
+@keyframes cloud-right {
+  from { transform: translateX(14px); }
+  to { transform: translateX(-18px); }
+}
+
+@keyframes sparkle {
+  from { opacity: 0.22; transform: scale(0.94); }
+  to { opacity: 0.68; transform: scale(1.08); }
+}
+
+@keyframes float-piece {
+  from { transform: translateY(0) rotate(-1deg); }
+  to { transform: translateY(-16px) rotate(1.2deg); }
+}
+
+@keyframes path-warmth {
+  from { opacity: 0.32; }
+  to { opacity: 0.68; }
+}
+
+@keyframes figure-breathe {
+  from { transform: translateY(0); }
+  to { transform: translateY(-5px); }
+}
+
+@media (min-width: 1200px) {
+  .journey-art {
+    transform: scale(1.03);
+  }
+}
+
+@media (max-width: 1024px) {
+  .rk-landing {
+    min-height: 720px;
+  }
+
+  .brand {
+    top: max(18px, env(safe-area-inset-top));
+  }
+
+  .hero-copy {
+    top: clamp(118px, 16vh, 156px);
+    width: min(720px, calc(100% - 40px));
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(3rem, 8.5vw, 5.7rem);
+  }
+
+  .subhead {
+    width: min(560px, 92%);
+  }
+
+  .journey-art {
+    width: 130%;
+    left: -15%;
+    height: 100%;
+  }
+}
+
+@media (max-width: 760px) {
+  body {
+    overflow: hidden;
+  }
+
+  .rk-landing {
+    min-height: 690px;
+    background:
+      radial-gradient(circle at 50% 30%, rgba(255, 222, 170, 0.84), transparent 34%),
+      linear-gradient(180deg, #fffaf1 0%, #fde9ca 48%, #efb66d 100%);
+  }
+
+  .brand {
+    gap: 9px;
+    padding: 8px 13px 8px 9px;
+  }
+
+  .brand-mark {
+    width: 42px;
+    height: 42px;
+  }
+
+  .brand-copy {
+    font-size: 1.65rem;
+  }
+
+  .hero-copy {
+    top: 104px;
+    width: calc(100% - 28px);
+  }
+
+  .eyebrow {
+    margin-bottom: 10px;
+    padding: 7px 12px;
+    font-size: 0.78rem;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(2.58rem, 13.5vw, 4.15rem);
+    line-height: 0.92;
+    letter-spacing: -0.07em;
+  }
+
+  .subhead {
+    width: min(360px, 94%);
+    margin-top: 13px;
+    font-size: clamp(0.96rem, 4vw, 1.08rem);
+    line-height: 1.38;
+  }
+
+  .journey-art {
+    width: 185%;
+    left: -42.5%;
+    top: 7%;
+    height: 96%;
+  }
+
+  .ambient-one {
+    width: 250px;
+    height: 250px;
+    left: -110px;
+  }
+
+  .ambient-two {
+    width: 290px;
+    height: 290px;
+    right: -120px;
+  }
+}
+
+@media (max-width: 420px) {
+  .rk-landing {
+    min-height: 660px;
+  }
+
+  .brand {
+    transform: translateX(-50%) scale(0.96);
+  }
+
+  .hero-copy {
+    top: 100px;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(2.34rem, 13.2vw, 3.48rem);
+  }
+
+  .subhead {
+    font-size: 0.96rem;
+  }
+
+  .journey-art {
+    width: 205%;
+    left: -52.5%;
+    top: 10%;
+  }
+}
+
+@media (max-height: 700px) and (min-width: 761px) {
+  .brand {
+    top: 16px;
+  }
+
+  .hero-copy {
+    top: 104px;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(2.8rem, 6.3vw, 5.2rem);
+  }
+
+  .subhead {
+    margin-top: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
