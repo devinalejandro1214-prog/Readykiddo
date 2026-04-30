@@ -1,0 +1,95 @@
+/* Theme: Space */
+.theme-space {
+    --theme-bg-gradient: radial-gradient(circle at center, #1A1C2E 0%, #0D0E17 100%);
+    --color-text: #E8EBFF;
+    --color-text-muted: #A1A4B8;
+}
+
+.theme-space .view-content {
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: white;
+}
+
+/* Theme: Dino */
+.theme-dino {
+    --theme-bg-gradient: linear-gradient(135deg, #4A7C44 0%, #2E512B 100%);
+    --color-text: #F8F9FF;
+}
+
+/* Theme: Undersea */
+.theme-undersea {
+    --theme-bg-gradient: linear-gradient(135deg, #20C7A8 0%, #15826E 100%);
+    --color-text: #FFFFFF;
+}
+
+/* Theme: Future */
+.theme-future {
+    --theme-bg-gradient: linear-gradient(135deg, #7C6CFF 0%, #4A3DBF 100%);
+    --color-text: #FFFFFF;
+}
+
+/* Game Grid Styling */
+.game-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    width: 100%;
+    max-width: 1200px;
+    margin-top: 3rem;
+}
+
+.game-tile {
+    background: var(--color-white);
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.1);
+    cursor: pointer;
+    transition: var(--transition-butter);
+    border: 4px solid transparent;
+}
+
+.game-tile:hover {
+    transform: translateY(-10px);
+    border-color: var(--theme-accent);
+}
+
+.game-tile h3 {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.onboarding-step h2 {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.options-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.choice-tile.selected {
+    border: 4px solid var(--theme-accent);
+    background: rgba(124, 108, 255, 0.1);
+}
+
+.navigation-controls {
+    display: flex;
+    gap: 1rem;
+}
+
+.readykiddo-input {
+    padding: 1.2rem;
+    font-size: 1.2rem;
+    border-radius: var(--radius-md);
+    border: 2px solid var(--color-primary);
+    width: 100%;
+    max-width: 400px;
+    margin-bottom: 1rem;
+}

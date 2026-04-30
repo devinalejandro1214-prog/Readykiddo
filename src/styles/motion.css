@@ -1,0 +1,73 @@
+/* View Transitions */
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation-duration: 0.8s;
+    animation-timing-function: var(--spring-easing);
+}
+
+/* Sequential Move: slide from right for new, slide to left for old */
+::view-transition-old(root) {
+    animation: 0.8s var(--spring-easing) both slide-to-left;
+}
+::view-transition-new(root) {
+    animation: 0.8s var(--spring-easing) both slide-from-right;
+}
+
+@keyframes slide-from-right {
+    from { transform: translateX(100%) scale(0.8); opacity: 0; }
+    to { transform: translateX(0) scale(1); opacity: 1; }
+}
+
+@keyframes slide-to-left {
+    from { transform: translateX(0) scale(1); opacity: 1; }
+    to { transform: translateX(-100%) scale(0.8); opacity: 0; }
+}
+
+/* World Reveal Animation */
+[data-animate="world-reveal"] {
+    animation: world-reveal-anim 1.5s var(--spring-easing) both;
+}
+
+@keyframes world-reveal-anim {
+    0% { transform: scale(0.5) translateY(100px); opacity: 0; filter: blur(20px); }
+    100% { transform: scale(1) translateY(0); opacity: 1; filter: blur(0); }
+}
+
+/* Buddy Animations */
+.buddy-happy #buddy-avatar {
+    animation: buddy-bounce 0.5s var(--spring-easing) infinite alternate;
+}
+
+@keyframes buddy-bounce {
+    from { transform: translateY(0); }
+    to { transform: translateY(-20px); }
+}
+
+/* Dragging state */
+.dragging {
+    cursor: grabbing;
+    z-index: 1000;
+    transition: none !important;
+}
+
+/* Progress Bar */
+.progress-bar {
+    width: 300px;
+    height: 12px;
+    background: rgba(0,0,0,0.1);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--color-primary);
+    transition: width 0.5s var(--spring-easing);
+}
+
+/* Sensory: Low overrides */
+.no-animations * {
+    animation: none !important;
+    transition: none !important;
+}

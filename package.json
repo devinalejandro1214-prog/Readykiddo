@@ -1,0 +1,17 @@
+{
+  "name": "readykiddo-master-vision",
+  "version": "1.0.0",
+  "description": "ReadyKiddo: A premium, neuro-inclusive motion-first learning platform.",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve .",
+    "dev": "npx serve ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {
+    "serve": "^14.2.0"
+  }
+}
