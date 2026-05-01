@@ -2,157 +2,330 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ReadyKiddo | Learning Worlds Together</title>
-  <meta name="description" content="ReadyKiddo helps parents and children build early learning worlds together." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800;900&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="ReadyKiddo is a parent-child learning experience that turns early skills into a world you build together." />
+  <title>ReadyKiddo | Build a learning world together</title>
+  <style>
+    :root {
+      --rk-navy: #24384f;
+      --rk-deep-navy: #1a2b4c;
+      --rk-slate: #5f7184;
+      --rk-cream-top: #fff9f0;
+      --rk-apricot-mid: #ffd9a1;
+      --rk-horizon-ivory: #fefdfb;
+      --rk-ground: #efa363;
+      --rk-path: #f2a768;
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      overflow: hidden;
+      background: var(--rk-cream-top);
+      font-family: ui-rounded, "Nunito", "Avenir Next", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--rk-navy);
+    }
+
+    body { min-height: 100svh; }
+
+    .readykiddo-hero {
+      position: relative;
+      width: 100%;
+      height: 100svh;
+      min-height: 640px;
+      overflow: hidden;
+      isolation: isolate;
+      background: var(--rk-cream-top);
+    }
+
+    .environment-svg {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      display: block;
+      pointer-events: none;
+    }
+
+    .brand-pill {
+      position: absolute;
+      z-index: 4;
+      top: max(22px, env(safe-area-inset-top));
+      left: 50%;
+      transform: translateX(-50%);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.7rem 1.15rem;
+      border-radius: 999px;
+      background: rgba(255, 248, 232, 0.72);
+      box-shadow: 0 18px 50px rgba(111, 76, 34, 0.12);
+      backdrop-filter: blur(10px);
+      font-size: clamp(1.1rem, 2vw, 1.55rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+    }
+
+    .brand-ready { color: var(--rk-navy); }
+    .brand-kiddo { color: #df7a36; }
+
+    .hero-copy {
+      position: relative;
+      z-index: 3;
+      width: min(92vw, 820px);
+      margin: 0 auto;
+      padding-top: max(108px, calc(env(safe-area-inset-top) + 94px));
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .hero-copy h1 {
+      margin: 0;
+      font-family: ui-rounded, "Outfit", "Avenir Next", system-ui, sans-serif;
+      font-size: clamp(2.65rem, 9.6vw, 6.75rem);
+      line-height: 0.94;
+      letter-spacing: -0.065em;
+      color: var(--rk-navy);
+      text-wrap: balance;
+      text-shadow: 0 8px 38px rgba(255, 244, 220, 0.7);
+    }
+
+    .subheadline {
+      width: min(92vw, 690px);
+      margin: clamp(1rem, 2.6vw, 1.45rem) auto 0;
+      font-size: clamp(1rem, 1.65vw, 1.35rem);
+      line-height: 1.48;
+      font-weight: 700;
+      color: var(--rk-slate);
+      text-wrap: balance;
+    }
+
+    .horizon-glow {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: horizonGlow 12s ease-in-out infinite alternate;
+      will-change: transform, opacity;
+    }
+
+    .cloud-cluster-a {
+      animation: driftRight 28s ease-in-out infinite alternate;
+      will-change: transform;
+    }
+
+    .cloud-cluster-b {
+      animation: driftLeft 35s ease-in-out infinite alternate;
+      will-change: transform;
+    }
+
+    .cloud-cluster-faint {
+      animation: driftRight 45s ease-in-out infinite alternate;
+      will-change: transform;
+    }
+
+    @keyframes horizonGlow {
+      0% { opacity: 0.8; transform: scale(1); }
+      100% { opacity: 1; transform: scale(1.03); }
+    }
+
+    @keyframes driftRight {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(30px); }
+    }
+
+    @keyframes driftLeft {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-20px); }
+    }
+
+    @media (max-width: 760px) {
+      .readykiddo-hero { min-height: 620px; }
+
+      .hero-copy {
+        width: min(92vw, 430px);
+        padding-top: max(98px, calc(env(safe-area-inset-top) + 86px));
+      }
+
+      .brand-pill { padding: 0.58rem 0.95rem; }
+
+      .hero-copy h1 {
+        font-size: clamp(2.45rem, 13.4vw, 4.25rem);
+        line-height: 0.98;
+      }
+
+      .subheadline {
+        width: min(88vw, 360px);
+        font-size: clamp(0.96rem, 4vw, 1.08rem);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
 </head>
 <body>
-  <main class="rk-landing" aria-label="ReadyKiddo landing page">
-    <div class="ambient ambient-one" aria-hidden="true"></div>
-    <div class="ambient ambient-two" aria-hidden="true"></div>
-
-    <header class="brand" aria-label="ReadyKiddo brand">
-      <div class="brand-mark" aria-hidden="true">
-        <svg viewBox="0 0 96 96" role="img">
-          <defs>
-            <linearGradient id="brandBook" x1="0" x2="1" y1="0" y2="1">
-              <stop offset="0%" stop-color="#023257" />
-              <stop offset="100%" stop-color="#294B65" />
-            </linearGradient>
-            <linearGradient id="brandPencil" x1="0" x2="1">
-              <stop offset="0%" stop-color="#FA8D1C" />
-              <stop offset="100%" stop-color="#F2D0A2" />
-            </linearGradient>
-          </defs>
-          <path d="M18 26c0-5 4-9 9-9h42c5 0 9 4 9 9v43c0 5-4 9-9 9H27c-5 0-9-4-9-9V26Z" fill="#FEF5E3" />
-          <path d="M28 31c9-4 19-3 20 4v34c-8-6-16-7-24-3V37c0-3 1-5 4-6Z" fill="url(#brandBook)" />
-          <path d="M68 31c-9-4-19-3-20 4v34c8-6 16-7 24-3V37c0-3-1-5-4-6Z" fill="#FA8D1C" />
-          <path d="M48 35v34" stroke="#F2D0A2" stroke-width="3" stroke-linecap="round" />
-          <path d="M63 22l11 11-25 25-12 4 4-12 22-28Z" fill="url(#brandPencil)" />
-          <path d="M72 31l4 4" stroke="#023257" stroke-width="4" stroke-linecap="round" />
-        </svg>
-      </div>
-      <div class="brand-copy">
-        <span class="brand-ready">Ready</span><span class="brand-kiddo">Kiddo</span>
-      </div>
-    </header>
+  <main class="readykiddo-hero" aria-label="ReadyKiddo landing page">
+    <div class="brand-pill" aria-label="ReadyKiddo">
+      <span class="brand-ready">Ready</span><span class="brand-kiddo">Kiddo</span>
+    </div>
 
     <section class="hero-copy" aria-labelledby="hero-title">
-      <p class="eyebrow">Parent and child learning, together</p>
       <h1 id="hero-title">Build a learning world together.</h1>
-      <p class="subhead">A warm, shared adventure where early skills become part of a world your family creates.</p>
+      <p class="subheadline">A parent-child experience that turns early skills into a world you build together.</p>
     </section>
 
-    <section class="world-stage" aria-label="Illustrated ReadyKiddo learning world preview">
-      <svg class="journey-art" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" role="img" aria-labelledby="art-title art-desc">
-        <title id="art-title">A parent and child at the start of a learning path</title>
-        <desc id="art-desc">A warm sunrise landscape with a curved path, soft hills, learning letters, shapes, and simple parent-child silhouettes walking toward the horizon.</desc>
-        <defs>
-          <radialGradient id="sunGlow" cx="50%" cy="27%" r="47%">
-            <stop offset="0%" stop-color="#FFD99B" stop-opacity="0.95" />
-            <stop offset="38%" stop-color="#FFB565" stop-opacity="0.45" />
-            <stop offset="100%" stop-color="#FFB565" stop-opacity="0" />
-          </radialGradient>
-          <linearGradient id="skyWash" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stop-color="#FFF8EC" />
-            <stop offset="54%" stop-color="#FDE8C9" />
-            <stop offset="100%" stop-color="#EFB86F" />
-          </linearGradient>
-          <linearGradient id="pathFill" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stop-color="#FFD49A" stop-opacity="0.85" />
-            <stop offset="42%" stop-color="#FA9B34" />
-            <stop offset="100%" stop-color="#D96B00" />
-          </linearGradient>
-          <linearGradient id="pathLight" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stop-color="#FFF0C9" stop-opacity="0.9" />
-            <stop offset="100%" stop-color="#F9B04B" stop-opacity="0.1" />
-          </linearGradient>
-          <linearGradient id="hillFar" x1="0" x2="1">
-            <stop offset="0%" stop-color="#F6D7A5" />
-            <stop offset="100%" stop-color="#F0C47D" />
-          </linearGradient>
-          <linearGradient id="hillNear" x1="0" x2="1">
-            <stop offset="0%" stop-color="#EFAE5D" />
-            <stop offset="100%" stop-color="#F7C67F" />
-          </linearGradient>
-          <filter id="softBlur" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="10" />
-          </filter>
-          <filter id="figureShadow" x="-30%" y="-30%" width="160%" height="160%">
-            <feDropShadow dx="0" dy="18" stdDeviation="16" flood-color="#8B4A17" flood-opacity="0.25" />
-          </filter>
-          <filter id="floatShadow" x="-50%" y="-50%" width="200%" height="200%">
-            <feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#9B5A20" flood-opacity="0.18" />
-          </filter>
-        </defs>
+    <svg class="environment-svg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+      <defs>
+        <linearGradient id="a01-sky-wash" x1="720" y1="0" x2="720" y2="900" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#FFF9F0" />
+          <stop offset="0.24" stop-color="#FFF2DE" />
+          <stop offset="0.48" stop-color="#FFD9A1" />
+          <stop offset="0.66" stop-color="#FFE2B9" />
+          <stop offset="0.78" stop-color="#FEFDFB" />
+          <stop offset="1" stop-color="#F6B978" />
+        </linearGradient>
 
-        <rect width="1440" height="900" fill="url(#skyWash)" />
-        <ellipse cx="720" cy="270" rx="520" ry="285" fill="url(#sunGlow)" />
-        <ellipse cx="720" cy="385" rx="260" ry="55" fill="#FFE3AA" opacity="0.38" filter="url(#softBlur)" />
+        <radialGradient id="a01-clean-copy-zone" cx="50%" cy="18%" r="48%">
+          <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.74" />
+          <stop offset="0.48" stop-color="#FFF9F0" stop-opacity="0.34" />
+          <stop offset="1" stop-color="#FFF9F0" stop-opacity="0" />
+        </radialGradient>
 
-        <g class="clouds" opacity="0.72">
-          <path d="M96 196c39-35 88-26 105 8 28-18 69-10 84 19 45-5 79 16 88 51H52c5-38 23-63 44-78Z" fill="#FFF5E7" opacity="0.74" />
-          <path d="M1094 160c31-25 72-19 88 8 22-13 55-8 70 14 37-2 63 15 70 41h-272c5-28 20-50 44-63Z" fill="#FFF9EF" opacity="0.7" />
+        <radialGradient id="a01-horizon-mist" cx="50%" cy="55%" r="54%">
+          <stop offset="0" stop-color="#FEFDFB" stop-opacity="0.92" />
+          <stop offset="0.34" stop-color="#FFF1C8" stop-opacity="0.54" />
+          <stop offset="0.7" stop-color="#FFD9A1" stop-opacity="0.18" />
+          <stop offset="1" stop-color="#FFD9A1" stop-opacity="0" />
+        </radialGradient>
+
+        <radialGradient id="a01-corner-warmth-left" cx="-4%" cy="94%" r="62%">
+          <stop offset="0" stop-color="#EFA363" stop-opacity="0.34" />
+          <stop offset="0.42" stop-color="#FFD9A1" stop-opacity="0.13" />
+          <stop offset="1" stop-color="#FFD9A1" stop-opacity="0" />
+        </radialGradient>
+
+        <radialGradient id="a01-corner-warmth-right" cx="104%" cy="86%" r="48%">
+          <stop offset="0" stop-color="#F2A768" stop-opacity="0.22" />
+          <stop offset="0.58" stop-color="#FFD9A1" stop-opacity="0.09" />
+          <stop offset="1" stop-color="#FFD9A1" stop-opacity="0" />
+        </radialGradient>
+
+        <filter id="a01-paper-grain" x="0" y="0" width="100%" height="100%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.82" numOctaves="3" seed="18" result="grainNoise" />
+          <feColorMatrix in="grainNoise" type="matrix" values="0 0 0 0 0.95 0 0 0 0 0.78 0 0 0 0 0.52 0 0 0 0.18 0" />
+        </filter>
+
+        <radialGradient id="a02-soft-bloom" cx="50%" cy="50%" r="50%">
+          <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.9" />
+          <stop offset="0.4" stop-color="#FFECB3" stop-opacity="0.6" />
+          <stop offset="0.7" stop-color="#FFCC80" stop-opacity="0.3" />
+          <stop offset="1" stop-color="#FFB347" stop-opacity="0" />
+        </radialGradient>
+
+        <linearGradient id="a02-ray-fade" x1="720" y1="505" x2="720" y2="0" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#FFF9E5" stop-opacity="0.12" />
+          <stop offset="0.46" stop-color="#FFF9E5" stop-opacity="0.05" />
+          <stop offset="1" stop-color="#FFF9E5" stop-opacity="0" />
+        </linearGradient>
+
+        <filter id="a02-atmospheric-blur" x="-60%" y="-60%" width="220%" height="220%">
+          <feGaussianBlur stdDeviation="35" />
+        </filter>
+
+        <filter id="a02-core-blur" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="22" />
+        </filter>
+
+        <filter id="cloud-soft-blur" x="-20%" y="-40%" width="140%" height="180%">
+          <feGaussianBlur stdDeviation="7" />
+        </filter>
+
+        <filter id="cloud-faint-blur" x="-30%" y="-60%" width="160%" height="220%">
+          <feGaussianBlur stdDeviation="12" />
+        </filter>
+
+        <linearGradient id="path-golden-depth" x1="0%" y1="100%" x2="0%" y2="0%">
+          <stop offset="0" stop-color="#F2A768" />
+          <stop offset="0.48" stop-color="#F5B977" />
+          <stop offset="1" stop-color="#FFD9A1" />
+        </linearGradient>
+
+        <filter id="path-soft-edge" x="-4%" y="-4%" width="108%" height="108%">
+          <feGaussianBlur stdDeviation="1.5" />
+        </filter>
+
+        <filter id="figure-contact-blur" x="-30%" y="-80%" width="160%" height="260%">
+          <feGaussianBlur stdDeviation="6" />
+        </filter>
+      </defs>
+
+      <g id="layer-01-sky-base" class="sky-base">
+        <rect width="1440" height="900" fill="url(#a01-sky-wash)" />
+        <rect width="1440" height="900" fill="url(#a01-clean-copy-zone)" />
+        <ellipse cx="720" cy="500" rx="720" ry="330" fill="url(#a01-horizon-mist)" />
+        <rect width="1440" height="900" fill="url(#a01-corner-warmth-left)" />
+        <rect width="1440" height="900" fill="url(#a01-corner-warmth-right)" />
+        <rect width="1440" height="900" filter="url(#a01-paper-grain)" opacity="0.04" />
+      </g>
+
+      <g id="layer-02-sun-horizon-glow" class="horizon-glow">
+        <g id="a02-god-rays" opacity="0.05">
+          <path d="M700 506 L60 0 L190 0 L724 506 Z" fill="url(#a02-ray-fade)" />
+          <path d="M710 504 L350 0 L430 0 L728 504 Z" fill="url(#a02-ray-fade)" />
+          <path d="M720 500 L670 0 L760 0 L736 500 Z" fill="url(#a02-ray-fade)" />
+          <path d="M730 504 L1010 0 L1105 0 L746 504 Z" fill="url(#a02-ray-fade)" />
+          <path d="M740 506 L1255 0 L1380 0 L760 506 Z" fill="url(#a02-ray-fade)" />
         </g>
+        <ellipse cx="720" cy="505" rx="335" ry="170" fill="url(#a02-soft-bloom)" filter="url(#a02-atmospheric-blur)" />
+        <ellipse cx="720" cy="498" rx="190" ry="92" fill="url(#a02-soft-bloom)" opacity="0.72" filter="url(#a02-core-blur)" />
+      </g>
 
-        <g class="sparkles" aria-hidden="true">
-          <circle cx="235" cy="310" r="5" fill="#FA8D1C" opacity="0.45" />
-          <circle cx="382" cy="250" r="3" fill="#023257" opacity="0.28" />
-          <circle cx="1040" cy="295" r="4" fill="#FA8D1C" opacity="0.45" />
-          <circle cx="1175" cy="375" r="3" fill="#023257" opacity="0.24" />
-          <path d="M925 235l8 18 19 8-19 8-8 18-8-18-19-8 19-8 8-18Z" fill="#F6B65C" opacity="0.5" />
+      <g id="layer-03-clouds">
+        <g class="cloud-cluster-a" filter="url(#cloud-soft-blur)" opacity="0.62">
+          <path d="M118 178 C152 148 206 146 242 166 C282 138 352 140 392 170 C438 162 488 178 510 208 C460 226 372 226 310 218 C246 232 170 222 118 206 C96 198 96 190 118 178Z" fill="#FFF9F0" />
+          <path d="M174 206 C226 190 286 194 330 206 C378 198 432 204 474 222 C414 236 314 238 236 228 C196 224 154 216 174 206Z" fill="#FFFFFF" opacity="0.4" />
         </g>
-
-        <path d="M0 505c144-58 262-56 414-12 122 35 209 29 320-18 176-74 375-46 706 33v392H0V505Z" fill="url(#hillFar)" opacity="0.74" />
-        <path d="M0 590c172-74 331-82 498-32 130 39 257 36 396-14 171-62 339-50 546 42v314H0V590Z" fill="url(#hillNear)" />
-        <path d="M0 675c150-52 294-52 432-9 148 46 305 42 472-8 187-57 358-35 536 52v190H0V675Z" fill="#E99F4C" opacity="0.55" />
-
-        <path class="main-path" d="M672 444 C710 506 728 579 687 646 C647 711 548 755 465 900 L975 900 C873 756 784 715 756 649 C728 582 758 506 768 444 C736 432 704 432 672 444Z" fill="url(#pathFill)" />
-        <path class="path-center" d="M706 458 C724 526 721 586 704 637 C688 690 632 751 575 900 L858 900 C810 750 759 694 742 638 C725 580 727 523 734 458 C726 454 715 454 706 458Z" fill="url(#pathLight)" opacity="0.48" />
-        <path d="M672 444 C710 506 728 579 687 646 C647 711 548 755 465 900" fill="none" stroke="#B85F10" stroke-opacity="0.26" stroke-width="6" />
-        <path d="M768 444 C736 512 730 581 756 649 C784 715 873 756 975 900" fill="none" stroke="#FFF0C9" stroke-opacity="0.36" stroke-width="5" />
-
-        <g class="learning-piece piece-a" filter="url(#floatShadow)">
-          <circle cx="370" cy="575" r="56" fill="#FEF5E3" opacity="0.96" />
-          <text x="370" y="596" text-anchor="middle" font-family="Outfit, sans-serif" font-size="70" font-weight="800" fill="#023257">A</text>
+        <g class="cloud-cluster-b" filter="url(#cloud-soft-blur)" opacity="0.5">
+          <path d="M1030 238 C1060 216 1106 214 1138 230 C1172 208 1226 212 1258 236 C1294 234 1330 248 1348 272 C1304 286 1234 286 1180 278 C1126 288 1064 282 1026 270 C1008 264 1010 250 1030 238Z" fill="#FFF9F0" />
+          <path d="M1084 266 C1120 252 1168 254 1206 266 C1242 260 1286 264 1314 280 C1262 292 1182 294 1126 286 C1090 282 1068 276 1084 266Z" fill="#FFFFFF" opacity="0.4" />
         </g>
-
-        <g class="learning-piece piece-book" filter="url(#floatShadow)">
-          <path d="M1012 552c45-22 88-18 126 10v82c-41-22-82-25-126-3v-89Z" fill="#023257" opacity="0.94" />
-          <path d="M1012 552c-45-22-88-18-126 10v82c41-22 82-25 126-3v-89Z" fill="#FA8D1C" opacity="0.94" />
-          <path d="M1012 552v91" stroke="#F2D0A2" stroke-width="5" stroke-linecap="round" />
+        <g class="cloud-cluster-faint" filter="url(#cloud-faint-blur)" opacity="0.2">
+          <path d="M570 284 C608 262 672 260 716 276 C766 256 842 264 886 290 C832 306 728 310 654 302 C604 298 548 296 570 284Z" fill="#FFF9F0" />
+          <path d="M626 300 C678 290 744 292 796 300 C754 312 682 314 628 308 C604 306 604 304 626 300Z" fill="#FFFFFF" opacity="0.4" />
         </g>
+      </g>
 
-        <g class="learning-piece piece-shapes" filter="url(#floatShadow)">
-          <rect x="194" y="695" width="72" height="72" rx="18" fill="#FA8D1C" />
-          <circle cx="1168" cy="707" r="42" fill="#294B65" opacity="0.92" />
-          <path d="M1228 794l45-82 45 82H1228Z" fill="#023257" opacity="0.94" />
-        </g>
+      <g id="layer-06-front-ground">
+        <path d="M0 754 C154 724 294 722 430 750 C552 776 642 750 720 732 C818 710 930 740 1068 766 C1218 794 1336 754 1440 724 C1440 724 1440 900 1440 900 C1440 900 0 900 0 900 C0 900 0 754 0 754" fill="#EFA363" />
+      </g>
 
-        <g class="figures-svg" filter="url(#figureShadow)">
-          <ellipse cx="710" cy="842" rx="104" ry="28" fill="#6F3A12" opacity="0.18" />
-          <g class="adult-figure">
-            <circle cx="674" cy="684" r="26" fill="#023257" />
-            <path d="M652 716 C646 759 648 802 660 840 L704 840 C713 800 712 756 700 716 C687 707 667 707 652 716Z" fill="#023257" />
-            <path d="M699 743 C725 755 742 771 756 794" fill="none" stroke="#023257" stroke-width="14" stroke-linecap="round" />
-            <path d="M659 838 C648 861 639 880 628 900" fill="none" stroke="#023257" stroke-width="15" stroke-linecap="round" />
-            <path d="M696 838 C710 860 721 881 733 900" fill="none" stroke="#023257" stroke-width="15" stroke-linecap="round" />
-          </g>
-          <g class="child-figure">
-            <circle cx="764" cy="735" r="18" fill="#023257" />
-            <path d="M748 759 C744 789 747 818 755 845 L782 845 C790 816 789 789 779 759 C770 752 757 752 748 759Z" fill="#023257" />
-            <path d="M750 780 C732 789 717 797 701 811" fill="none" stroke="#023257" stroke-width="10" stroke-linecap="round" />
-            <path d="M757 844 C751 865 746 883 740 900" fill="none" stroke="#023257" stroke-width="11" stroke-linecap="round" />
-            <path d="M779 844 C789 865 795 883 801 900" fill="none" stroke="#023257" stroke-width="11" stroke-linecap="round" />
-          </g>
-          <path d="M754 792 C738 797 724 803 704 813" fill="none" stroke="#023257" stroke-width="9" stroke-linecap="round" opacity="0.98" />
+      <g id="layer-07-path-base" filter="url(#path-soft-edge)">
+        <path d="M720 510 C680 574 606 638 584 716 C558 806 492 864 420 900 C420 900 1020 900 1020 900 C930 858 858 802 826 720 C794 638 752 574 720 510" fill="url(#path-golden-depth)" />
+      </g>
+
+      <g id="layer-08-path-polish">
+        <path d="M720 524 C704 586 666 648 660 724 C654 802 624 856 584 900" fill="none" stroke="#FFF9F0" stroke-width="9" stroke-linecap="round" opacity="0.22" filter="url(#path-soft-edge)" />
+        <path d="M720 510 C680 574 606 638 584 716 C558 806 492 864 420 900" fill="none" stroke="#C9783F" stroke-width="14" stroke-linecap="round" opacity="0.24" filter="url(#path-soft-edge)" />
+        <path d="M720 510 C752 574 794 638 826 720 C858 802 930 858 1020 900" fill="none" stroke="#FFE3A8" stroke-width="9" stroke-linecap="round" opacity="0.18" filter="url(#path-soft-edge)" />
+      </g>
+
+      <g id="layer-09-parent-child">
+        <path d="M624 762 C662 748 800 748 836 762 C802 776 660 776 624 762" fill="#24384F" opacity="0.15" filter="url(#figure-contact-blur)" />
+        <g transform="rotate(3 690 690)">
+          <path d="M681 558 C666 557 653 569 654 586 C655 599 664 609 678 611 C692 612 704 602 706 587 C708 573 697 560 681 558 M669 614 C649 622 640 649 641 682 C642 707 648 724 653 742 C656 752 663 756 669 751 C666 770 662 790 659 816 C658 828 667 834 676 825 C681 803 684 780 687 756 C692 781 697 804 703 825 C713 834 723 828 720 814 C716 790 712 769 709 750 C717 755 725 749 724 738 C721 710 717 681 713 654 C710 631 693 614 669 614 M708 655 C724 669 736 686 749 705 C755 714 767 710 763 699 C750 675 734 654 716 640 C707 633 700 647 708 655 M650 650 C639 670 635 696 636 724 C636 736 647 738 651 727 C658 704 662 681 665 658 C667 648 655 641 650 650" fill="#1A2B4C" fill-rule="evenodd" />
         </g>
-      </svg>
-    </section>
+        <path d="M777 658 C768 657 760 664 759 674 C758 684 765 692 775 693 C785 694 793 687 794 677 C795 667 787 659 777 658 M767 698 C755 704 751 720 752 738 C753 750 756 760 759 770 C762 777 767 778 770 773 C768 786 766 799 765 815 C765 824 772 827 777 820 C780 806 782 793 784 779 C787 793 790 807 794 820 C800 827 807 824 805 815 C803 799 801 786 799 773 C803 776 809 773 809 766 C807 749 805 731 802 716 C799 704 784 695 767 698 M767 715 C760 720 755 725 750 731 C744 738 751 745 758 739 C764 734 770 729 776 724 C783 718 774 710 767 715 M800 718 C809 724 816 732 822 742 C828 751 838 745 832 736 C823 723 813 713 803 710 C796 708 794 714 800 718" fill="#1A2B4C" fill-rule="evenodd" />
+        <path d="M748 705 C754 701 762 700 768 706 C773 712 768 719 760 718 C754 717 750 712 748 705" fill="#1A2B4C" />
+        <path d="M700 567 C708 577 708 596 697 606 M708 630 C719 656 721 704 722 737 M711 752 C715 774 719 796 720 814 M787 663 C795 671 795 686 786 692 M801 707 C808 727 809 748 809 766 M799 774 C802 789 804 803 805 815" fill="none" stroke="#FFF9F0" stroke-width="1.2" stroke-linecap="round" opacity="0.3" />
+      </g>
+    </svg>
   </main>
 </body>
 </html>
