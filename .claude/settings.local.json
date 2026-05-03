@@ -11,7 +11,9 @@
       "Bash(git config *)",
       "Bash(git remote *)",
       "Bash(git add *)",
-      "Bash(git commit -m 'Initial commit: ReadyKiddo app setup with landing page and family setup onboarding flow *)"
+      "Bash(git commit -m 'Initial commit: ReadyKiddo app setup with landing page and family setup onboarding flow *)",
+      "Bash(git push *)",
+      "Bash(git commit -m 'Clean up: Remove unnecessary files and add README *)"
     ]
   }
 }
