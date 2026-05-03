@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReadyKiddo – Your Child's Learning Adventure</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+    }
+    .font-quicksand {
+      font-family: 'Quicksand', sans-serif;
+    }
+
+    /* 3D Extruded text effect */
+    .text-3d {
+      color: #0D3B66;
+      -webkit-text-stroke: 2px #FF9933;
+      text-shadow:
+        1px 1px 0px #FF9933,
+        2px 2px 0px #FF9933,
+        3px 3px 0px #FF9933,
+        4px 4px 0px #FF9933,
+        5px 5px 0px #e07800,
+        6px 6px 0px #e07800,
+        7px 7px 0px rgba(0,0,0,0.15),
+        8px 8px 12px rgba(0,0,0,0.2);
+    }
+
+    /* Logo card */
+    .logo-card {
+      background: linear-gradient(145deg, #ffffff 0%, #fdf8f2 100%);
+      box-shadow:
+        0 4px 6px rgba(0,0,0,0.04),
+        0 12px 32px rgba(13,59,102,0.10),
+        0 24px 48px rgba(255,153,51,0.12);
+      border: 1.5px solid rgba(255,255,255,0.9);
+    }
+
+    /* Gradient circle pulse */
+    @keyframes pulse-gradient {
+      0%, 100% { transform: translate(-50%, -50%) scale(1);   opacity: 1; }
+      50%       { transform: translate(-50%, -50%) scale(1.08); opacity: 0.8; }
+    }
+    .gradient-circle {
+      animation: pulse-gradient 5s ease-in-out infinite;
+    }
+
+    /* Cloud floats */
+    @keyframes float-cloud-1 { 0%,100%{transform:translate(0,0)}  50%{transform:translate(100px,-50px)} }
+    @keyframes float-cloud-2 { 0%,100%{transform:translate(0,0)}  50%{transform:translate(-80px,60px)}  }
+    @keyframes float-cloud-3 { 0%,100%{transform:translate(0,0)}  50%{transform:translate(120px,-40px)} }
+    @keyframes float-cloud-4 { 0%,100%{transform:translate(0,0)}  50%{transform:translate(-60px,80px)}  }
+    @keyframes float-cloud-5 { 0%,100%{transform:translate(0,0)}  50%{transform:translate(90px,-70px)}  }
+    @keyframes float-cloud-6 { 0%,100%{transform:translate(0,0)}  50%{transform:translate(70px,-55px)}  }
+
+    .cloud-1 { animation: float-cloud-1 20s ease-in-out infinite; }
+    .cloud-2 { animation: float-cloud-2 25s ease-in-out infinite 2s; }
+    .cloud-3 { animation: float-cloud-3 22s ease-in-out infinite 5s; }
+    .cloud-4 { animation: float-cloud-4 18s ease-in-out infinite 3s; }
+    .cloud-5 { animation: float-cloud-5 24s ease-in-out infinite 7s; }
+    .cloud-6 { animation: float-cloud-6 21s ease-in-out infinite 4s; }
+
+    /* Entrance animations */
+    @keyframes fadeInUp   { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes fadeInScale{ from{opacity:0;transform:scale(0.88)}       to{opacity:1;transform:scale(1)}     }
+
+    .animate-logo        { animation: fadeInScale 0.55s cubic-bezier(0.34,1.56,0.64,1); }
+    .animate-tag         { animation: fadeInUp 0.45s ease-out 0.15s both; }
+    .animate-title       { animation: fadeInUp 0.5s  ease-out 0.25s both; }
+    .animate-subtitle    { animation: fadeInUp 0.5s  ease-out 0.35s both; }
+    .animate-features    { animation: fadeInUp 0.5s  ease-out 0.45s both; }
+    .animate-button      { animation: fadeInUp 0.5s  ease-out 0.55s both; }
+    .animate-footer      { animation: fadeInUp 0.5s  ease-out 0.65s both; }
+
+    /* Button */
+    .btn-cta {
+      background: linear-gradient(135deg, #FF9933 0%, #FF7F00 100%);
+      box-shadow: 0 8px 24px rgba(255,153,51,0.40), 0 2px 6px rgba(0,0,0,0.08);
+      transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1),
+                  box-shadow 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-cta::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .btn-cta:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 16px 40px rgba(255,153,51,0.50), 0 4px 10px rgba(0,0,0,0.10);
+    }
+    .btn-cta:active {
+      transform: translateY(0) scale(0.98);
+    }
+
+    /* Feature pills */
+    .feature-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 16px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      background: rgba(255,255,255,0.75);
+      border: 1.5px solid rgba(13,59,102,0.10);
+      color: #0D3B66;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    /* Divider dots */
+    .dot-divider {
+      display: inline-block;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #FF9933;
+      margin: 0 10px;
+      vertical-align: middle;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="min-h-screen bg-[#F5F1E8] flex items-center justify-center px-4 py-12 relative overflow-hidden">
+
+    <!-- Floating clouds -->
+    <div class="absolute cloud-1" style="top:40px;left:40px;opacity:0.5;">
+      <svg width="160" height="80" viewBox="0 0 160 80" fill="none">
+        <path d="M30 65 Q10 65 10 48 Q10 35 22 32 Q20 20 32 18 Q38 8 52 12 Q58 4 72 6 Q86 2 92 14 Q104 10 110 22 Q122 20 126 32 Q138 30 140 42 Q148 44 148 54 Q148 65 134 65 Z" fill="#FF9933" opacity="0.5"/>
+      </svg>
+    </div>
+    <div class="absolute cloud-2" style="top:25%;right:40px;opacity:0.4;">
+      <svg width="140" height="70" viewBox="0 0 140 70" fill="none">
+        <path d="M25 58 Q8 58 8 44 Q8 32 18 29 Q16 18 28 16 Q34 7 46 10 Q52 3 64 5 Q76 1 82 12 Q92 8 98 19 Q108 17 112 28 Q122 26 124 37 Q130 39 130 48 Q130 58 118 58 Z" fill="#FF9933" opacity="0.5"/>
+      </svg>
+    </div>
+    <div class="absolute cloud-3" style="bottom:25%;left:25%;opacity:0.45;">
+      <svg width="130" height="65" viewBox="0 0 130 65" fill="none">
+        <path d="M22 54 Q6 54 6 40 Q6 29 16 26 Q14 16 25 14 Q30 6 42 9 Q47 2 58 4 Q69 0 74 11 Q83 8 89 18 Q98 16 102 26 Q111 24 113 34 Q119 36 119 44 Q119 54 108 54 Z" fill="#FF9933" opacity="0.5"/>
+      </svg>
+    </div>
+    <div class="absolute cloud-4" style="top:50%;right:25%;opacity:0.35;">
+      <svg width="120" height="60" viewBox="0 0 120 60" fill="none">
+        <path d="M20 50 Q5 50 5 37 Q5 27 14 24 Q12 15 22 13 Q27 5 38 8 Q43 2 53 4 Q63 0 68 10 Q76 7 82 16 Q90 15 94 24 Q102 22 104 31 Q109 33 109 41 Q109 50 99 50 Z" fill="#FF9933" opacity="0.5"/>
+      </svg>
+    </div>
+    <div class="absolute cloud-5" style="bottom:40px;right:64px;opacity:0.4;">
+      <svg width="150" height="75" viewBox="0 0 150 75" fill="none">
+        <path d="M28 62 Q9 62 9 47 Q9 34 20 31 Q18 20 30 17 Q36 8 50 11 Q56 3 69 5 Q82 1 88 13 Q99 9 105 21 Q116 19 120 31 Q131 29 133 40 Q140 42 140 52 Q140 62 127 62 Z" fill="#FF9933" opacity="0.5"/>
+      </svg>
+    </div>
+    <div class="absolute cloud-6" style="top:66%;left:40px;opacity:0.38;">
+      <svg width="125" height="62" viewBox="0 0 125 62" fill="none">
+        <path d="M21 52 Q6 52 6 39 Q6 28 15 25 Q13 16 23 14 Q28 6 39 9 Q44 2 54 4 Q64 0 69 10 Q77 8 83 17 Q91 15 95 25 Q103 23 105 32 Q110 34 110 42 Q110 52 100 52 Z" fill="#FF9933" opacity="0.5"/>
+      </svg>
+    </div>
+
+    <!-- Main content -->
+    <div class="text-center max-w-2xl relative z-10">
+
+      <!-- Logo -->
+      <div class="relative mb-10 inline-block">
+        <div class="absolute gradient-circle" style="
+          background: radial-gradient(circle, rgba(255,153,51,0.18) 0%, rgba(13,59,102,0.08) 55%, transparent 72%);
+          width: 420px; height: 420px;
+          left: 50%; top: 50%;
+          transform: translate(-50%, -50%);
+          z-index: -1;
+        "></div>
+        <div class="logo-card rounded-3xl p-8 inline-block animate-logo">
+          <img
+            src="ReadyKiddoLogo.jpeg"
+            alt="ReadyKiddo"
+            class="w-36 h-36 object-contain"
+          />
+        </div>
+      </div>
+
+      <!-- Tag line -->
+      <div class="animate-tag mb-5">
+        <span class="inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm font-semibold"
+              style="background:rgba(13,59,102,0.08); color:#0D3B66; border:1.5px solid rgba(13,59,102,0.12);">
+          🌟 Personalized for every child · Ages 3–11
+        </span>
+      </div>
+
+      <!-- Subtitle -->
+      <p class="text-xl md:text-2xl font-semibold text-[#0D3B66] mb-3 animate-subtitle">
+        Pick a character. Choose your world. Start the adventure.
+      </p>
+
+      <!-- Supporting copy -->
+      <p class="text-base md:text-lg text-gray-600 mb-8 leading-relaxed animate-subtitle" style="animation-delay:0.38s;">
+        ReadyKiddo builds a learning experience around <em>your</em> child — their pace,
+        their interests, their way of growing.
+      </p>
+
+      <!-- Feature pills -->
+      <div class="flex flex-wrap justify-center gap-3 mb-10 animate-features">
+        <span class="feature-pill">🎮 Games &amp; Challenges</span>
+        <span class="feature-pill">📚 Reading &amp; Math</span>
+        <span class="feature-pill">🎨 Creative Play</span>
+        <span class="feature-pill">⭐ Progress Rewards</span>
+      </div>
+
+      <!-- CTA -->
+      <div class="animate-button mb-5">
+        <button
+          onclick="window.location.href='/onboarding/setup'"
+          class="btn-cta text-white font-bold py-4 px-14 rounded-full text-lg cursor-pointer inline-flex items-center gap-3"
+          style="font-family:'Quicksand',sans-serif; font-size:1.1rem; letter-spacing:0.01em;"
+        >
+          Build Your World
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style="flex-shrink:0;">
+            <path d="M4 10h12M11 5l5 5-5 5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Trust / parent line -->
+      <p class="animate-footer text-sm text-gray-500 flex items-center justify-center gap-2 flex-wrap">
+        <svg width="15" height="15" viewBox="0 0 20 20" fill="none" style="flex-shrink:0;">
+          <path d="M10 2l2.5 5 5.5.8-4 3.9.9 5.5L10 14.8l-4.9 2.4.9-5.5L2 7.8l5.5-.8z" fill="#FF9933"/>
+        </svg>
+        <span>Parents get real-time insight into every milestone their child reaches.</span>
+      </p>
+
+    </div>
+  </div>
+</body>
+</html>

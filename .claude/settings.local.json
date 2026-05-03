@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/Devin/Downloads/**)",
+      "Bash(tar -tzf personalized-learning-world.tar.gz)",
+      "Bash(npm install *)",
+      "Bash(powershell -Command 'Add-Type -AssemblyName PresentationCore,PresentationFramework; $text = '\\\\'''\\\\''; $reader = [System.IO.File]::OpenRead\\('\\\\''C:\\\\Users\\\\Devin\\\\OneDrive\\\\ReadyKiddoNew\\\\Personalized Learning World Prd.pdf'\\\\''\\); $reader.Close\\(\\)')",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\({k:v for k,v in d.get\\('dependencies',{}\\).items\\(\\)}, indent=2\\)\\)\")",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(git init *)",
+      "Bash(git config *)",
+      "Bash(git remote *)",
+      "Bash(git add *)",
+      "Bash(git commit -m 'Initial commit: ReadyKiddo app setup with landing page and family setup onboarding flow *)"
+    ]
+  }
+}

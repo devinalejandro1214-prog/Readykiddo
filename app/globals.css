@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+:root {
+  --background: #F5F1E8;
+  --foreground: #0d3b66;
+}
+
+html { min-height: 100%; }
+
+body {
+  min-height: 100%;
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Poppins', system-ui, sans-serif;
+}
+
+.font-quicksand {
+  font-family: 'Quicksand', system-ui, sans-serif;
+}
