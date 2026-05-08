@@ -330,3 +330,45 @@ GitHub/Netlify:
 Notes / Next Steps:
 - Ask Claude Code to read and append to this file after each prompt.
 - Suggested instruction for Claude: "Read `AGENT_COLLAB_LOG.md` before working, then append your actions to it when finished."
+
+---
+
+## 2026-05-08 - Codex
+
+Prompt:
+> Implement the ReadyKiddo World, Costume, and Vibe Asset Plan.
+
+Actions Taken:
+- Created canonical character costume assets for 6 kids x 6 supported styles.
+- Created `assets/data/characters.json` to map each kid to `plain`, `hero`, `explorer`, `wizard`, `artist`, and `scientist` PNGs.
+- Generated 48 personalized world backgrounds: 6 kids x 8 worlds.
+- Generated 6 transparent reusable vibe overlay assets: chill, brave, funny, magical, fast, cozy.
+- Updated onboarding style options to remove `Athlete` and `Gamer`, leaving `Plain`, `Hero`, `Explorer`, `Wizard`, `Artist`, and `Scientist`.
+- Updated onboarding setup character images to use canonical `assets/images/characters/{kid}/plain.png` paths.
+- Updated `world-reveal.html` and `assets/js/world-reveal.js` to load the manifest, selected costume, selected kid/world background, and selected vibe overlay.
+- Removed missing-audio autoplay behavior from world reveal while music is deferred.
+- Added `.vibe-overlay` styling to layer vibe effects over the personalized world background.
+- Started a local static server at `http://127.0.0.1:8765` for browser testing.
+
+Files/Folders Changed:
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\data\characters.json`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\images\characters\`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\images\worlds\`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\images\vibes\`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\js\onboarding.js`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\js\world-reveal.js`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\css\world-reveal.css`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\world-reveal.html`
+
+GitHub/Netlify:
+- GitHub commit: `5241efbb291b257171d10099d05d24e9624d6499`
+- Commit title: `Add personalized world and vibe assets`
+- Netlify deploy: `69fdd86aa8f18a0008067de3`
+- Live URL verified: `https://readykiddo.com/world-reveal.html`
+
+Notes / Next Steps:
+- Local manifest validation passed: 6 characters, 6 styles each, 8 worlds each, 6 vibe overlays, and no missing paths.
+- Local browser validation passed with no console errors for Trish + Scientist + Music Studio + Magical.
+- Live browser validation passed with no console errors for the same sample profile.
+- Live asset checks passed for the manifest, sample costume PNG, sample world PNG, sample vibe overlay PNG, and `world-reveal.html`.
+- `game.html` is still the next site-code step for Claude Code.
