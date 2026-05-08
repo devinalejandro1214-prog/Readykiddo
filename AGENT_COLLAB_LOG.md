@@ -2,6 +2,27 @@
 
 This file is the shared handoff space for Codex and Claude Code.
 
+## Agreed Roles
+
+Codex role:
+- Act as Devin's development support and project organizer.
+- Organize folders, assets, characters, images, and project files.
+- Create, edit, clean up, and prepare image assets.
+- Manage GitHub commits, pushes, repo structure, and Netlify deploy verification.
+- Handle Canva/image/export style tasks when useful.
+- Review code-adjacent changes for integration issues, paths, deployment, and file structure.
+
+Claude Code role:
+- Write and modify the website code.
+- Build the site UI, HTML, CSS, JavaScript, onboarding flow, pages, and interactive behavior.
+- Use Codex's organized assets and file paths when implementing site features.
+- Log code changes and any files touched after each prompt.
+
+Collaboration rule:
+- Codex should avoid taking over full site-code implementation when the user is specifically asking Claude to code the site, unless Devin directly asks Codex to fix or sync something.
+- Claude should avoid reorganizing assets, GitHub/Netlify, folder structure, or image-processing work unless Devin directly asks Claude to do it.
+- Both agents should read this file before working and append a new entry after finishing a prompt.
+
 How to use it:
 - Add a new entry after each user prompt you act on.
 - Keep entries newest-at-bottom so the timeline stays readable.
@@ -27,6 +48,12 @@ GitHub/Netlify:
 
 Notes / Next Steps:
 - ...
+```
+
+Suggested prompt for Claude Code:
+
+```text
+Before working, read AGENT_COLLAB_LOG.md in the ReadyKiddo2.0 folder. Your role is to write and modify the website code. Codex's role is project organization, GitHub/Netlify, folders, images, and assets. After you finish each prompt, append your actions, files touched, and any next steps to AGENT_COLLAB_LOG.md.
 ```
 
 ---
@@ -228,6 +255,58 @@ Notes / Next Steps:
     - `space-bg.png`, `jungle-bg.png`, `ocean-bg.png`, `castle-bg.png`, `city-bg.png`, `candy-land-bg.png`, `sports-arena-bg.png`, `music-studio-bg.png`
   - Music files in `assets/audio/` directory:
     - `music-calm.mp3`, `music-upbeat.mp3`, `music-adventure.mp3`, `music-silly.mp3`
+- Next step: Create `game.html` for the first learning game (referenced by world-reveal.html button).
+
+---
+
+## 2026-05-08 - Claude Code
+
+Prompt:
+> Ensure the HTML page fits right if a user is on a phone. Make sure we don't mess with our current version layout. If a user is accessing the site from their phone the size is off.
+
+Actions Taken:
+- Added comprehensive mobile responsiveness to all CSS files without changing desktop layout
+- Enhanced `assets/css/style.css`:
+  - Added responsive button sizing for 768px and 480px breakpoints
+  - Adjusted padding, font sizes, and margins for mobile views
+- Enhanced `assets/css/onboarding.css`:
+  - Added detailed 768px tablet breakpoint with adjusted spacing, grids, and font sizes
+  - Added detailed 480px mobile breakpoint with single-column forms, 2-column character grid, optimized typography
+  - Character grid responsiveness: 6 columns (desktop) → 3 columns (tablet) → 2 columns (mobile)
+  - Button layout optimized for smaller screens
+  - All spacing, padding, and margins adjusted progressively for smaller viewports
+- Enhanced `assets/css/world-reveal.css`:
+  - Added 768px tablet breakpoint
+  - Added 480px mobile breakpoint with compact layouts
+  - Added 360px extra-small phone breakpoint
+  - Character image sizes optimized (220px → 180px → 130px → 110px)
+  - Details grid responsive (2 columns → 1 column)
+  - Font sizes progressively reduced
+- Verified all HTML files have proper viewport meta tag: `<meta name="viewport" content="width=device-width, initial-scale=1.0">`
+
+Files/Folders Changed:
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\css\style.css`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\css\onboarding.css`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\css\world-reveal.css`
+
+GitHub/Netlify:
+- GitHub commit: `fb093fe` (Add comprehensive mobile responsiveness across all pages)
+- Changes pushed to origin/main
+- Netlify will auto-deploy the mobile responsive improvements
+
+Notes / Next Steps:
+- **Mobile breakpoints implemented**:
+  - **768px**: Tablet optimization (adjusted layouts, reduced font sizes)
+  - **480px**: Mobile phone optimization (single-column layouts, 2-column character grids, optimized spacing)
+  - **360px**: Extra-small phone optimization (world-reveal page only, very compact layout)
+- **Desktop layout preserved**: All changes use CSS media queries, no HTML modifications. Desktop experience unchanged.
+- **Responsive features**:
+  - Character selection grid scales from 6→3→2 columns
+  - Form inputs and buttons scale appropriately for touch interaction
+  - Text sizes adjusted for readability at all screen sizes
+  - Padding and margins reduced on mobile for compact layout
+  - Character images scale down to fit small screens (220px → 110px)
+  - World details layout converts from 2-column grid to single-column on mobile
 - Next step: Create `game.html` for the first learning game (referenced by world-reveal.html button).
 
 ---
