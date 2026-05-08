@@ -289,9 +289,44 @@ html, body {
 
 /* ── Responsive ──────────────────────────────── */
 @media (max-width: 768px) {
+    .onboarding-container {
+        width: 94%;
+        gap: 12px;
+    }
+
+    .question-card {
+        padding: 24px 20px;
+        max-height: 85vh;
+    }
+
+    .progress-bar {
+        height: 5px;
+    }
+
     .setup-form {
         grid-template-columns: 1fr;
         gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    .setup-column-title {
+        font-size: 16px;
+        margin-bottom: 6px;
+    }
+
+    .input-field {
+        padding: 12px 14px;
+        font-size: 15px;
+    }
+
+    .setup-character-section {
+        margin-top: 16px;
+        padding-top: 16px;
+    }
+
+    .setup-char-label {
+        font-size: 15px;
+        margin-bottom: 12px;
     }
 
     .setup-character-grid {
@@ -299,22 +334,109 @@ html, body {
         gap: 10px;
     }
 
+    .setup-character-card {
+        border-radius: 10px;
+    }
+
     .setup-character-image {
         height: 120px;
     }
 
+    .setup-character-name {
+        font-size: 12px;
+        padding: 5px 3px;
+    }
+
     .question-title {
         font-size: 20px;
+        margin-bottom: 6px;
+    }
+
+    .question-subtitle {
+        font-size: 13px;
+        margin-bottom: 18px;
+    }
+
+    .button-group {
+        gap: 10px;
+    }
+
+    .button-group-two-col {
+        gap: 10px;
+    }
+
+    .option-button {
+        padding: 12px 14px;
+        font-size: 15px;
+    }
+
+    .nav-buttons {
+        gap: 10px;
+        margin-top: 16px;
+    }
+
+    .nav-button {
+        padding: 12px 14px;
+        font-size: 14px;
+        border-radius: 8px;
     }
 }
 
 @media (max-width: 480px) {
     .onboarding-container {
         width: 96%;
+        gap: 10px;
     }
 
     .question-card {
-        padding: 20px 16px;
+        padding: 16px 12px;
+        max-height: 90vh;
+        border-radius: 16px;
+    }
+
+    .progress-bar {
+        height: 4px;
+    }
+
+    .progress-fill {
+        border-radius: 2px;
+    }
+
+    .setup-form {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .setup-column {
+        gap: 8px;
+    }
+
+    .setup-column-title {
+        font-size: 14px;
+        margin-bottom: 4px;
+    }
+
+    .input-label {
+        font-size: 12px;
+        margin-bottom: 4px;
+    }
+
+    .input-field {
+        padding: 10px 12px;
+        font-size: 14px;
+        border-radius: 8px;
+    }
+
+    .setup-character-section {
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 2px solid #e5e7eb;
+    }
+
+    .setup-char-label {
+        font-size: 13px;
+        margin-bottom: 10px;
     }
 
     .setup-character-grid {
@@ -322,11 +444,68 @@ html, body {
         gap: 8px;
     }
 
+    .setup-character-card {
+        border-radius: 8px;
+        border-width: 2px;
+    }
+
     .setup-character-image {
         height: 100px;
     }
 
+    .setup-character-name {
+        font-size: 11px;
+        padding: 4px 2px;
+    }
+
+    .question-title {
+        font-size: 18px;
+        margin-bottom: 4px;
+    }
+
+    .question-subtitle {
+        font-size: 12px;
+        margin-bottom: 14px;
+    }
+
+    .button-group {
+        gap: 8px;
+    }
+
     .button-group-two-col {
         grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .option-button {
+        padding: 10px 12px;
+        font-size: 13px;
+        border-radius: 8px;
+        border-width: 2px;
+    }
+
+    .option-button.selected::after {
+        font-size: 18px;
+    }
+
+    .nav-buttons {
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+    .nav-button {
+        padding: 10px 12px;
+        font-size: 13px;
+        border-radius: 8px;
+        flex: 1;
+    }
+
+    .nav-button.back {
+        flex: 1;
+    }
+
+    .nav-button.next {
+        flex: 1;
     }
 }
