@@ -40,32 +40,33 @@ html, body {
     position: relative;
     z-index: 10;
     width: 92%;
-    max-width: 920px;
+    max-width: 960px;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 16px;
 }
 
 .progress-bar {
     width: 100%;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: 2px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 3px;
     overflow: hidden;
 }
 
 .progress-fill {
     height: 100%;
     background: linear-gradient(90deg, #D97706 0%, #EA8B2D 100%);
-    width: 14%;
-    transition: width 0.3s ease;
+    width: 20%;
+    transition: width 0.4s ease;
+    border-radius: 3px;
 }
 
 .question-card {
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.96);
+    border-radius: 20px;
     padding: 32px 28px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12);
     animation: slideIn 0.4s ease-out;
     max-height: 90vh;
     overflow-y: auto;
@@ -73,16 +74,123 @@ html, body {
 }
 
 @keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ── Setup Form (step 1) ─────────────────────── */
+.setup-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 28px;
+}
+
+.setup-column {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.setup-column-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 4px;
+}
+
+.input-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.input-field {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: #D97706;
+    background: #fffbf0;
+}
+
+/* ── Character Selection (setup screen) ──────── */
+.setup-character-section {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 2px solid #e5e7eb;
+}
+
+.setup-char-label {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.setup-character-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+    width: 100%;
+}
+
+.setup-character-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    padding: 0;
+    background: transparent;
+    border: 3px solid transparent;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    overflow: hidden;
+}
+
+.setup-character-card:hover {
+    border-color: #D97706;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.setup-character-card.selected {
+    border-color: #D97706;
+    box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.25);
+}
+
+.setup-character-image {
+    width: 100%;
+    height: 160px;
+    object-fit: contain;
+    object-position: bottom;
+    display: block;
+    background: transparent;
+}
+
+.setup-character-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+    text-align: center;
+    padding: 6px 4px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.85);
+}
+
+/* ── Question card (steps 2+) ────────────────── */
 .question-title {
     font-size: 24px;
     font-weight: 700;
@@ -98,9 +206,16 @@ html, body {
     margin-bottom: 24px;
 }
 
+/* ── Option buttons ──────────────────────────── */
 .button-group {
     display: grid;
     grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+.button-group-two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 12px;
 }
 
@@ -134,41 +249,20 @@ html, body {
     font-weight: 700;
 }
 
-.input-field {
-    width: 100%;
-    padding: 14px 16px;
-    font-size: 16px;
-    border: 2px solid #e5e7eb;
-    border-radius: 10px;
-    font-family: inherit;
-    transition: all 0.2s ease;
-}
-
-.input-field:focus {
-    outline: none;
-    border-color: #D97706;
-    background: #fffbf0;
-}
-
-.button-group-two-col {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-}
-
+/* ── Nav buttons ─────────────────────────────── */
 .nav-buttons {
     display: flex;
     gap: 12px;
-    margin-top: 20px;
+    margin-top: 24px;
 }
 
 .nav-button {
     flex: 1;
-    padding: 12px 16px;
-    font-size: 14px;
+    padding: 14px 16px;
+    font-size: 15px;
     font-weight: 600;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
     transition: all 0.2s ease;
 }
@@ -190,286 +284,49 @@ html, body {
 
 .nav-button.next:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
+    box-shadow: 0 4px 12px rgba(217, 119, 6, 0.35);
 }
 
-.nav-button.next:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-/* Responsive Design */
+/* ── Responsive ──────────────────────────────── */
 @media (max-width: 768px) {
-    .question-card {
-        padding: 24px 20px;
+    .setup-form {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .setup-character-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+
+    .setup-character-image {
+        height: 120px;
     }
 
     .question-title {
         font-size: 20px;
     }
-
-    .question-subtitle {
-        font-size: 13px;
-    }
-}
-
-/* Setup Form Styles */
-.setup-form {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    margin-bottom: 24px;
-}
-
-.setup-column {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.setup-column-title {
-    font-size: 18px;
-    font-weight: 700;
-    color: #1f2937;
-    margin-bottom: 8px;
-}
-
-.input-label {
-    font-size: 14px;
-    font-weight: 600;
-    color: #374151;
-    display: block;
-    margin-bottom: 6px;
-}
-
-.age-buttons {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-}
-
-.age-button {
-    padding: 12px;
-    font-size: 16px;
-    font-weight: 600;
-    background: #f3f4f6;
-    border: 2px solid transparent;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    color: #1f2937;
-}
-
-.age-button:hover {
-    background: #e5e7eb;
-    border-color: #D97706;
-}
-
-.age-button.selected {
-    background: #FEF3C7;
-    border-color: #D97706;
-    color: #92400e;
-    font-weight: 700;
-}
-
-.character-placeholder {
-    background: #f9fafb;
-    border: 2px dashed #d1d5db;
-    border-radius: 12px;
-    padding: 40px 20px;
-    text-align: center;
-    margin: 24px 0;
-    min-height: 120px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.character-placeholder p {
-    color: #9ca3af;
-    font-size: 14px;
-    font-weight: 500;
-}
-
-/* Setup Screen Character Selection */
-.setup-character-section {
-    margin-top: 28px;
-    padding-top: 24px;
-    border-top: 2px solid #e5e7eb;
-}
-
-.setup-char-label {
-    font-size: 16px;
-    font-weight: 600;
-    color: #1f2937;
-    margin-bottom: 16px;
-    text-align: center;
-}
-
-.setup-character-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 12px;
-    width: 100%;
-}
-
-.setup-character-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0;
-    padding: 0;
-    background: transparent;
-    border: 3px solid transparent;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    overflow: hidden;
-}
-
-.setup-character-card:hover {
-    border-color: #D97706;
-    transform: translateY(-3px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-}
-
-.setup-character-card.selected {
-    border-color: #D97706;
-    box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.3);
-}
-
-.setup-character-image {
-    width: 100%;
-    height: 180px;
-    object-fit: contain;
-    object-position: bottom;
-    display: block;
-    background: transparent;
-    padding: 0;
-}
-
-.setup-character-name {
-    font-size: 13px;
-    font-weight: 700;
-    color: #1f2937;
-    margin: 0;
-    text-align: center;
-    padding: 8px 4px;
-    width: 100%;
-    background: rgba(255,255,255,0.85);
-}
-
-.character-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 16px;
-    margin: 24px 0;
-}
-
-.character-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    padding: 16px;
-    background: #f3f4f6;
-    border: 2px solid transparent;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.character-card:hover {
-    background: #e5e7eb;
-    border-color: #D97706;
-    transform: translateY(-2px);
-}
-
-.character-card.selected {
-    background: #FEF3C7;
-    border-color: #D97706;
-}
-
-.character-image {
-    width: 100%;
-    max-width: 100px;
-    height: auto;
-    border-radius: 8px;
-}
-
-.character-name {
-    font-size: 14px;
-    font-weight: 600;
-    color: #1f2937;
-    margin: 0;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .setup-form {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-
-    .character-grid {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 12px;
-    }
-
-    .setup-character-grid {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 12px;
-    }
-
-    .setup-character-image {
-        height: 110px;
-    }
 }
 
 @media (max-width: 480px) {
     .onboarding-container {
-        width: 95%;
+        width: 96%;
     }
 
     .question-card {
         padding: 20px 16px;
     }
 
-    .question-title {
-        font-size: 18px;
-    }
-
-    .button-group-two-col {
-        grid-template-columns: 1fr;
-    }
-
-    .setup-form {
-        grid-template-columns: 1fr;
-    }
-
-    .character-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-    }
-
-    .character-image {
-        max-width: 70px;
-    }
-
-    .character-name {
-        font-size: 12px;
-    }
-
     .setup-character-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
+        gap: 8px;
     }
 
     .setup-character-image {
         height: 100px;
     }
 
-    .setup-character-name {
-        font-size: 12px;
+    .button-group-two-col {
+        grid-template-columns: 1fr;
     }
 }

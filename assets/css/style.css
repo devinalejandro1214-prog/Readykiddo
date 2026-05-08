@@ -63,65 +63,6 @@ html, body {
 }
 
 @keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .content-overlay {
-        max-width: 90%;
-        padding: 32px 24px;
-    }
-
-    .title {
-        font-size: 28px;
-    }
-
-    .subtitle {
-        font-size: 20px;
-    }
-
-    .tagline {
-        font-size: 15px;
-    }
-
-    .cta-button {
-        padding: 14px 28px;
-        font-size: 16px;
-    }
-}
-
-@media (max-width: 480px) {
-    .landing-page {
-        padding: 20px;
-    }
-
-    .content-overlay {
-        max-width: 100%;
-        padding: 28px 20px;
-    }
-
-    .title {
-        font-size: 24px;
-    }
-
-    .subtitle {
-        font-size: 18px;
-    }
-
-    .tagline {
-        font-size: 14px;
-    }
-
-    .cta-button {
-        padding: 12px 24px;
-        font-size: 15px;
-    }
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
