@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReadyKiddo - Your World</title>
+    <link rel="stylesheet" href="assets/css/world-reveal.css">
+</head>
+<body>
+    <div class="world-reveal-page">
+        <div class="background-container">
+            <img id="backgroundImage" class="background-image" src="" alt="World background">
+        </div>
+
+        <div class="world-container">
+            <div class="world-header">
+                <h1 id="welcomeTitle"></h1>
+                <p id="welcomeSubtitle"></p>
+            </div>
+
+            <div class="character-display">
+                <img id="characterImage" src="" alt="Your character" class="character-image">
+            </div>
+
+            <div class="world-details">
+                <div class="detail-item">
+                    <span class="detail-label">World:</span>
+                    <span id="themeDisplay"></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Vibe:</span>
+                    <span id="vibeDisplay"></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Music:</span>
+                    <span id="musicDisplay"></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Style:</span>
+                    <span id="styleDisplay"></span>
+                </div>
+            </div>
+
+            <audio id="worldMusic" loop>
+                <source src="" type="audio/mpeg">
+            </audio>
+
+            <button id="startGameButton" class="start-game-button">Start Your First Game</button>
+        </div>
+    </div>
+
+    <script src="assets/js/world-reveal.js"></script>
+</body>
+</html>

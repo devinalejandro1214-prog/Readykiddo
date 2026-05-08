@@ -1,0 +1,332 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden;
+}
+
+.onboarding-page {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.background-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.background-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.onboarding-container {
+    position: relative;
+    z-index: 10;
+    width: 92%;
+    max-width: 960px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #D97706 0%, #EA8B2D 100%);
+    width: 20%;
+    transition: width 0.4s ease;
+    border-radius: 3px;
+}
+
+.question-card {
+    background: rgba(255, 255, 255, 0.96);
+    border-radius: 20px;
+    padding: 32px 28px;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12);
+    animation: slideIn 0.4s ease-out;
+    max-height: 90vh;
+    overflow-y: auto;
+    width: 100%;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Setup Form (step 1) ─────────────────────── */
+.setup-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 28px;
+}
+
+.setup-column {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.setup-column-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 4px;
+}
+
+.input-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.input-field {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: #D97706;
+    background: #fffbf0;
+}
+
+/* ── Character Selection (setup screen) ──────── */
+.setup-character-section {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 2px solid #e5e7eb;
+}
+
+.setup-char-label {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.setup-character-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+    width: 100%;
+}
+
+.setup-character-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    padding: 0;
+    background: transparent;
+    border: 3px solid transparent;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    overflow: hidden;
+}
+
+.setup-character-card:hover {
+    border-color: #D97706;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.setup-character-card.selected {
+    border-color: #D97706;
+    box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.25);
+}
+
+.setup-character-image {
+    width: 100%;
+    height: 160px;
+    object-fit: contain;
+    object-position: bottom;
+    display: block;
+    background: transparent;
+}
+
+.setup-character-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+    text-align: center;
+    padding: 6px 4px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.85);
+}
+
+/* ── Question card (steps 2+) ────────────────── */
+.question-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.question-subtitle {
+    font-size: 14px;
+    color: #6b7280;
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+/* ── Option buttons ──────────────────────────── */
+.button-group {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+.button-group-two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.option-button {
+    padding: 14px 16px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #1f2937;
+    background: #f3f4f6;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+}
+
+.option-button:hover {
+    background: #e5e7eb;
+    border-color: #D97706;
+}
+
+.option-button.selected {
+    background: #FEF3C7;
+    border-color: #D97706;
+    color: #92400e;
+}
+
+.option-button.selected::after {
+    content: "✓";
+    float: right;
+    font-weight: 700;
+}
+
+/* ── Nav buttons ─────────────────────────────── */
+.nav-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.nav-button {
+    flex: 1;
+    padding: 14px 16px;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.nav-button.back {
+    background: #e5e7eb;
+    color: #1f2937;
+}
+
+.nav-button.back:hover {
+    background: #d1d5db;
+}
+
+.nav-button.next {
+    background: linear-gradient(135deg, #D97706 0%, #EA8B2D 100%);
+    color: white;
+    flex: 2;
+}
+
+.nav-button.next:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(217, 119, 6, 0.35);
+}
+
+/* ── Responsive ──────────────────────────────── */
+@media (max-width: 768px) {
+    .setup-form {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .setup-character-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+
+    .setup-character-image {
+        height: 120px;
+    }
+
+    .question-title {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .onboarding-container {
+        width: 96%;
+    }
+
+    .question-card {
+        padding: 20px 16px;
+    }
+
+    .setup-character-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .setup-character-image {
+        height: 100px;
+    }
+
+    .button-group-two-col {
+        grid-template-columns: 1fr;
+    }
+}
