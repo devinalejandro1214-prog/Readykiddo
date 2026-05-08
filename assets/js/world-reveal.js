@@ -1,111 +1,107 @@
-// ── World Theme Backgrounds ───────────────────────────────────
-const themeBackgrounds = {
-    'Space': 'assets/images/backgrounds/space-bg.png',
-    'Jungle': 'assets/images/backgrounds/jungle-bg.png',
-    'Ocean': 'assets/images/backgrounds/ocean-bg.png',
-    'Castle': 'assets/images/backgrounds/castle-bg.png',
-    'City': 'assets/images/backgrounds/city-bg.png',
-    'Candy Land': 'assets/images/backgrounds/candy-land-bg.png',
-    'Sports Arena': 'assets/images/backgrounds/sports-arena-bg.png',
-    'Music Studio': 'assets/images/backgrounds/music-studio-bg.png'
-};
-
-// ── Vibe Color Themes ──────────────────────────────────────────
 const vibeThemes = {
-    'Chill': { bg: 'rgba(200, 230, 255, 0.94)', accent: '#3B82F6' },
-    'Brave': { bg: 'rgba(255, 230, 200, 0.94)', accent: '#EF4444' },
-    'Funny': { bg: 'rgba(255, 250, 200, 0.94)', accent: '#FBBF24' },
-    'Magical': { bg: 'rgba(240, 200, 255, 0.94)', accent: '#A855F7' },
-    'Fast': { bg: 'rgba(255, 200, 230, 0.94)', accent: '#EC4899' },
-    'Cozy': { bg: 'rgba(255, 220, 200, 0.94)', accent: '#F97316' }
+    Chill: { bg: 'rgba(200, 230, 255, 0.94)', accent: '#3B82F6' },
+    Brave: { bg: 'rgba(255, 230, 200, 0.94)', accent: '#EF4444' },
+    Funny: { bg: 'rgba(255, 250, 200, 0.94)', accent: '#FBBF24' },
+    Magical: { bg: 'rgba(240, 200, 255, 0.94)', accent: '#A855F7' },
+    Fast: { bg: 'rgba(255, 200, 230, 0.94)', accent: '#EC4899' },
+    Cozy: { bg: 'rgba(255, 220, 200, 0.94)', accent: '#F97316' }
 };
 
-// ── World Music Files ──────────────────────────────────────────
-const musicFiles = {
-    'Calm': 'assets/audio/music-calm.mp3',
-    'Upbeat': 'assets/audio/music-upbeat.mp3',
-    'Adventure': 'assets/audio/music-adventure.mp3',
-    'Silly': 'assets/audio/music-silly.mp3',
-    'No music': null
-};
+document.addEventListener('DOMContentLoaded', async () => {
+    const savedProfile = localStorage.getItem('userProfile');
 
-// ── Initialize World Reveal ────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-    const userProfile = JSON.parse(localStorage.getItem('userProfile'));
-
-    if (!userProfile) {
+    if (!savedProfile) {
         window.location.href = 'onboarding.html';
         return;
     }
 
-    loadWorldReveal(userProfile);
+    try {
+        const profile = JSON.parse(savedProfile);
+        const manifest = await loadCharacterManifest();
+        loadWorldReveal(profile, manifest);
+    } catch (error) {
+        console.error('Unable to load world reveal:', error);
+        window.location.href = 'onboarding.html';
+    }
 });
 
-// ── Load and Display World ──────────────────────────────────────
-function loadWorldReveal(profile) {
-    const {
-        childName,
-        character,
-        theme,
-        vibe,
-        music,
-        style
-    } = profile;
+async function loadCharacterManifest() {
+    const response = await fetch('assets/data/characters.json');
+    if (!response.ok) {
+        throw new Error(`Manifest request failed: ${response.status}`);
+    }
+    return response.json();
+}
 
-    // Set title and subtitle
-    document.getElementById('welcomeTitle').textContent = `Welcome, ${childName}!`;
-    document.getElementById('welcomeSubtitle').textContent = 'Your personalized world awaits...';
+function loadWorldReveal(profile, manifest) {
+    const characterSlug = slugify(profile.character);
+    const styleSlug = slugify(profile.style || 'Plain');
+    const worldSlug = slugify(profile.theme);
+    const vibeSlug = slugify(profile.vibe);
+    const character = manifest.characters[characterSlug];
 
-    // Set character image
-    const characterImage = document.getElementById('characterImage');
-    characterImage.src = `${character}/${character}.Plain.png`;
-    characterImage.alt = `${character} the character`;
-
-    // Set background image
-    const backgroundImage = document.getElementById('backgroundImage');
-    backgroundImage.src = themeBackgrounds[theme];
-    backgroundImage.alt = `${theme} background`;
-
-    // Apply vibe theme
-    applyVibeTheme(vibe);
-
-    // Set world details
-    document.getElementById('themeDisplay').textContent = theme;
-    document.getElementById('vibeDisplay').textContent = vibe;
-    document.getElementById('musicDisplay').textContent = music;
-    document.getElementById('styleDisplay').textContent = style;
-
-    // Load world music
-    const worldMusic = document.getElementById('worldMusic');
-    const musicPath = musicFiles[music];
-    if (musicPath) {
-        worldMusic.src = musicPath;
-        worldMusic.play().catch(err => console.log('Audio autoplay prevented:', err));
+    if (!character) {
+        throw new Error(`Unknown character: ${profile.character}`);
     }
 
-    // Set up start game button
+    const characterPath = character.styles[styleSlug] || character.styles.plain;
+    const backgroundPath = character.worlds[worldSlug];
+    const overlayPath = manifest.vibeEffects[vibeSlug];
+
+    if (!backgroundPath) {
+        throw new Error(`Unknown world: ${profile.theme}`);
+    }
+
+    document.getElementById('welcomeTitle').textContent = `Welcome, ${profile.childName}!`;
+    document.getElementById('welcomeSubtitle').textContent = 'Your personalized world awaits...';
+
+    const characterImage = document.getElementById('characterImage');
+    characterImage.src = characterPath;
+    characterImage.alt = `${profile.character} in ${profile.style} style`;
+
+    const backgroundImage = document.getElementById('backgroundImage');
+    backgroundImage.src = backgroundPath;
+    backgroundImage.alt = `${profile.character}'s ${profile.theme} world`;
+
+    const vibeOverlay = document.getElementById('vibeOverlay');
+    if (overlayPath) {
+        vibeOverlay.src = overlayPath;
+        vibeOverlay.hidden = false;
+    } else {
+        vibeOverlay.hidden = true;
+    }
+
+    applyVibeTheme(profile.vibe);
+
+    document.getElementById('themeDisplay').textContent = profile.theme;
+    document.getElementById('vibeDisplay').textContent = profile.vibe;
+    document.getElementById('musicDisplay').textContent = profile.music || 'Later';
+    document.getElementById('styleDisplay').textContent = profile.style || 'Plain';
+
     document.getElementById('startGameButton').addEventListener('click', () => {
         startFirstGame(profile);
     });
 }
 
-// ── Apply Vibe Color Theme ──────────────────────────────────────
 function applyVibeTheme(vibe) {
     const themeColors = vibeThemes[vibe];
     if (!themeColors) return;
 
     const worldContainer = document.querySelector('.world-container');
     worldContainer.style.background = themeColors.bg;
-
-    // You can add more vibe-based styling here
-    // For example, adjust accent colors in detail items
+    document.documentElement.style.setProperty('--vibe-accent', themeColors.accent);
 }
 
-// ── Start First Game ────────────────────────────────────────────
 function startFirstGame(profile) {
-    // Store the profile for use in the game
     localStorage.setItem('gameProfile', JSON.stringify(profile));
-
-    // Navigate to the first game
     window.location.href = 'game.html';
+}
+
+function slugify(value) {
+    return String(value || '')
+        .trim()
+        .toLowerCase()
+        .replace(/&/g, 'and')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
 }

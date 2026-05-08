@@ -1,0 +1,164 @@
+{
+  "styles": [
+    "plain",
+    "hero",
+    "explorer",
+    "wizard",
+    "artist",
+    "scientist"
+  ],
+  "characters": {
+    "amelia": {
+      "name": "Amelia",
+      "styles": {
+        "plain": "assets/images/characters/amelia/plain.png",
+        "explorer": "assets/images/characters/amelia/explorer.png",
+        "hero": "assets/images/characters/amelia/hero.png",
+        "wizard": "assets/images/characters/amelia/wizard.png",
+        "artist": "assets/images/characters/amelia/artist.png",
+        "scientist": "assets/images/characters/amelia/scientist.png"
+      },
+      "worlds": {
+        "space": "assets/images/worlds/amelia/space.png",
+        "jungle": "assets/images/worlds/amelia/jungle.png",
+        "ocean": "assets/images/worlds/amelia/ocean.png",
+        "castle": "assets/images/worlds/amelia/castle.png",
+        "city": "assets/images/worlds/amelia/city.png",
+        "candy-land": "assets/images/worlds/amelia/candy-land.png",
+        "sports-arena": "assets/images/worlds/amelia/sports-arena.png",
+        "music-studio": "assets/images/worlds/amelia/music-studio.png"
+      }
+    },
+    "aria": {
+      "name": "Aria",
+      "styles": {
+        "plain": "assets/images/characters/aria/plain.png",
+        "explorer": "assets/images/characters/aria/explorer.png",
+        "hero": "assets/images/characters/aria/hero.png",
+        "wizard": "assets/images/characters/aria/wizard.png",
+        "artist": "assets/images/characters/aria/artist.png",
+        "scientist": "assets/images/characters/aria/scientist.png"
+      },
+      "worlds": {
+        "space": "assets/images/worlds/aria/space.png",
+        "jungle": "assets/images/worlds/aria/jungle.png",
+        "ocean": "assets/images/worlds/aria/ocean.png",
+        "castle": "assets/images/worlds/aria/castle.png",
+        "city": "assets/images/worlds/aria/city.png",
+        "candy-land": "assets/images/worlds/aria/candy-land.png",
+        "sports-arena": "assets/images/worlds/aria/sports-arena.png",
+        "music-studio": "assets/images/worlds/aria/music-studio.png"
+      }
+    },
+    "emmett": {
+      "name": "Emmett",
+      "styles": {
+        "plain": "assets/images/characters/emmett/plain.png",
+        "explorer": "assets/images/characters/emmett/explorer.png",
+        "hero": "assets/images/characters/emmett/hero.png",
+        "wizard": "assets/images/characters/emmett/wizard.png",
+        "artist": "assets/images/characters/emmett/artist.png",
+        "scientist": "assets/images/characters/emmett/scientist.png"
+      },
+      "worlds": {
+        "space": "assets/images/worlds/emmett/space.png",
+        "jungle": "assets/images/worlds/emmett/jungle.png",
+        "ocean": "assets/images/worlds/emmett/ocean.png",
+        "castle": "assets/images/worlds/emmett/castle.png",
+        "city": "assets/images/worlds/emmett/city.png",
+        "candy-land": "assets/images/worlds/emmett/candy-land.png",
+        "sports-arena": "assets/images/worlds/emmett/sports-arena.png",
+        "music-studio": "assets/images/worlds/emmett/music-studio.png"
+      }
+    },
+    "mica": {
+      "name": "Mica",
+      "styles": {
+        "plain": "assets/images/characters/mica/plain.png",
+        "explorer": "assets/images/characters/mica/explorer.png",
+        "hero": "assets/images/characters/mica/hero.png",
+        "wizard": "assets/images/characters/mica/wizard.png",
+        "artist": "assets/images/characters/mica/artist.png",
+        "scientist": "assets/images/characters/mica/scientist.png"
+      },
+      "worlds": {
+        "space": "assets/images/worlds/mica/space.png",
+        "jungle": "assets/images/worlds/mica/jungle.png",
+        "ocean": "assets/images/worlds/mica/ocean.png",
+        "castle": "assets/images/worlds/mica/castle.png",
+        "city": "assets/images/worlds/mica/city.png",
+        "candy-land": "assets/images/worlds/mica/candy-land.png",
+        "sports-arena": "assets/images/worlds/mica/sports-arena.png",
+        "music-studio": "assets/images/worlds/mica/music-studio.png"
+      }
+    },
+    "steven": {
+      "name": "Steven",
+      "styles": {
+        "plain": "assets/images/characters/steven/plain.png",
+        "explorer": "assets/images/characters/steven/explorer.png",
+        "hero": "assets/images/characters/steven/hero.png",
+        "wizard": "assets/images/characters/steven/wizard.png",
+        "artist": "assets/images/characters/steven/artist.png",
+        "scientist": "assets/images/characters/steven/scientist.png"
+      },
+      "worlds": {
+        "space": "assets/images/worlds/steven/space.png",
+        "jungle": "assets/images/worlds/steven/jungle.png",
+        "ocean": "assets/images/worlds/steven/ocean.png",
+        "castle": "assets/images/worlds/steven/castle.png",
+        "city": "assets/images/worlds/steven/city.png",
+        "candy-land": "assets/images/worlds/steven/candy-land.png",
+        "sports-arena": "assets/images/worlds/steven/sports-arena.png",
+        "music-studio": "assets/images/worlds/steven/music-studio.png"
+      }
+    },
+    "trish": {
+      "name": "Trish",
+      "styles": {
+        "plain": "assets/images/characters/trish/plain.png",
+        "explorer": "assets/images/characters/trish/explorer.png",
+        "hero": "assets/images/characters/trish/hero.png",
+        "wizard": "assets/images/characters/trish/wizard.png",
+        "artist": "assets/images/characters/trish/artist.png",
+        "scientist": "assets/images/characters/trish/scientist.png"
+      },
+      "worlds": {
+        "space": "assets/images/worlds/trish/space.png",
+        "jungle": "assets/images/worlds/trish/jungle.png",
+        "ocean": "assets/images/worlds/trish/ocean.png",
+        "castle": "assets/images/worlds/trish/castle.png",
+        "city": "assets/images/worlds/trish/city.png",
+        "candy-land": "assets/images/worlds/trish/candy-land.png",
+        "sports-arena": "assets/images/worlds/trish/sports-arena.png",
+        "music-studio": "assets/images/worlds/trish/music-studio.png"
+      }
+    }
+  },
+  "worlds": {
+    "space": "Space",
+    "jungle": "Jungle",
+    "ocean": "Ocean",
+    "castle": "Castle",
+    "city": "City",
+    "candy-land": "Candy Land",
+    "sports-arena": "Sports Arena",
+    "music-studio": "Music Studio"
+  },
+  "vibes": {
+    "chill": "Chill",
+    "brave": "Brave",
+    "funny": "Funny",
+    "magical": "Magical",
+    "fast": "Fast",
+    "cozy": "Cozy"
+  },
+  "vibeEffects": {
+    "chill": "assets/images/vibes/chill/overlay.png",
+    "brave": "assets/images/vibes/brave/overlay.png",
+    "funny": "assets/images/vibes/funny/overlay.png",
+    "magical": "assets/images/vibes/magical/overlay.png",
+    "fast": "assets/images/vibes/fast/overlay.png",
+    "cozy": "assets/images/vibes/cozy/overlay.png"
+  }
+}

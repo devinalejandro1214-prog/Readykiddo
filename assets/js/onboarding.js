@@ -39,18 +39,18 @@ const onboardingSteps = [
         title: 'What should your character look like?',
         subtitle: 'Choose your outfit style',
         type: 'options',
-        options: ['Hero', 'Explorer', 'Artist', 'Athlete', 'Gamer', 'Wizard', 'Scientist'],
+        options: ['Plain', 'Hero', 'Explorer', 'Wizard', 'Artist', 'Scientist'],
         nextButtonText: 'Reveal My World'
     }
 ];
 
 const characters = [
-    { name: 'Mica',   image: 'Mica/Mica.Plain.png' },
-    { name: 'Aria',   image: 'Aria/Aria.Plain.png' },
-    { name: 'Trish',  image: 'Trish/Trish.plain.png' },
-    { name: 'Steven', image: 'Steven/Steven.Plain.png' },
-    { name: 'Emmett', image: 'Emmett/Emmett.Plain.png' },
-    { name: 'Amelia', image: 'Amelia/Amelia.Plain.png' }
+    { name: 'Mica',   image: 'assets/images/characters/mica/plain.png' },
+    { name: 'Aria',   image: 'assets/images/characters/aria/plain.png' },
+    { name: 'Trish',  image: 'assets/images/characters/trish/plain.png' },
+    { name: 'Steven', image: 'assets/images/characters/steven/plain.png' },
+    { name: 'Emmett', image: 'assets/images/characters/emmett/plain.png' },
+    { name: 'Amelia', image: 'assets/images/characters/amelia/plain.png' }
 ];
 
 // ── State ─────────────────────────────────────────────────────────
