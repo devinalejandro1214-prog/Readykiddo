@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ReadyKiddo — Candy Land Color Sort</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ── Tokens ───────────────────────────────────────────── */
+  :root {
+    --rk-blue-deep: #09395f;
+    --rk-blue: #0b5f95;
+    --rk-blue-light: #2a8fd1;
+    --rk-cream: #fff7e8;
+    --rk-paper: #fffaf2;
+
+    --color-red:    #e23b3b;
+    --color-blue:   #2a7fd9;
+    --color-yellow: #f4c83b;
+    --color-green:  #4aaf5a;
+    --color-purple: #9558c4;
+
+    --shadow-card: 0 10px 30px rgba(9, 57, 95, 0.18), 0 2px 6px rgba(9, 57, 95, 0.08);
+    --shadow-pop:  0 8px 0 rgba(0, 0, 0, 0.12);
+
+    --font: 'Fredoka', system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 100%; height: 100%;
+    font-family: var(--font);
+    overflow: hidden;
+    background: #0a1428;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  /* ── Stage ───────────────────────────────────────────── */
+  .game {
+    position: relative;
+    width: 100%;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .bg {
+    position: absolute; inset: 0;
+    background-size: cover;
+    background-position: center;
+    transition: background-image 0.6s ease;
+    background-color: #ffc0cb;
+  }
+  .bg::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,0.15) 100%);
+  }
+
+  /* ── Top HUD ─────────────────────────────────────────── */
+  .hud {
+    position: absolute;
+    top: 18px; left: 18px; right: 18px;
+    display: flex; align-items: center; gap: 14px;
+    z-index: 30;
+  }
+  .hud-btn {
+    width: 44px; height: 44px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.92);
+    border: none;
+    display: grid; place-items: center;
+    cursor: pointer;
+    box-shadow: var(--shadow-card);
+    color: var(--rk-blue-deep);
+    font-size: 20px;
+    transition: transform 0.15s ease;
+  }
+  .hud-btn:hover { transform: translateY(-1px); }
+  .hud-btn:active { transform: translateY(1px); }
+  .hud-btn svg { width: 22px; height: 22px; }
+
+  .progress {
+    flex: 1;
+    display: flex; gap: 8px;
+    height: 14px;
+    align-items: center;
+  }
+  .pip {
+    flex: 1;
+    height: 12px;
+    background: rgba(255,255,255,0.45);
+    border-radius: 999px;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .pip.done {
+    background: linear-gradient(90deg, #f4c83b, #ffae3b);
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.6) inset, 0 2px 6px rgba(244,200,59,0.5);
+  }
+  .pip.current {
+    background: rgba(255,255,255,0.95);
+    transform: scale(1.04);
+  }
+
+  /* ── Character + speech ──────────────────────────────– */
+  .character {
+    position: absolute;
+    left: 0; bottom: -8px;
+    width: 36%;
+    max-width: 560px;
+    pointer-events: none;
+    z-index: 10;
+    animation: charRise 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  .character img {
+    width: 100%; height: 100%;
+    object-fit: contain;
+    object-position: bottom center;
+    filter:
+      drop-shadow(0 0 1px rgba(255,255,255,0.9))
+      drop-shadow(0 12px 18px rgba(0,0,0,0.35));
+  }
+  .character.cheer img { animation: cheer 0.6s ease-in-out; }
+  .character.nod img   { animation: nod 0.5s ease-in-out; }
+  .character.encourage img { animation: sway 0.7s ease-in-out; }
+
+  @keyframes charRise {
+    from { opacity: 0; transform: translateY(40px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes cheer {
+    0%, 100% { transform: translateY(0) rotate(0); }
+    25% { transform: translateY(-18px) rotate(-2deg); }
+    50% { transform: translateY(-8px) rotate(0); }
+    75% { transform: translateY(-18px) rotate(2deg); }
+  }
+  @keyframes nod {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-6px); }
+  }
+  @keyframes sway {
+    0%, 100% { transform: rotate(0); }
+    25% { transform: rotate(-2deg); }
+    75% { transform: rotate(2deg); }
+  }
+
+  .bubble {
+    position: absolute;
+    z-index: 25;
+    left: 28%;
+    bottom: 64%;
+    max-width: 320px;
+    background: white;
+    border-radius: 22px;
+    padding: 16px 20px;
+    font-size: 19px;
+    font-weight: 500;
+    color: var(--rk-blue-deep);
+    line-height: 1.35;
+    box-shadow: var(--shadow-card);
+    animation: bubblePop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  .bubble::before {
+    content: '';
+    position: absolute;
+    left: 32px; bottom: -12px;
+    width: 24px; height: 24px;
+    background: white;
+    transform: rotate(45deg);
+    box-shadow: 4px 4px 8px rgba(9,57,95,0.08);
+  }
+  @keyframes bubblePop {
+    from { opacity: 0; transform: scale(0.8) translateY(8px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  /* ── Item to drag ─────────────────────────────────────── */
+  .item-stage {
+    position: absolute;
+    left: 38%;
+    right: 4%;
+    top: 16%;
+    bottom: 38%;
+    display: grid;
+    place-items: center;
+    z-index: 15;
+    pointer-events: none;
+  }
+  .item {
+    width: clamp(140px, 22vw, 220px);
+    height: clamp(140px, 22vw, 220px);
+    background: white;
+    border-radius: 36px;
+    box-shadow: 0 16px 32px rgba(0,0,0,0.25), inset 0 -6px 0 rgba(0,0,0,0.06);
+    display: grid; place-items: center;
+    cursor: grab;
+    pointer-events: auto;
+    touch-action: none;
+    animation: itemEnter 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+  }
+  .item:hover { transform: translateY(-4px) rotate(-2deg); box-shadow: 0 22px 38px rgba(0,0,0,0.3); }
+  .item.dragging { cursor: grabbing; transform: scale(1.08) rotate(4deg); transition: none; z-index: 50; box-shadow: 0 28px 40px rgba(0,0,0,0.35); }
+  .item.correct { animation: itemCorrect 0.5s ease forwards; }
+  .item.wrong   { animation: itemWrong 0.4s ease; }
+  .item svg { width: 64%; height: 64%; }
+  .item .count-badge {
+    position: absolute; top: -10px; right: -10px;
+    background: var(--rk-blue);
+    color: white;
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    font-weight: 700;
+    font-size: 20px;
+    box-shadow: 0 4px 10px rgba(11,95,149,0.4);
+    border: 3px solid white;
+  }
+  @keyframes itemEnter {
+    from { opacity: 0; transform: scale(0.4) rotate(-15deg); }
+    to   { opacity: 1; transform: scale(1) rotate(0); }
+  }
+  @keyframes itemCorrect {
+    to { opacity: 0; transform: scale(0.3); }
+  }
+  @keyframes itemWrong {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-12px) rotate(-3deg); }
+    75% { transform: translateX(12px) rotate(3deg); }
+  }
+
+  /* ── Drop zones (Baskets) ────────────────────────────── */
+  .zones {
+    position: absolute;
+    left: 0; right: 0; bottom: 2%;
+    display: flex;
+    justify-content: center;
+    gap: clamp(8px, 2vw, 28px);
+    padding: 0 3%;
+    z-index: 20;
+  }
+  .zone {
+    --zc: var(--color-red);
+    flex: 1;
+    max-width: 160px;
+    min-width: 100px;
+    aspect-ratio: 0.95;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.2s ease, filter 0.2s ease;
+    animation: zoneIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    filter: drop-shadow(0 8px 16px rgba(0,0,0,0.15));
+  }
+  .zone:nth-child(1) { animation-delay: 0.10s; }
+  .zone:nth-child(2) { animation-delay: 0.18s; }
+  .zone:nth-child(3) { animation-delay: 0.26s; }
+  .zone:nth-child(4) { animation-delay: 0.34s; }
+  .zone:nth-child(5) { animation-delay: 0.42s; }
+
+  @keyframes zoneIn {
+    from { opacity: 0; transform: translateY(50px) scale(0.6); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* Basket SVG styling */
+  .zone svg {
+    width: 100%;
+    height: 100%;
+    filter: saturate(0.95);
+    transition: filter 0.2s ease;
+  }
+
+  /* Color tint applied to basket via SVG stops */
+  .zone svg [style*="stop-color"] {
+    stop-color: var(--zc) !important;
+  }
+
+  .zone:hover {
+    transform: translateY(-6px);
+    filter: drop-shadow(0 12px 24px rgba(0,0,0,0.22)) brightness(1.05);
+  }
+
+  .zone.over {
+    transform: translateY(-12px) scale(1.08);
+    filter: drop-shadow(0 16px 32px rgba(0,0,0,0.28)) brightness(1.1);
+  }
+
+  .zone.pulse { animation: zonePulse 0.5s ease; }
+  @keyframes zonePulse {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-16px) scale(1.12); }
+  }
+
+  /* ── Confetti / celebration ──────────────────────────── */
+  .confetti {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 60;
+    overflow: hidden;
+  }
+  .confetti span {
+    position: absolute;
+    top: -20px;
+    width: 14px; height: 14px;
+    border-radius: 4px;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall {
+    to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* ── End screen ──────────────────────────────────────── */
+  .end-card {
+    position: absolute;
+    z-index: 70;
+    inset: 0;
+    display: grid; place-items: center;
+    background: rgba(9, 57, 95, 0.45);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    animation: fadeIn 0.4s ease both;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .end-card .panel {
+    background: white;
+    border-radius: 32px;
+    padding: 40px 36px 32px;
+    width: min(440px, 88%);
+    text-align: center;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+    animation: panelPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  @keyframes panelPop {
+    from { opacity: 0; transform: scale(0.7) translateY(20px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .end-card h1 {
+    font-size: 34px;
+    color: var(--rk-blue-deep);
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+  .end-card p {
+    font-size: 17px;
+    color: #4a6577;
+    margin-bottom: 22px;
+    line-height: 1.4;
+  }
+  .stars {
+    display: flex; justify-content: center; gap: 10px;
+    margin: 16px 0 22px;
+  }
+  .star {
+    width: 56px; height: 56px;
+    color: #e5e7eb;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .star.lit {
+    color: #f4c83b;
+    transform: scale(1.15) rotate(-6deg);
+    filter: drop-shadow(0 4px 8px rgba(244,200,59,0.5));
+  }
+  .star.lit:nth-child(2) { transform: scale(1.25) rotate(0); }
+  .star.lit:nth-child(3) { transform: scale(1.15) rotate(6deg); }
+
+  .next-game-btn {
+    background: linear-gradient(135deg, var(--rk-blue) 0%, var(--rk-blue-light) 100%);
+    color: white;
+    border: none;
+    padding: 18px 36px;
+    font-family: inherit;
+    font-size: 19px;
+    font-weight: 700;
+    border-radius: 18px;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(11,95,149,0.4), inset 0 -4px 0 rgba(0,0,0,0.15);
+    transition: transform 0.15s ease;
+  }
+  .next-game-btn:hover { transform: translateY(-2px); }
+  .next-game-btn:active { transform: translateY(1px); }
+
+  /* ── Pause overlay ───────────────────────────────────── */
+  .pause-card {
+    position: absolute;
+    z-index: 65;
+    inset: 0;
+    display: none;
+    place-items: center;
+    background: rgba(9, 57, 95, 0.4);
+    backdrop-filter: blur(4px);
+  }
+  .pause-card.show { display: grid; animation: fadeIn 0.3s ease; }
+  .pause-card .panel {
+    background: white;
+    border-radius: 24px;
+    padding: 28px 32px;
+    text-align: center;
+    box-shadow: var(--shadow-card);
+    min-width: 280px;
+  }
+  .pause-card h2 {
+    color: var(--rk-blue-deep);
+    margin-bottom: 18px;
+    font-weight: 700;
+  }
+
+  /* ── Tweaks panel (hidden by default) ─────────────────– */
+  .tweaks {
+    position: fixed;
+    right: 20px; bottom: 20px;
+    width: 300px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.05);
+    padding: 18px;
+    z-index: 100;
+    font-family: var(--font);
+    display: none;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  .tweaks.show { display: block; animation: panelSlideUp 0.3s ease; }
+  @keyframes panelSlideUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .tweaks h3 {
+    font-size: 15px;
+    color: var(--rk-blue-deep);
+    margin-bottom: 4px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .tweaks .close {
+    background: transparent; border: none; cursor: pointer;
+    color: #94a3b8; font-size: 22px; line-height: 1;
+  }
+  .tweaks .group { margin-top: 14px; padding-top: 14px; border-top: 1px solid #f1f5f9; }
+  .tweaks .group:first-of-type { border-top: none; padding-top: 0; }
+  .tweaks label { display: block; font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .tweaks select, .tweaks input[type="text"] {
+    width: 100%; padding: 8px 10px;
+    border: 1.5px solid #e2e8f0; border-radius: 10px;
+    font-family: inherit; font-size: 14px;
+    color: var(--rk-blue-deep); background: white;
+  }
+  .tweaks .seg { display: flex; gap: 4px; background: #f1f5f9; border-radius: 10px; padding: 3px; }
+  .tweaks .seg button {
+    flex: 1; padding: 7px 4px; font-family: inherit; font-size: 12px; font-weight: 600;
+    border: none; background: transparent; border-radius: 8px; cursor: pointer; color: #475569;
+  }
+  .tweaks .seg button.on { background: white; color: var(--rk-blue-deep); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .tweaks .row { display: flex; gap: 6px; }
+  .tweaks .row > * { flex: 1; }
+
+  /* ── Mobile ──────────────────────────────────────────── */
+  @media (max-width: 768px) {
+    .character {
+      width: 50%;
+      max-width: 280px;
+    }
+    .bubble {
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 60%;
+      max-width: 78%;
+      font-size: 16px;
+      padding: 12px 16px;
+    }
+    .bubble::before { left: 24px; }
+    .item-stage {
+      left: 4%;
+      right: 4%;
+      top: 8%;
+      bottom: 38%;
+    }
+    .zones {
+      bottom: 3%;
+      gap: 8px;
+    }
+    .zone {
+      max-width: none;
+      aspect-ratio: 1;
+      border-radius: 22px;
+      border-width: 3px;
+    }
+    .hud { top: 12px; left: 12px; right: 12px; gap: 10px; }
+    .hud-btn { width: 40px; height: 40px; }
+    .end-card h1 { font-size: 26px; }
+    .tweaks {
+      right: 12px; left: 12px; bottom: 12px;
+      width: auto; max-height: 70vh;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="game" id="game">
+    <div class="bg" id="bg"></div>
+
+    <!-- HUD -->
+    <div class="hud">
+      <button class="hud-btn" id="pauseBtn" aria-label="Pause">
+        <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1.5"/><rect x="14" y="5" width="4" height="14" rx="1.5"/></svg>
+      </button>
+      <div class="progress" id="progress"></div>
+      <button class="hud-btn" id="soundBtn" aria-label="Sound">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 010 7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+
+    <!-- Character -->
+    <div class="character" id="character">
+      <img alt="" id="characterImg">
+    </div>
+
+    <!-- Speech bubble -->
+    <div class="bubble" id="bubble" style="display:none"></div>
+
+    <!-- Item stage -->
+    <div class="item-stage" id="itemStage"></div>
+
+    <!-- Drop zones -->
+    <div class="zones" id="zones"></div>
+
+    <!-- Pause -->
+    <div class="pause-card" id="pauseCard">
+      <div class="panel">
+        <h2>Take a break?</h2>
+        <button class="next-game-btn" id="resumeBtn">Keep Playing</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tweaks panel (hidden by default) -->
+  <div class="tweaks" id="tweaks">
+    <h3>Tweaks <button class="close" id="tweaksClose">×</button></h3>
+
+    <div class="group">
+      <label>Child name</label>
+      <input type="text" id="tw-childName" value="Leo">
+    </div>
+
+    <div class="group">
+      <label>Character</label>
+      <select id="tw-character">
+        <option value="mica">Mica</option>
+        <option value="aria">Aria</option>
+        <option value="emmett">Emmett</option>
+      </select>
+    </div>
+
+    <div class="group">
+      <label>Difficulty starts at</label>
+      <div class="seg" id="tw-startBranch">
+        <button data-v="neutral" class="on">Easy</button>
+        <button data-v="medium">Medium</button>
+        <button data-v="hard">Hard</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <label>Branching style</label>
+      <div class="seg" id="tw-branchStyle">
+        <button data-v="conservative">Slow</button>
+        <button data-v="balanced" class="on">Balanced</button>
+        <button data-v="aggressive">Fast</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <label>Total items</label>
+      <div class="seg" id="tw-totalItems">
+        <button data-v="6">6</button>
+        <button data-v="9" class="on">9</button>
+        <button data-v="12">12</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <label>Show debug branch</label>
+      <div class="seg" id="tw-debug">
+        <button data-v="off" class="on">Off</button>
+        <button data-v="on">On</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ──────────────────────────────────────────────────────────
+   ReadyKiddo — Candy Land Color Sort
+   ────────────────────────────────────────────────────────── */
+
+const TWEAK_DEFAULTS = {
+  "childName": "Leo",
+  "character": "mica",
+  "startBranch": "neutral",
+  "branchStyle": "balanced",
+  "totalItems": 9,
+  "debug": "off"
+};
+
+const state = { ...TWEAK_DEFAULTS };
+
+/* ── Candy Land themed SVG items - Polished designs ─────── */
+const SVG = {
+  // Red candy items
+  lollipop: `<svg viewBox="0 0 100 100"><defs><radialGradient id="lollipop-grad"><stop offset="0%" style="stop-color:rgba(255,255,255,0.4)"/><stop offset="100%" style="stop-color:rgba(255,255,255,0)"/></radialGradient></defs><circle cx="50" cy="35" r="22" fill="var(--c)"/><circle cx="50" cy="35" r="22" fill="url(#lollipop-grad)"/><circle cx="42" cy="28" r="6" fill="rgba(255,255,255,0.6)"/><rect x="47" y="57" width="6" height="25" rx="3" fill="#8B6F47"/><circle cx="50" cy="35" r="20" fill="none" stroke="rgba(0,0,0,0.1)" stroke-width="1"/></svg>`,
+  cherrycandy: `<svg viewBox="0 0 100 100"><defs><radialGradient id="cherry-grad"><stop offset="0%" style="stop-color:rgba(255,255,255,0.5)"/><stop offset="100%" style="stop-color:rgba(255,255,255,0)"/></radialGradient></defs><circle cx="38" cy="48" r="15" fill="var(--c)"/><circle cx="62" cy="48" r="15" fill="var(--c)"/><circle cx="38" cy="48" r="15" fill="url(#cherry-grad)"/><circle cx="62" cy="48" r="15" fill="url(#cherry-grad)"/><circle cx="32" cy="42" r="4" fill="rgba(255,255,255,0.7)"/><circle cx="68" cy="42" r="4" fill="rgba(255,255,255,0.7)"/><path d="M45 30 Q50 18 55 30 Q50 26 45 30" stroke="#3d5a2a" stroke-width="1.5" fill="#4a7a35"/></svg>`,
+  gumball: `<svg viewBox="0 0 100 100"><defs><radialGradient id="gum-grad"><stop offset="0%" style="stop-color:rgba(255,255,255,0.6)"/><stop offset="100%" style="stop-color:rgba(255,255,255,0)"/></radialGradient></defs><circle cx="50" cy="50" r="28" fill="var(--c)"/><circle cx="50" cy="50" r="28" fill="url(#gum-grad)"/><circle cx="38" cy="38" r="8" fill="rgba(255,255,255,0.7)"/><circle cx="50" cy="50" r="27" fill="none" stroke="rgba(0,0,0,0.08)" stroke-width="1"/></svg>`,
+
+  // Blue candy items
+  blueberry: `<svg viewBox="0 0 100 100"><defs><radialGradient id="blue-grad"><stop offset="0%" style="stop-color:rgba(255,255,255,0.4)"/><stop offset="100%" style="stop-color:rgba(255,255,255,0)"/></radialGradient></defs><circle cx="50" cy="50" r="26" fill="var(--c)"/><circle cx="50" cy="50" r="26" fill="url(#blue-grad)"/><circle cx="40" cy="40" r="5" fill="rgba(255,255,255,0.6)"/><path d="M38 32 Q42 28 46 32" stroke="#1a3a2a" stroke-width="1.5" fill="none" stroke-linecap="round"/><circle cx="50" cy="50" r="25" fill="none" stroke="rgba(0,0,0,0.08)" stroke-width="1"/></svg>`,
+  bluemint: `<svg viewBox="0 0 100 100"><defs><linearGradient id="mint-grad"><stop offset="0%" style="stop-color:rgba(255,255,255,0.5)"/><stop offset="100%" style="stop-color:rgba(255,255,255,0)"/></linearGradient></defs><rect x="20" y="28" width="60" height="44" rx="14" fill="var(--c)"/><rect x="20" y="28" width="60" height="44" rx="14" fill="url(#mint-grad)"/><circle cx="32" cy="38" r="5" fill="rgba(255,255,255,0.7)"/><circle cx="68" cy="55" r="4" fill="rgba(255,255,255,0.5)"/><rect x="20" y="28" width="60" height="44" rx="14" fill="none" stroke="rgba(0,0,0,0.08)" stroke-width="1"/></svg>`,
+  bluecandy: `<svg viewBox="0 0 100 100"><defs><radialGradient id="gem-grad"><stop offset="0%" style="stop-color:rgba(255,255,255,0.5)"/><stop offset="100%" style="stop-color:rgba(255,255,255,0)"/></radialGradient></defs><path d="M50 15 L70 38 L68 68 L50 78 L32 68 L30 38 Z" fill="var(--c)"/><path d="M50 15 L70 38 L68 68 L50 78 L32 68 L30 38 Z" fill="url(#gem-grad)"/><circle cx="50" cy="48" r="9" fill="rgba(255,255,255,0.5)"/><path d="M50 15 L70 38 L68 68 L50 78 L32 68 L30 38 Z" fill="none" stroke="rgba(0,0,0,0.08)" stroke-width="1"/></svg>`,
+
+  // Yellow candy items
+  banana: `<svg viewBox="0 0 100 100"><defs><linearGradient id="banana-grad"><stop offset="0%" style="stop-color:rgba(255,255,255,0.4)"/><stop offset="100%" style="stop-color:rgba(255,255,255,0)"/></linearGradient></defs><path d="M28 65 Q40 28 68 32 Q72 48 60 62 Q48 70 32 68 Z" fill="var(--c)"/><path d="M28 65 Q40 28 68 32 Q72 48 60 62 Q48 70 32 68 Z" fill="url(#banana-grad)"/><line x1="32" y1="65" x2="62" y2="38" stroke="rgba(0,0,0,0.12)" stroke-width="1.5" opacity="0.6"/><path d="M28 65 Q40 28 68 32 Q72 48 60 62 Q48 70 32 68 Z" fill="none" stroke="rgba(0,0,0,0.08)" stroke-width="1"/></svg>`,
+  sugarcandy: `<svg viewBox="0 0 100 100"><defs><radialGradient id="sugar-grad"><stop offset="0%" style="stop-color:rgba(255,255,255,0.5)"/><stop offset="100%" style="stop-color:rgba(255,255,255,0)"/></radialGradient></defs><circle cx="50" cy="50" r="28" fill="var(--c)"/><circle cx="50" cy="50" r="28" fill="url(#sugar-grad)"/><circle cx="38" cy="38" r="7" fill="rgba(255,255,255,0.7)"/><circle cx="62" cy="62" r="5" fill="rgba(255,255,255,0.5)"/><circle cx="50" cy="50" r="27" fill="none" stroke="rgba(0,0,0,0.08)" stroke-width="1"/></svg>`,
+  yellowlollipop: `<svg viewBox="0 0 100 100"><defs><radialGradient id="ylolly-grad"><stop offset="0%" style="stop-color:rgba(255,255,255,0.4)"/><stop offset="100%" style="stop-color:rgba(255,255,255,0)"/></radialGradient></defs><circle cx="50" cy="32" r="20" fill="var(--c)"/><circle cx="50" cy="32" r="20" fill="url(#ylolly-grad)"/><circle cx="42" cy="26" r="5" fill="rgba(255,255,255,0.6)"/><rect x="47" y="52" width="6" height="28" rx="3" fill="#8B6F47"/><circle cx="50" cy="32" r="19" fill="none" stroke="rgba(0,0,0,0.1)" stroke-width="1"/></svg>`,
+
+  // Green candy items
+  greenapple: `<svg viewBox="0 0 100 100"><defs><radialGradient id="apple-grad"><stop offset="0%" style="stop-color:rgba(255,255,255,0.4)"/><stop offset="100%" style="stop-color:rgba(255,255,255,0)"/></radialGradient></defs><ellipse cx="50" cy="52" rx="30" ry="32" fill="var(--c)"/><ellipse cx="50" cy="52" rx="30" ry="32" fill="url(#apple-grad)"/><circle cx="40" cy="42" r="6" fill="rgba(255,255,255,0.6)"/><path d="M48 16 Q50 10 52 16 Q50 14 48 16" fill="#3d5a2a" stroke="#2a4a1e" stroke-width="1"/><ellipse cx="50" cy="52" rx="29" ry="31" fill="none" stroke="rgba(0,0,0,0.08)" stroke-width="1"/></svg>`,
+  greengummy: `<svg viewBox="0 0 100 100"><defs><linearGradient id="gummy-grad"><stop offset="0%" style="stop-color:rgba(255,255,255,0.5)"/><stop offset="100%" style="stop-color:rgba(255,255,255,0)"/></linearGradient></defs><path d="M50 20 L68 42 L62 72 L50 82 L38 72 L32 42 Z" fill="var(--c)"/><path d="M50 20 L68 42 L62 72 L50 82 L38 72 L32 42 Z" fill="url(#gummy-grad)"/><circle cx="50" cy="50" r="10" fill="rgba(255,255,255,0.5)"/><path d="M50 20 L68 42 L62 72 L50 82 L38 72 L32 42 Z" fill="none" stroke="rgba(0,0,0,0.08)" stroke-width="1"/></svg>`,
+  limecandy: `<svg viewBox="0 0 100 100"><defs><radialGradient id="lime-grad"><stop offset="0%" style="stop-color:rgba(255,255,255,0.5)"/><stop offset="100%" style="stop-color:rgba(255,255,255,0)"/></radialGradient></defs><circle cx="50" cy="50" r="26" fill="var(--c)"/><circle cx="50" cy="50" r="26" fill="url(#lime-grad)"/><circle cx="42" cy="42" r="4" fill="rgba(255,255,255,0.7)"/><circle cx="50" cy="50" r="25" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2"/><circle cx="50" cy="50" r="25" fill="none" stroke="rgba(0,0,0,0.08)" stroke-width="1"/></svg>`,
+
+  // Purple candy items
+  grapecandy: `<svg viewBox="0 0 100 100"><defs><radialGradient id="grape-grad"><stop offset="0%" style="stop-color:rgba(255,255,255,0.5)"/><stop offset="100%" style="stop-color:rgba(255,255,255,0)"/></radialGradient></defs><circle cx="38" cy="35" r="13" fill="var(--c)"/><circle cx="62" cy="35" r="13" fill="var(--c)"/><circle cx="32" cy="58" r="13" fill="var(--c)"/><circle cx="58" cy="62" r="13" fill="var(--c)"/><circle cx="50" cy="78" r="11" fill="var(--c)"/><circle cx="38" cy="35" r="13" fill="url(#grape-grad)"/><circle cx="62" cy="35" r="13" fill="url(#grape-grad)"/><circle cx="32" cy="58" r="13" fill="url(#grape-grad)"/><circle cx="58" cy="62" r="13" fill="url(#grape-grad)"/><circle cx="50" cy="78" r="11" fill="url(#grape-grad)"/><circle cx="48" cy="55" r="5" fill="rgba(255,255,255,0.6)"/></svg>`,
+  purplelollipop: `<svg viewBox="0 0 100 100"><defs><radialGradient id="plolly-grad"><stop offset="0%" style="stop-color:rgba(255,255,255,0.4)"/><stop offset="100%" style="stop-color:rgba(255,255,255,0)"/></radialGradient></defs><circle cx="50" cy="32" r="21" fill="var(--c)"/><circle cx="50" cy="32" r="21" fill="url(#plolly-grad)"/><circle cx="42" cy="25" r="5" fill="rgba(255,255,255,0.6)"/><rect x="47" y="53" width="6" height="28" rx="3" fill="#8B6F47"/><circle cx="50" cy="32" r="20" fill="none" stroke="rgba(0,0,0,0.1)" stroke-width="1"/></svg>`,
+  grapegummy: `<svg viewBox="0 0 100 100"><defs><linearGradient id="pgummy-grad"><stop offset="0%" style="stop-color:rgba(255,255,255,0.5)"/><stop offset="100%" style="stop-color:rgba(255,255,255,0)"/></linearGradient></defs><ellipse cx="42" cy="45" rx="16" ry="18" fill="var(--c)"/><ellipse cx="62" cy="52" rx="14" ry="16" fill="var(--c)"/><ellipse cx="42" cy="45" rx="16" ry="18" fill="url(#pgummy-grad)"/><ellipse cx="62" cy="52" rx="14" ry="16" fill="url(#pgummy-grad)"/><circle cx="50" cy="50" r="6" fill="rgba(255,255,255,0.6)"/></svg>`,
+};
+
+const BASKET_SVG = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="basket-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#D4C5B0;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#BBA78F;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Basket body -->
+  <ellipse cx="50" cy="28" rx="35" ry="14" fill="url(#basket-grad)" stroke="#8B7355" stroke-width="1.5"/>
+  <path d="M 18 28 Q 18 52 32 68 L 68 68 Q 82 52 82 28" fill="url(#basket-grad)" stroke="#8B7355" stroke-width="1.5"/>
+  <!-- Weave pattern - vertical -->
+  <line x1="28" y1="35" x2="26" y2="68" stroke="#8B7355" stroke-width="1.5" opacity="0.4"/>
+  <line x1="38" y1="28" x2="36" y2="68" stroke="#8B7355" stroke-width="1.5" opacity="0.4"/>
+  <line x1="50" y1="26" x2="50" y2="68" stroke="#8B7355" stroke-width="1.5" opacity="0.4"/>
+  <line x1="62" y1="28" x2="64" y2="68" stroke="#8B7355" stroke-width="1.5" opacity="0.4"/>
+  <line x1="72" y1="35" x2="74" y2="68" stroke="#8B7355" stroke-width="1.5" opacity="0.4"/>
+  <!-- Weave pattern - horizontal -->
+  <path d="M 22 40 Q 50 38 78 40" stroke="#8B7355" stroke-width="1.5" opacity="0.3" fill="none"/>
+  <path d="M 20 50 Q 50 48 80 50" stroke="#8B7355" stroke-width="1.5" opacity="0.3" fill="none"/>
+  <path d="M 22 60 Q 50 58 78 60" stroke="#8B7355" stroke-width="1.5" opacity="0.3" fill="none"/>
+  <!-- Basket handles -->
+  <path d="M 35 28 Q 50 8 65 28" fill="none" stroke="#8B7355" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M 37 28 Q 50 12 63 28" fill="none" stroke="#D4C5B0" stroke-width="1.5" opacity="0.5" stroke-linecap="round"/>
+  <!-- Basket opening highlight -->
+  <ellipse cx="50" cy="28" rx="33" ry="12" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+</svg>`;
+
+const COLOR_HEX = {
+  red:    '#e23b3b',
+  blue:   '#2a7fd9',
+  yellow: '#f4c83b',
+  green:  '#4aaf5a',
+  purple: '#9558c4',
+};
+
+const ITEM_SHAPES = {
+  red:    ['lollipop', 'cherrycandy', 'gumball'],
+  blue:   ['blueberry', 'bluemint', 'bluecandy'],
+  yellow: ['banana', 'sugarcandy', 'yellowlollipop'],
+  green:  ['greenapple', 'greengummy', 'limecandy'],
+  purple: ['grapecandy', 'purplelollipop', 'grapegummy'],
+};
+
+/* ── Branch pools ───────────────────────────────────────── */
+const BRANCHES = {
+  neutral:       { colors: ['red', 'blue'],                      counts: false },
+  'easy-medium': { colors: ['red', 'blue', 'yellow'],            counts: false },
+  medium:        { colors: ['red', 'blue', 'yellow'],            counts: false },
+  'medium-hard': { colors: ['red', 'blue', 'yellow', 'green'],   counts: false },
+  hard:          { colors: ['red', 'blue', 'yellow', 'green', 'purple'], counts: true  },
+};
+const BRANCH_ORDER = ['neutral', 'easy-medium', 'medium', 'medium-hard', 'hard'];
+
+const BRANCH_STYLES = {
+  conservative: { upStreak: 5, downStreak: 3 },
+  balanced:     { upStreak: 3, downStreak: 3 },
+  aggressive:   { upStreak: 2, downStreak: 3 },
+};
+
+/* ── Candy Land themed character lines ─────────────────── */
+const PHRASES = {
+  greet: name => [
+    `Welcome to Candy Land, ${name}! Help me sort these sweets!`,
+    `Oh ${name}, my candy is all mixed up! Can you help?`,
+    `Yay ${name}! Let's organize these yummy treats!`,
+  ],
+  correct: [`Delicious!`, `Sweet choice!`, `You nailed it!`, `Candy perfect!`, `Mmm, yes!`],
+  wrong:   [`Try the ${''} color`, `Look at the color`, `Almost there!`],
+  branchUp:   [`You're a candy master!`, `Wow, sugar rush!`],
+  branchDown: [`Let's take it slow`, `One treat at a time`],
+  end: name => [`You're a candy champ, ${name}!`, `Sweet victory, ${name}!`],
+};
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+
+/* ── DOM ────────────────────────────────────────────────── */
+const $ = id => document.getElementById(id);
+const bgEl = $('bg'),
+      charEl = $('character'),
+      charImg = $('characterImg'),
+      bubble = $('bubble'),
+      itemStage = $('itemStage'),
+      zonesEl = $('zones'),
+      progressEl = $('progress'),
+      pauseBtn = $('pauseBtn'),
+      pauseCard = $('pauseCard'),
+      resumeBtn = $('resumeBtn');
+
+/* ── Game state ─────────────────────────────────────────── */
+let game = null;
+
+class ColorSortGame {
+  constructor() {
+    this.totalItems = parseInt(state.totalItems, 10);
+    this.itemsShown = 0;
+    this.correctCount = 0;
+    this.correctStreak = 0;
+    this.incorrectStreak = 0;
+    this.currentBranch = state.startBranch;
+    this.branchHistory = [this.currentBranch];
+    this.style = BRANCH_STYLES[state.branchStyle];
+    this.currentItem = null;
+    this.busy = false;
+    this.ended = false;
+    this.bubbleTimer = null;
+  }
+
+  start() {
+    setBackground();
+    setCharacter();
+    renderProgress(this.totalItems, 0);
+    this.renderZones();
+    this.say(pick(PHRASES.greet(state.childName)), 2400);
+    setTimeout(() => this.nextItem(), 1400);
+  }
+
+  renderZones() {
+    const colors = BRANCHES[this.currentBranch].colors;
+    zonesEl.innerHTML = '';
+    colors.forEach(c => {
+      const z = document.createElement('div');
+      z.className = 'zone';
+      z.dataset.color = c;
+      z.style.setProperty('--zc', COLOR_HEX[c]);
+      // Add basket SVG
+      z.innerHTML = BASKET_SVG;
+      zonesEl.appendChild(z);
+    });
+    bindDropZones();
+  }
+
+  nextItem() {
+    if (this.ended) return;
+    if (this.itemsShown >= this.totalItems) return this.end();
+
+    // Branch evaluation every 3 items (after at least 3 items shown)
+    if (this.itemsShown > 0 && this.itemsShown % 3 === 0) {
+      this.evaluateBranch();
+    }
+
+    const branch = BRANCHES[this.currentBranch];
+    const color  = pick(branch.colors);
+    const shape  = pick(ITEM_SHAPES[color]);
+    const count  = branch.counts && Math.random() < 0.5
+                   ? (Math.random() < 0.5 ? 2 : 3)
+                   : 1;
+
+    this.currentItem = { color, shape, count };
+    this.busy = false;
+    this.renderItem();
+    if (state.debug === 'on') this.flashDebug();
+  }
+
+  renderItem() {
+    const { color, shape, count } = this.currentItem;
+    const el = document.createElement('div');
+    el.className = 'item';
+    el.id = 'item';
+    el.style.setProperty('--c', COLOR_HEX[color]);
+    el.innerHTML = SVG[shape];
+    if (count > 1) {
+      const b = document.createElement('div');
+      b.className = 'count-badge';
+      b.textContent = count;
+      el.appendChild(b);
+    }
+    itemStage.innerHTML = '';
+    itemStage.appendChild(el);
+    bindDrag(el);
+  }
+
+  handleDrop(droppedColor, zoneEl) {
+    if (this.busy) return;
+    const item = this.currentItem;
+    const correct = droppedColor === item.color;
+
+    this.busy = true;
+    this.itemsShown++;
+
+    if (correct) {
+      this.correctCount++;
+      this.correctStreak++;
+      this.incorrectStreak = 0;
+      zoneEl.classList.add('pulse');
+      setTimeout(() => zoneEl.classList.remove('pulse'), 500);
+
+      const itemEl = $('item');
+      if (itemEl) itemEl.classList.add('correct');
+      this.cheer();
+      this.say(pick(PHRASES.correct), 1100);
+
+      renderProgress(this.totalItems, this.itemsShown, this.itemsShown - 1);
+      setTimeout(() => this.nextItem(), 750);
+    } else {
+      this.incorrectStreak++;
+      this.correctStreak = 0;
+
+      const itemEl = $('item');
+      if (itemEl) itemEl.classList.add('wrong');
+
+      this.encourage();
+      // Gentle nudge: name the right color, auto-advance after a beat (no stuck-screen)
+      const phrase = `That's ${droppedColor}. We need ${item.color}.`;
+      this.say(phrase, 1600);
+
+      setTimeout(() => {
+        if (itemEl) itemEl.classList.remove('wrong');
+        // Mark this slot as "tried" — show item dim & auto-advance
+        renderProgress(this.totalItems, this.itemsShown, this.itemsShown - 1, /*missed*/ true);
+        this.nextItem();
+      }, 1700);
+    }
+  }
+
+  evaluateBranch() {
+    const idx = BRANCH_ORDER.indexOf(this.currentBranch);
+    let target = this.currentBranch;
+
+    if (this.correctStreak >= this.style.upStreak && idx < BRANCH_ORDER.length - 1) {
+      target = BRANCH_ORDER[idx + 1];
+      if (Math.random() < 0.4) this.say(pick(PHRASES.branchUp), 1400);
+    } else if (this.incorrectStreak >= this.style.downStreak && idx > 0) {
+      target = BRANCH_ORDER[idx - 1];
+      // No verbal celebration of stepping down — silent shift only
+    }
+
+    if (target !== this.currentBranch) {
+      this.currentBranch = target;
+      this.branchHistory.push(target);
+      this.correctStreak = 0;
+      this.incorrectStreak = 0;
+      this.renderZones();
+    }
+  }
+
+  cheer() {
+    charEl.classList.remove('encourage', 'nod');
+    void charEl.offsetWidth;
+    charEl.classList.add('nod');
+    setTimeout(() => charEl.classList.remove('nod'), 600);
+  }
+  encourage() {
+    charEl.classList.remove('nod', 'cheer');
+    void charEl.offsetWidth;
+    charEl.classList.add('encourage');
+    setTimeout(() => charEl.classList.remove('encourage'), 800);
+  }
+
+  say(text, ms) {
+    bubble.style.display = 'block';
+    bubble.textContent = text;
+    bubble.style.animation = 'none';
+    void bubble.offsetWidth;
+    bubble.style.animation = '';
+    clearTimeout(this.bubbleTimer);
+    this.bubbleTimer = setTimeout(() => {
+      bubble.style.display = 'none';
+    }, ms);
+  }
+
+  flashDebug() {
+    const tag = document.createElement('div');
+    tag.style.cssText = 'position:absolute;top:70px;left:18px;background:#000;color:#0f0;padding:6px 10px;border-radius:8px;font:12px monospace;z-index:99;';
+    tag.textContent = `branch: ${this.currentBranch} • streak +${this.correctStreak} -${this.incorrectStreak}`;
+    document.querySelectorAll('[data-debug]').forEach(n => n.remove());
+    tag.dataset.debug = '1';
+    $('game').appendChild(tag);
+  }
+
+  end() {
+    this.ended = true;
+    itemStage.innerHTML = '';
+    charEl.classList.add('cheer');
+    this.say('', 0); bubble.style.display = 'none';
+
+    showConfetti();
+
+    const accuracy = this.correctCount / this.totalItems;
+    const stars = accuracy >= 0.85 ? 3 : accuracy >= 0.6 ? 2 : 1;
+    const branchLabel = this.currentBranch.replace('-', ' / ');
+
+    setTimeout(() => showEndCard({
+      name: state.childName,
+      stars,
+      branch: branchLabel,
+      branchHistory: this.branchHistory,
+      correct: this.correctCount,
+      total: this.totalItems,
+    }), 600);
+  }
+}
+
+/* ── Renderers ──────────────────────────────────────────── */
+function setBackground() {
+  // Candy Land background (fallback to gradient if image doesn't exist)
+  bgEl.style.backgroundImage = `url("assets/images/world-backgrounds/candyland/default.png")`;
+  bgEl.style.backgroundColor = '#ffc0cb';
+}
+function setCharacter() {
+  charImg.src = `assets/images/characters/${state.character}/hero.png`;
+  charImg.alt = state.character;
+}
+function renderProgress(total, done, currentIdx = -1, missed = false) {
+  progressEl.innerHTML = '';
+  for (let i = 0; i < total; i++) {
+    const p = document.createElement('div');
+    p.className = 'pip';
+    if (i < done) {
+      p.classList.add('done');
+      if (missed && i === done - 1) {
+        p.style.background = 'rgba(255,255,255,0.55)';
+        p.style.boxShadow = 'inset 0 0 0 2px rgba(255,255,255,0.7)';
+      }
+    } else if (i === done) {
+      p.classList.add('current');
+    }
+    progressEl.appendChild(p);
+  }
+}
+
+/* ── Drag-and-drop (mouse + touch unified) ─────────────── */
+function bindDrag(itemEl) {
+  let startX, startY, originX, originY;
+  let dragging = false;
+  let activeZone = null;
+
+  function getPoint(e) {
+    if (e.touches && e.touches[0]) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    if (e.changedTouches && e.changedTouches[0]) return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+    return { x: e.clientX, y: e.clientY };
+  }
+
+  function onDown(e) {
+    e.preventDefault();
+    if (game.busy || game.ended) return;
+    const r = itemEl.getBoundingClientRect();
+    const p = getPoint(e);
+    startX = p.x; startY = p.y;
+    originX = r.left; originY = r.top;
+    itemEl.style.position = 'fixed';
+    itemEl.style.left = r.left + 'px';
+    itemEl.style.top = r.top + 'px';
+    itemEl.style.margin = '0';
+    itemEl.classList.add('dragging');
+    dragging = true;
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('mouseup', onUp);
+    document.addEventListener('touchend', onUp);
+  }
+  function onMove(e) {
+    if (!dragging) return;
+    e.preventDefault();
+    const p = getPoint(e);
+    const dx = p.x - startX, dy = p.y - startY;
+    itemEl.style.left = (originX + dx) + 'px';
+    itemEl.style.top  = (originY + dy) + 'px';
+
+    const zone = zoneAt(p.x, p.y);
+    if (zone !== activeZone) {
+      if (activeZone) activeZone.classList.remove('over');
+      if (zone) zone.classList.add('over');
+      activeZone = zone;
+    }
+  }
+  function onUp(e) {
+    if (!dragging) return;
+    dragging = false;
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('touchmove', onMove);
+    document.removeEventListener('mouseup', onUp);
+    document.removeEventListener('touchend', onUp);
+
+    const p = getPoint(e);
+    const zone = zoneAt(p.x, p.y);
+    if (activeZone) activeZone.classList.remove('over');
+
+    if (zone) {
+      game.handleDrop(zone.dataset.color, zone);
+    } else {
+      // snap back
+      itemEl.style.transition = 'left 0.3s ease, top 0.3s ease';
+      itemEl.style.left = originX + 'px';
+      itemEl.style.top  = originY + 'px';
+      itemEl.classList.remove('dragging');
+      setTimeout(() => {
+        itemEl.style.position = '';
+        itemEl.style.left = '';
+        itemEl.style.top = '';
+        itemEl.style.transition = '';
+      }, 320);
+    }
+  }
+  itemEl.addEventListener('mousedown', onDown);
+  itemEl.addEventListener('touchstart', onDown, { passive: false });
+}
+function zoneAt(x, y) {
+  const zones = document.querySelectorAll('.zone');
+  for (const z of zones) {
+    const r = z.getBoundingClientRect();
+    if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return z;
+  }
+  return null;
+}
+function bindDropZones() {
+  // Tap-to-drop: lets younger kids who can't drag still play.
+  document.querySelectorAll('.zone').forEach(z => {
+    z.addEventListener('click', () => {
+      const itemEl = $('item');
+      if (!itemEl || game.busy || game.ended) return;
+      // Animate item flying to the zone, then resolve.
+      const ir = itemEl.getBoundingClientRect();
+      const zr = z.getBoundingClientRect();
+      const dx = (zr.left + zr.width/2) - (ir.left + ir.width/2);
+      const dy = (zr.top + zr.height/2) - (ir.top + ir.height/2);
+      itemEl.style.transition = 'transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1)';
+      itemEl.style.transform = `translate(${dx}px, ${dy}px) scale(0.6)`;
+      setTimeout(() => game.handleDrop(z.dataset.color, z), 280);
+    });
+  });
+}
+
+/* ── Confetti ───────────────────────────────────────────── */
+function showConfetti() {
+  const wrap = document.createElement('div');
+  wrap.className = 'confetti';
+  const colors = ['#f4c83b', '#e23b3b', '#2a7fd9', '#4aaf5a', '#9558c4', '#ffae3b', '#ffc0cb', '#ffd700'];
+  for (let i = 0; i < 60; i++) {
+    const c = document.createElement('span');
+    c.style.left = Math.random() * 100 + '%';
+    c.style.background = colors[i % colors.length];
+    c.style.animationDuration = (1.6 + Math.random() * 1.6) + 's';
+    c.style.animationDelay = (Math.random() * 0.5) + 's';
+    c.style.transform = `rotate(${Math.random() * 360}deg)`;
+    wrap.appendChild(c);
+  }
+  $('game').appendChild(wrap);
+  setTimeout(() => wrap.remove(), 4000);
+}
+
+/* ── End card ───────────────────────────────────────────── */
+function showEndCard({ name, stars, branch, branchHistory, correct, total }) {
+  const card = document.createElement('div');
+  card.className = 'end-card';
+  const starSvg = `<svg viewBox="0 0 100 100" class="star"><path d="M50 6l13 30 33 3-25 22 8 33-29-17-29 17 8-33-25-22 33-3z" fill="currentColor"/></svg>`;
+  const journey = branchHistory.length > 1
+    ? `Journey: ${branchHistory.map(b => b.replace('-', ' / ')).join(' → ')}`
+    : `Stayed at ${branch}`;
+  card.innerHTML = `
+    <div class="panel">
+      <div class="stars">
+        ${[1,2,3].map(i => starSvg.replace('class="star"', `class="star${i <= stars ? ' lit' : ''}"`)).join('')}
+      </div>
+      <h1>${pick(PHRASES.end(name))}</h1>
+      <p>You sorted ${correct} of ${total} candies.<br><span style="font-size:13px;color:#94a3b8;">${journey}</span></p>
+      <button class="next-game-btn" id="restartBtn">Next Adventure →</button>
+    </div>
+  `;
+  $('game').appendChild(card);
+  setTimeout(() => {
+    card.querySelectorAll('.star').forEach((s, i) => {
+      setTimeout(() => s.classList.add(i < stars ? 'lit' : ''), 200 + i * 200);
+    });
+  }, 100);
+  $('restartBtn').addEventListener('click', () => {
+    card.remove();
+    document.querySelectorAll('[data-debug]').forEach(n => n.remove());
+    startGame();
+  });
+}
+
+/* ── Pause ──────────────────────────────────────────────── */
+pauseBtn.addEventListener('click', () => pauseCard.classList.add('show'));
+resumeBtn.addEventListener('click', () => pauseCard.classList.remove('show'));
+
+/* ── Tweaks panel + host protocol (hidden by default) ──── */
+const tweaksEl = $('tweaks');
+window.addEventListener('message', e => {
+  if (!e.data || typeof e.data !== 'object') return;
+  if (e.data.type === '__activate_edit_mode')   tweaksEl.classList.add('show');
+  if (e.data.type === '__deactivate_edit_mode') tweaksEl.classList.remove('show');
+});
+window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+$('tweaksClose').addEventListener('click', () => {
+  tweaksEl.classList.remove('show');
+  window.parent.postMessage({ type: '__edit_mode_dismissed' }, '*');
+});
+
+function persist(key, val) {
+  state[key] = val;
+  window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { [key]: val } }, '*');
+}
+
+// hydrate UI from state
+function syncTweaksUI() {
+  $('tw-childName').value = state.childName;
+  $('tw-character').value = state.character;
+  document.querySelectorAll('#tw-startBranch button').forEach(b => b.classList.toggle('on', b.dataset.v === state.startBranch));
+  document.querySelectorAll('#tw-branchStyle button').forEach(b => b.classList.toggle('on', b.dataset.v === state.branchStyle));
+  document.querySelectorAll('#tw-totalItems button').forEach(b => b.classList.toggle('on', b.dataset.v == state.totalItems));
+  document.querySelectorAll('#tw-debug button').forEach(b => b.classList.toggle('on', b.dataset.v === state.debug));
+}
+
+$('tw-childName').addEventListener('input', e => persist('childName', e.target.value));
+$('tw-character').addEventListener('change', e => { persist('character', e.target.value); setCharacter(); });
+
+function bindSeg(groupId, key, after) {
+  const grp = $(groupId);
+  grp.addEventListener('click', e => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    grp.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === btn));
+    const v = btn.dataset.v;
+    persist(key, key === 'totalItems' ? parseInt(v, 10) : v);
+    if (after) after(v);
+  });
+}
+bindSeg('tw-startBranch', 'startBranch', () => restartGame());
+bindSeg('tw-branchStyle', 'branchStyle', () => restartGame());
+bindSeg('tw-totalItems', 'totalItems',   () => restartGame());
+bindSeg('tw-debug',      'debug');
+
+/* ── Boot ───────────────────────────────────────────────── */
+function startGame() {
+  game = new ColorSortGame();
+  game.start();
+}
+function restartGame() {
+  document.querySelectorAll('.end-card, [data-debug]').forEach(n => n.remove());
+  itemStage.innerHTML = '';
+  bubble.style.display = 'none';
+  startGame();
+}
+
+syncTweaksUI();
+startGame();
+</script>
+</body>
+</html>
