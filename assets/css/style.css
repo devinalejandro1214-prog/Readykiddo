@@ -36,6 +36,12 @@ html, body {
     object-fit: cover;
 }
 
+.background-container picture {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
 /* ── Desktop button — pushed down from center to clear image text ── */
 .cta-button {
     position: relative;
@@ -44,19 +50,19 @@ html, body {
     font-size: 18px;
     font-weight: 600;
     color: white;
-    background: linear-gradient(135deg, #D97706 0%, #EA8B2D 100%);
+    background: linear-gradient(135deg, #09395f 0%, #0b5f95 100%);
     border: none;
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(217, 119, 6, 0.4);
+    box-shadow: 0 4px 15px rgba(9, 57, 95, 0.36);
     animation: fadeInUp 0.6s ease-out 0.3s both;
     margin-top: 180px;
 }
 
 .cta-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 25px rgba(217, 119, 6, 0.6);
+    box-shadow: 0 6px 25px rgba(9, 57, 95, 0.5);
 }
 
 .cta-button:active {
@@ -83,6 +89,7 @@ html, body {
         align-items: flex-end; /* anchor button to bottom of screen */
         justify-content: center;
         padding-bottom: 52px;
+        background: #fff7e8;
     }
 
     .cta-button {

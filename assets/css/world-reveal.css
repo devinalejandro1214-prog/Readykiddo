@@ -221,14 +221,15 @@ html, body {
     .reveal-character-panel {
         flex: 0 0 auto;
         width: 100%;
-        height: 42vw;
-        max-height: 260px;
+        height: 34dvh;
+        min-height: 250px;
+        max-height: 330px;
         align-items: flex-end;
     }
 
     .character-image {
         max-height: 100%;
-        max-width: 58%;
+        max-width: 76%;
     }
 
     .reveal-game-panel {
@@ -264,12 +265,13 @@ html, body {
 /* ── Responsive: phone ─────────────────────────────────────────── */
 @media (max-width: 480px) {
     .reveal-character-panel {
-        height: 38vw;
-        max-height: 210px;
+        height: 33dvh;
+        min-height: 240px;
+        max-height: 310px;
     }
 
     .character-image {
-        max-width: 52%;
+        max-width: 74%;
     }
 
     .reveal-game-panel {
@@ -335,12 +337,13 @@ html, body {
 /* ── Responsive: small phone ───────────────────────────────────── */
 @media (max-width: 360px) {
     .reveal-character-panel {
-        height: 36vw;
-        max-height: 180px;
+        height: 32dvh;
+        min-height: 220px;
+        max-height: 280px;
     }
 
     .character-image {
-        max-width: 58%;
+        max-width: 78%;
     }
 
     .welcome-card h1 {

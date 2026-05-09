@@ -539,3 +539,51 @@ Notes / Next Steps:
   - Page scroll enabled on mobile for onboarding and world-reveal ✓
   - Desktop styles completely unaffected ✓
 - Next code step: `game.html`
+## 2026-05-09 - Codex
+
+Prompt:
+> Add the new mobile landing page image, wire it in for phones, and push it live.
+
+Actions Taken:
+- Moved `MobileLandingPage.png` into the site asset folder as `assets/images/backgrounds/landing-bg-mobile.png`.
+- Updated `index.html` to use a responsive `<picture>` element:
+  - desktop/tablet uses `assets/images/backgrounds/landing-bg.png`
+  - mobile uses `assets/images/backgrounds/landing-bg-mobile.png`
+- Kept the ReadyKiddo blue landing CTA and the enlarged mobile world-reveal character from the previous approved render.
+- Kept the change scoped to landing/mobile rendering and approved visual fixes.
+
+Files/Folders Changed:
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\index.html`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\css\style.css`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\images\backgrounds\landing-bg-mobile.png`
+
+GitHub/Netlify:
+- Pending at time of entry.
+
+---
+
+## 2026-05-09 - Codex
+
+Prompt:
+> Create a rendering from the perspective of an iPhone web app and notice mobile issues. Landing page background text is cropped, landing button should match logo blue, and world reveal character is too small.
+
+Actions Taken:
+- Rendered iPhone 13 screenshots for `index.html` and `world-reveal.html` using the local site.
+- Updated landing CTA from orange to ReadyKiddo logo blue.
+- On mobile, changed the landing artwork from cropped `cover` to full-image `contain` so the headline and supporting words stay readable.
+- Increased the mobile world-reveal character stage and character max width so the character appears much larger on phone.
+
+Files/Folders Changed:
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\css\style.css`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\css\world-reveal.css`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\AGENT_COLLAB_LOG.md`
+
+Verification:
+- iPhone landing screenshot created at `C:\Users\Devin\Documents\Codex\2026-05-07\if-i-gave-you-a-png\readykiddo-iphone-landing-after.png`.
+- iPhone world-reveal screenshot created at `C:\Users\Devin\Documents\Codex\2026-05-07\if-i-gave-you-a-png\readykiddo-iphone-world-after.png`.
+- Character increased from about 99x148px to about 186x279px on a 390x844 iPhone viewport.
+
+GitHub/Netlify:
+- Local CSS changes only. Not committed or pushed yet.
+
+---
