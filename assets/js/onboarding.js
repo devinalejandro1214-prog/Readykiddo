@@ -2,8 +2,7 @@
 // Step 1: Setup (names + character selection)
 // Step 2: Pick your world (theme)
 // Step 3: Vibe
-// Step 4: Music
-// Step 5: Style
+// Step 4: Style
 const onboardingSteps = [
     {
         id: 'setup',
@@ -15,7 +14,14 @@ const onboardingSteps = [
         title: 'Pick your world',
         subtitle: 'Choose the environment for your adventure',
         type: 'options',
-        options: ['Space', 'Jungle', 'Ocean', 'Castle', 'City', 'Candy Land', 'Sports Arena', 'Music Studio'],
+        options: [
+            { label: 'Space', image: 'assets/images/buttons/worlds/space.png' },
+            { label: 'Jungle', image: 'assets/images/buttons/worlds/jungle.png' },
+            { label: 'Beach', image: 'assets/images/buttons/worlds/beach.png' },
+            { label: 'Castle', image: 'assets/images/buttons/worlds/castle.png' },
+            { label: 'Studio', image: 'assets/images/buttons/worlds/studio.png' },
+            { label: 'Candy Land', image: 'assets/images/buttons/worlds/candy-land.png' }
+        ],
         nextButtonText: 'Next'
     },
     {
@@ -23,15 +29,13 @@ const onboardingSteps = [
         title: 'What kind of adventure do you want?',
         subtitle: 'Choose the feeling',
         type: 'options',
-        options: ['Chill', 'Brave', 'Funny', 'Magical', 'Fast', 'Cozy'],
-        nextButtonText: 'Next'
-    },
-    {
-        id: 'music',
-        title: 'What should your world sound like?',
-        subtitle: 'Pick your music style',
-        type: 'options',
-        options: ['Calm', 'Upbeat', 'Adventure', 'Silly', 'No music'],
+        options: [
+            { label: 'Cozy', image: 'assets/images/buttons/vibes/cozy.png' },
+            { label: 'Exciting', image: 'assets/images/buttons/vibes/exciting.png' },
+            { label: 'Magical', image: 'assets/images/buttons/vibes/magical.png' },
+            { label: 'Silly', image: 'assets/images/buttons/vibes/silly.png' },
+            { label: 'Brave', image: 'assets/images/buttons/vibes/brave.png' }
+        ],
         nextButtonText: 'Next'
     },
     {
@@ -39,7 +43,14 @@ const onboardingSteps = [
         title: 'What should your character look like?',
         subtitle: 'Choose your outfit style',
         type: 'options',
-        options: ['Plain', 'Hero', 'Explorer', 'Wizard', 'Artist', 'Scientist'],
+        options: [
+            { label: 'Plain', image: 'assets/images/buttons/styles/plain.png' },
+            { label: 'Hero', image: 'assets/images/buttons/styles/hero.png' },
+            { label: 'Explorer', image: 'assets/images/buttons/styles/explorer.png' },
+            { label: 'Wizard', image: 'assets/images/buttons/styles/wizard.png' },
+            { label: 'Artist', image: 'assets/images/buttons/styles/artist.png' },
+            { label: 'Scientist', image: 'assets/images/buttons/styles/scientist.png' }
+        ],
         nextButtonText: 'Reveal My World'
     }
 ];
@@ -156,21 +167,32 @@ function renderQuestionTitle(step) {
 
 function renderOptionButtons(step) {
     const group = document.createElement('div');
-    group.className = step.options.length > 6
-        ? 'button-group button-group-two-col'
-        : 'button-group';
+    group.className = step.options.some(option => typeof option === 'object')
+        ? 'button-group image-option-group'
+        : (step.options.length > 6 ? 'button-group button-group-two-col' : 'button-group');
 
     step.options.forEach(option => {
+        const label = typeof option === 'object' ? option.label : option;
         const btn = document.createElement('button');
         btn.className = 'option-button' +
-                        (userChoices[step.id] === option ? ' selected' : '');
-        btn.textContent = option;
+                        (option.image ? ' image-option-button' : '') +
+                        (userChoices[step.id] === label ? ' selected' : '');
+
+        if (option.image) {
+            btn.innerHTML = `
+                <img src="${option.image}" alt="" class="option-button-image">
+                <span class="option-button-label">${label}</span>
+            `;
+            btn.setAttribute('aria-label', label);
+        } else {
+            btn.textContent = label;
+        }
 
         btn.addEventListener('click', () => {
             group.querySelectorAll('.option-button')
                  .forEach(b => b.classList.remove('selected'));
             btn.classList.add('selected');
-            userChoices[step.id] = option;
+            userChoices[step.id] = label;
         });
 
         group.appendChild(btn);

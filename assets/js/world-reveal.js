@@ -1,10 +1,9 @@
 const vibeThemes = {
-    Chill: { bg: 'rgba(200, 230, 255, 0.94)', accent: '#3B82F6' },
-    Brave: { bg: 'rgba(255, 230, 200, 0.94)', accent: '#EF4444' },
-    Funny: { bg: 'rgba(255, 250, 200, 0.94)', accent: '#FBBF24' },
+    Cozy: { bg: 'rgba(255, 220, 200, 0.94)', accent: '#F97316' },
+    Exciting: { bg: 'rgba(255, 230, 200, 0.94)', accent: '#EA580C' },
     Magical: { bg: 'rgba(240, 200, 255, 0.94)', accent: '#A855F7' },
-    Fast: { bg: 'rgba(255, 200, 230, 0.94)', accent: '#EC4899' },
-    Cozy: { bg: 'rgba(255, 220, 200, 0.94)', accent: '#F97316' }
+    Silly: { bg: 'rgba(255, 250, 200, 0.94)', accent: '#FBBF24' },
+    Brave: { bg: 'rgba(255, 230, 200, 0.94)', accent: '#EF4444' }
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -45,12 +44,7 @@ function loadWorldReveal(profile, manifest) {
     }
 
     const characterPath = character.styles[styleSlug] || character.styles.plain;
-    const backgroundPath = character.worlds[worldSlug];
-    const overlayPath = manifest.vibeEffects[vibeSlug];
-
-    if (!backgroundPath) {
-        throw new Error(`Unknown world: ${profile.theme}`);
-    }
+    const backgroundPath = `assets/images/world-backgrounds/${worldSlug}/vibes/${vibeSlug}/background.png`;
 
     document.getElementById('welcomeTitle').textContent = `Welcome, ${profile.childName}!`;
     document.getElementById('welcomeSubtitle').textContent = 'Your personalized world awaits...';
@@ -61,21 +55,16 @@ function loadWorldReveal(profile, manifest) {
 
     const backgroundImage = document.getElementById('backgroundImage');
     backgroundImage.src = backgroundPath;
-    backgroundImage.alt = `${profile.character}'s ${profile.theme} world`;
+    backgroundImage.alt = `${profile.theme} world with a ${profile.vibe} vibe`;
 
     const vibeOverlay = document.getElementById('vibeOverlay');
-    if (overlayPath) {
-        vibeOverlay.src = overlayPath;
-        vibeOverlay.hidden = false;
-    } else {
-        vibeOverlay.hidden = true;
-    }
+    vibeOverlay.hidden = true;
 
     applyVibeTheme(profile.vibe);
 
     document.getElementById('themeDisplay').textContent = profile.theme;
     document.getElementById('vibeDisplay').textContent = profile.vibe;
-    document.getElementById('musicDisplay').textContent = profile.music || 'Later';
+    document.getElementById('musicDisplay').textContent = 'Later';
     document.getElementById('styleDisplay').textContent = profile.style || 'Plain';
 
     document.getElementById('startGameButton').addEventListener('click', () => {

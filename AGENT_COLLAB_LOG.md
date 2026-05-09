@@ -403,3 +403,40 @@ GitHub/Netlify:
 Notes / Next Steps:
 - Devin will create vibe image versions for each world.
 - Suggested output path pattern: `assets/images/world-backgrounds/{world}/vibes/{vibe}/background.png`.
+
+---
+
+## 2026-05-09 - Codex
+
+Prompt:
+> Create snapshot-style picture buttons for the world, vibe, and costume choices now that backgrounds, vibes, and costumes exist.
+
+Actions Taken:
+- Generated snapshot button images from the real assets:
+- 6 world buttons from `assets/images/world-backgrounds/{world}/base.png`.
+- 5 vibe buttons from the Space vibe backgrounds as canonical mood previews.
+- 6 style buttons from Mica costume assets.
+- Added `assets/images/buttons/buttons.json` as a small button asset manifest.
+- Updated onboarding world choices to `Space`, `Jungle`, `Beach`, `Castle`, `Studio`, and `Candy Land`.
+- Updated onboarding vibe choices to `Cozy`, `Exciting`, `Magical`, `Silly`, and `Brave`.
+- Removed the deferred music question from onboarding.
+- Updated option rendering so world, vibe, and style choices display large image-card buttons with labels and accessible `aria-label`s.
+- Added responsive CSS for picture-option cards on desktop, tablet, and phone.
+- Renamed each uploaded world-vibe image to a stable `background.png` inside its vibe folder.
+- Updated `world-reveal.js` so the selected `world + vibe` loads `assets/images/world-backgrounds/{world}/vibes/{vibe}/background.png`.
+- Kept selected costume loading from `assets/images/characters/{kid}/{style}.png`.
+
+Files/Folders Changed:
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\images\buttons\`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\images\world-backgrounds\*\vibes\*\background.png`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\js\onboarding.js`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\js\world-reveal.js`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\css\onboarding.css`
+
+GitHub/Netlify:
+- Pending at time of entry.
+
+Notes / Next Steps:
+- Local browser validation passed with no console errors or failed requests.
+- Tested sample flow: Mica + Beach + Silly + Wizard.
+- Reveal background resolved to `assets/images/world-backgrounds/beach/vibes/silly/background.png`.

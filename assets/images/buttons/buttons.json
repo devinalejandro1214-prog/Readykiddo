@@ -1,0 +1,93 @@
+{
+  "worlds": [
+    {
+      "id": "space",
+      "label": "Space",
+      "image": "assets/images/buttons/worlds/space.png"
+    },
+    {
+      "id": "jungle",
+      "label": "Jungle",
+      "image": "assets/images/buttons/worlds/jungle.png"
+    },
+    {
+      "id": "beach",
+      "label": "Beach",
+      "image": "assets/images/buttons/worlds/beach.png"
+    },
+    {
+      "id": "castle",
+      "label": "Castle",
+      "image": "assets/images/buttons/worlds/castle.png"
+    },
+    {
+      "id": "studio",
+      "label": "Studio",
+      "image": "assets/images/buttons/worlds/studio.png"
+    },
+    {
+      "id": "candy-land",
+      "label": "Candy Land",
+      "image": "assets/images/buttons/worlds/candy-land.png"
+    }
+  ],
+  "vibes": [
+    {
+      "id": "cozy",
+      "label": "Cozy",
+      "image": "assets/images/buttons/vibes/cozy.png"
+    },
+    {
+      "id": "exciting",
+      "label": "Exciting",
+      "image": "assets/images/buttons/vibes/exciting.png"
+    },
+    {
+      "id": "magical",
+      "label": "Magical",
+      "image": "assets/images/buttons/vibes/magical.png"
+    },
+    {
+      "id": "silly",
+      "label": "Silly",
+      "image": "assets/images/buttons/vibes/silly.png"
+    },
+    {
+      "id": "brave",
+      "label": "Brave",
+      "image": "assets/images/buttons/vibes/brave.png"
+    }
+  ],
+  "styles": [
+    {
+      "id": "plain",
+      "label": "Plain",
+      "image": "assets/images/buttons/styles/plain.png"
+    },
+    {
+      "id": "hero",
+      "label": "Hero",
+      "image": "assets/images/buttons/styles/hero.png"
+    },
+    {
+      "id": "explorer",
+      "label": "Explorer",
+      "image": "assets/images/buttons/styles/explorer.png"
+    },
+    {
+      "id": "wizard",
+      "label": "Wizard",
+      "image": "assets/images/buttons/styles/wizard.png"
+    },
+    {
+      "id": "artist",
+      "label": "Artist",
+      "image": "assets/images/buttons/styles/artist.png"
+    },
+    {
+      "id": "scientist",
+      "label": "Scientist",
+      "image": "assets/images/buttons/styles/scientist.png"
+    }
+  ]
+}

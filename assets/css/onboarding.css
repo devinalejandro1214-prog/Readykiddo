@@ -250,6 +250,65 @@ html, body {
 }
 
 /* ── Nav buttons ─────────────────────────────── */
+.image-option-group {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.image-option-button {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 158px;
+    padding: 8px;
+    text-align: center;
+    background: #ffffff;
+    border-color: #e5e7eb;
+    border-radius: 14px;
+}
+
+.image-option-button:hover {
+    background: #fffbeb;
+}
+
+.image-option-button.selected {
+    background: #fff7ed;
+}
+
+.image-option-button.selected::after {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    width: 24px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #D97706;
+    color: #ffffff;
+    float: none;
+}
+
+.option-button-image {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 10px;
+    background: #f8fafc;
+}
+
+.option-button-label {
+    display: block;
+    min-height: 20px;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #1f2937;
+}
+
 .nav-buttons {
     display: flex;
     gap: 12px;
@@ -370,6 +429,20 @@ html, body {
         font-size: 15px;
     }
 
+    .image-option-group {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .image-option-button {
+        min-height: 136px;
+        padding: 7px;
+    }
+
+    .option-button-label {
+        font-size: 12px;
+    }
+
     .nav-buttons {
         gap: 10px;
         margin-top: 16px;
@@ -482,6 +555,25 @@ html, body {
         font-size: 13px;
         border-radius: 8px;
         border-width: 2px;
+    }
+
+    .image-option-group {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .image-option-button {
+        min-height: 126px;
+        padding: 6px;
+        border-radius: 10px;
+    }
+
+    .option-button-image {
+        border-radius: 8px;
+    }
+
+    .option-button-label {
+        font-size: 12px;
     }
 
     .option-button.selected::after {
