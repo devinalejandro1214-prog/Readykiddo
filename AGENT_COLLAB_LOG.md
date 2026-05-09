@@ -542,6 +542,46 @@ Notes / Next Steps:
 ## 2026-05-09 - Codex
 
 Prompt:
+> Apply the approved visual suggestion updates to both mobile and normal web versions.
+
+Actions Taken:
+- Added Fredoka font loading to `index.html`, `onboarding.html`, and `world-reveal.html`.
+- Updated landing page CTA to the stronger blue "Start Adventure" button with a play icon and subtle idle pulse.
+- Removed the deferred autoplay landing audio element from `index.html`.
+- Restyled onboarding with ReadyKiddo blue as the main action color, orange as selected/accent state, larger friendlier type, focus rings, and a storybook-style card treatment.
+- Simplified world reveal by removing the large "Coming Soon" panel.
+- Reworked world reveal as layered composition:
+  - selected world/vibe background stays full-screen
+  - character is the main visual reward
+  - welcome appears as a compact pill
+  - primary action becomes a centered blue Play button
+- Fixed mobile world reveal positioning so the welcome pill, character, and Play button stay centered and do not overflow.
+
+Files/Folders Changed:
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\index.html`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\onboarding.html`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\world-reveal.html`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\css\style.css`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\css\onboarding.css`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\css\world-reveal.css`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\js\world-reveal.js`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\AGENT_COLLAB_LOG.md`
+
+Verification:
+- Rendered desktop landing, onboarding, and world reveal.
+- Rendered iPhone landing, onboarding, vibe/style flow, and world reveal.
+- Completed a sample mobile onboarding path: Mica + Space + Magical + Hero.
+- Confirmed the saved profile was written to `localStorage`.
+- Confirmed no browser console errors during the tested mobile flow.
+
+GitHub/Netlify:
+- Pending at time of entry.
+
+---
+
+## 2026-05-09 - Codex
+
+Prompt:
 > Add the new mobile landing page image, wire it in for phones, and push it live.
 
 Actions Taken:

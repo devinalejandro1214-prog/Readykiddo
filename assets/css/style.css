@@ -1,129 +1,179 @@
+:root {
+    --ready-blue: #09395f;
+    --ready-blue-2: #0b5f95;
+    --ready-orange: #f28c18;
+    --paper: #fff7e8;
+}
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
     width: 100%;
-    height: 100%;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    overflow: hidden; /* intentional — landing page is a single full-screen view on desktop */
+    min-height: 100%;
+    font-family: "Fredoka", "Nunito", "Segoe UI", sans-serif;
+    overflow: hidden;
 }
 
 .landing-page {
     position: relative;
     width: 100%;
-    height: 100vh;
+    min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     align-items: center;
     justify-content: center;
+    background: var(--paper);
 }
 
 .background-container {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     z-index: 1;
     overflow: hidden;
 }
 
+.background-container picture,
 .background-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.background-container picture {
     display: block;
     width: 100%;
     height: 100%;
 }
 
-/* ── Desktop button — pushed down from center to clear image text ── */
+.background-image {
+    object-fit: cover;
+}
+
 .cta-button {
     position: relative;
     z-index: 10;
-    padding: 16px 40px;
-    font-size: 18px;
-    font-weight: 600;
-    color: white;
-    background: linear-gradient(135deg, #09395f 0%, #0b5f95 100%);
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(9, 57, 95, 0.36);
-    animation: fadeInUp 0.6s ease-out 0.3s both;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-width: 300px;
+    min-height: 66px;
     margin-top: 180px;
+    padding: 16px 34px;
+    border: none;
+    border-radius: 22px;
+    color: white;
+    background: linear-gradient(135deg, var(--ready-blue) 0%, var(--ready-blue-2) 100%);
+    box-shadow: 0 14px 30px rgba(9, 57, 95, 0.28);
+    cursor: pointer;
+    font-size: 23px;
+    font-weight: 700;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    animation: fadeInUp 0.6s ease-out 0.3s both, idlePulse 2.4s ease-in-out 1.2s infinite;
 }
 
-.cta-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 25px rgba(9, 57, 95, 0.5);
+.cta-button:hover,
+.cta-button:focus-visible {
+    outline: none;
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 18px 36px rgba(9, 57, 95, 0.36);
+}
+
+.cta-button:focus-visible {
+    box-shadow:
+        0 0 0 4px rgba(255, 255, 255, 0.9),
+        0 0 0 8px rgba(242, 140, 24, 0.75),
+        0 18px 36px rgba(9, 57, 95, 0.36);
 }
 
 .cta-button:active {
-    transform: translateY(0);
+    transform: translateY(0) scale(0.99);
+}
+
+.cta-icon {
+    display: grid;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    border-radius: 50%;
+    color: var(--ready-blue);
+    background: var(--paper);
+    font-size: 15px;
+    line-height: 1;
 }
 
 @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-/* ── Tablet (768px) ───────────────────────────────────────────────
-   Switch from center+margin to bottom-anchored so the button
-   never rides up into the image text at smaller sizes.           */
+@keyframes idlePulse {
+    0%,
+    100% {
+        box-shadow: 0 14px 30px rgba(9, 57, 95, 0.28);
+    }
+    50% {
+        box-shadow: 0 18px 38px rgba(9, 57, 95, 0.38);
+    }
+}
+
 @media (max-width: 768px) {
-    html, body {
+    html,
+    body {
         overflow-x: hidden;
         overflow-y: auto;
         height: auto;
     }
 
     .landing-page {
-        height: 100dvh;        /* dynamic viewport — accounts for browser chrome bar */
-        align-items: flex-end; /* anchor button to bottom of screen */
+        align-items: flex-end;
         justify-content: center;
         padding-bottom: 52px;
-        background: #fff7e8;
     }
 
     .cta-button {
-        margin-top: 0;         /* no longer needed — flex-end handles vertical position */
-        padding: 15px 36px;
-        font-size: 16px;
-        width: auto;
-        min-width: 220px;
+        min-width: 250px;
+        min-height: 58px;
+        margin-top: 0;
+        padding: 14px 28px;
+        border-radius: 20px;
+        font-size: 20px;
     }
 }
 
-/* ── Phone (480px) ──────────────────────────────────────────────── */
 @media (max-width: 480px) {
     .landing-page {
         padding-bottom: 44px;
     }
 
     .cta-button {
-        padding: 14px 28px;
-        font-size: 15px;
-        min-width: 200px;
-        border-radius: 10px;
+        width: min(78%, 300px);
+        min-width: 0;
+        min-height: 58px;
+        padding: 14px 20px;
+        font-size: 18px;
     }
 }
 
-/* ── Small phone (360px) ────────────────────────────────────────── */
 @media (max-width: 360px) {
     .landing-page {
-        padding-bottom: 36px;
+        padding-bottom: 34px;
     }
 
     .cta-button {
-        padding: 13px 24px;
-        font-size: 14px;
-        min-width: 180px;
+        width: min(82%, 280px);
+        min-height: 54px;
+        font-size: 16px;
+    }
+
+    .cta-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 13px;
     }
 }
