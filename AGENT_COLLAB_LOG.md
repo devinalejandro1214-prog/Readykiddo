@@ -372,3 +372,34 @@ Notes / Next Steps:
 - Live browser validation passed with no console errors for the same sample profile.
 - Live asset checks passed for the manifest, sample costume PNG, sample world PNG, sample vibe overlay PNG, and `world-reveal.html`.
 - `game.html` is still the next site-code step for Claude Code.
+
+---
+
+## 2026-05-09 - Codex
+
+Prompt:
+> Organize the uploaded ReadyKiddo background images into folders so vibe versions can be created for each background.
+
+Actions Taken:
+- Found six newly uploaded background PNGs in the root of `ReadyKiddo2.0`.
+- Created `assets/images/world-backgrounds/`.
+- Created one folder per world: `space`, `jungle`, `beach`, `castle`, `studio`, and `candy-land`.
+- Moved each uploaded background into its matching world folder as `base.png`.
+- Created local vibe subfolders under each world for `cozy`, `exciting`, `magical`, `silly`, and `brave`.
+- Added a README explaining the folder structure and suggested future vibe filename.
+
+Files/Folders Changed:
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\images\world-backgrounds\space\base.png`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\images\world-backgrounds\jungle\base.png`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\images\world-backgrounds\beach\base.png`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\images\world-backgrounds\castle\base.png`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\images\world-backgrounds\studio\base.png`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\images\world-backgrounds\candy-land\base.png`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\images\world-backgrounds\README.md`
+
+GitHub/Netlify:
+- Pending at time of entry.
+
+Notes / Next Steps:
+- Devin will create vibe image versions for each world.
+- Suggested output path pattern: `assets/images/world-backgrounds/{world}/vibes/{vibe}/background.png`.
