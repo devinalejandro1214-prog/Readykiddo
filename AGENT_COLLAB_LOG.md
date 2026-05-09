@@ -492,3 +492,50 @@ Notes / Next Steps:
   - Vibe color applied to card backgrounds (purple for Magical, etc.) ✓
   - Mobile layout stacks correctly ✓
 - Next code step: `game.html` — waiting on Devin confirmation this flow looks good.
+
+---
+
+## 2026-05-09 - Claude Code
+
+Prompt:
+> Character needs an outline on the world-reveal screen — they blend into the background. Fix mobile so the experience matches desktop: landing button overlaps "A shared adventure" text, and users can't reach the whole page on phone.
+
+Actions Taken:
+- **Character outline** (`world-reveal.css`):
+  - Replaced single drop-shadow with a 4-layer filter stack:
+    - `drop-shadow(0 0 3px white)` — crisp solid edge
+    - `drop-shadow(0 0 6px rgba(white, 0.95))` — close glow
+    - `drop-shadow(0 0 12px rgba(white, 0.7))` — outer glow
+    - `drop-shadow(0 8px 24px rgba(black, 0.45))` — depth shadow
+  - Works on all backgrounds because drop-shadow follows the PNG's transparent edge exactly
+  - Desktop layout and sizing untouched
+- **Landing page button** (`style.css`):
+  - Problem: `margin-top: 180px` from flex-center causes button to ride up into the background image text at small screen widths (image scales differently with `object-fit: cover`)
+  - Fix: At ≤768px, switch `.landing-page` from `align-items: center` → `align-items: flex-end` with `padding-bottom: 52px`; zero out `margin-top` on button
+  - Button now anchors to the bottom of the viewport on mobile — always below the image text, always reachable
+  - Desktop (>768px) untouched — still uses center + 180px offset
+  - Added 480px and 360px sub-breakpoints for progressively smaller padding
+  - Used `height: 100dvh` (dynamic viewport height) so button clears the mobile browser chrome bar
+- **Full-page scroll on mobile** (`onboarding.css`, `world-reveal.css`):
+  - Problem: `overflow: hidden` on `html, body` locked scroll everywhere; on small phones the card content was cut off with no way to reach the bottom
+  - Fix: At ≤768px media query, override to `overflow-y: auto; height: auto` on `html, body` for both onboarding and world-reveal
+  - `.onboarding-page` gets `height: auto; min-height: 100dvh; align-items: flex-start; padding` so card starts at top and page scrolls naturally
+  - `.question-card` gets `max-height: none; overflow-y: visible` — card grows to full height, page scrolls instead of card inner-scrolling (much more natural on touch)
+  - World-reveal mobile panel gets `padding-bottom: 32–36px` so "Let's Go!" button never hides behind phone navigation bar
+  - Desktop `overflow: hidden` preserved on all pages — single-viewport full-screen experience unchanged
+
+Files/Folders Changed:
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\css\world-reveal.css`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\css\style.css`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\css\onboarding.css`
+
+GitHub/Netlify:
+- CSS-only changes. Ready for Codex to commit and push.
+
+Notes / Next Steps:
+- All fixes verified in preview (984px desktop and 440px mobile viewport):
+  - Character white outline filter confirmed applied via getComputedStyle ✓
+  - Mobile landing rules confirmed: align-items flex-end, padding-bottom 52px, margin-top 0 ✓
+  - Page scroll enabled on mobile for onboarding and world-reveal ✓
+  - Desktop styles completely unaffected ✓
+- Next code step: `game.html`

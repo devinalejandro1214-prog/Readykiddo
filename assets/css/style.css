@@ -8,7 +8,7 @@ html, body {
     width: 100%;
     height: 100%;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    overflow: hidden;
+    overflow: hidden; /* intentional — landing page is a single full-screen view on desktop */
 }
 
 .landing-page {
@@ -36,6 +36,7 @@ html, body {
     object-fit: cover;
 }
 
+/* ── Desktop button — pushed down from center to clear image text ── */
 .cta-button {
     position: relative;
     z-index: 10;
@@ -67,19 +68,55 @@ html, body {
     to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Responsive ──────────────────────────────── */
+/* ── Tablet (768px) ───────────────────────────────────────────────
+   Switch from center+margin to bottom-anchored so the button
+   never rides up into the image text at smaller sizes.           */
 @media (max-width: 768px) {
+    html, body {
+        overflow-x: hidden;
+        overflow-y: auto;
+        height: auto;
+    }
+
+    .landing-page {
+        height: 100dvh;        /* dynamic viewport — accounts for browser chrome bar */
+        align-items: flex-end; /* anchor button to bottom of screen */
+        justify-content: center;
+        padding-bottom: 52px;
+    }
+
     .cta-button {
-        padding: 14px 32px;
+        margin-top: 0;         /* no longer needed — flex-end handles vertical position */
+        padding: 15px 36px;
         font-size: 16px;
-        margin-top: 120px;
+        width: auto;
+        min-width: 220px;
     }
 }
 
+/* ── Phone (480px) ──────────────────────────────────────────────── */
 @media (max-width: 480px) {
+    .landing-page {
+        padding-bottom: 44px;
+    }
+
     .cta-button {
-        padding: 12px 24px;
+        padding: 14px 28px;
+        font-size: 15px;
+        min-width: 200px;
+        border-radius: 10px;
+    }
+}
+
+/* ── Small phone (360px) ────────────────────────────────────────── */
+@media (max-width: 360px) {
+    .landing-page {
+        padding-bottom: 36px;
+    }
+
+    .cta-button {
+        padding: 13px 24px;
         font-size: 14px;
-        margin-top: 80px;
+        min-width: 180px;
     }
 }

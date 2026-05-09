@@ -8,7 +8,7 @@ html, body {
     width: 100%;
     height: 100%;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    overflow: hidden;
+    overflow: hidden; /* desktop: single viewport, no page scroll needed */
 }
 
 .onboarding-page {
@@ -348,14 +348,30 @@ html, body {
 
 /* ── Responsive ──────────────────────────────── */
 @media (max-width: 768px) {
+    html, body {
+        overflow-x: hidden;
+        overflow-y: auto;   /* allow page-level scroll on mobile */
+        height: auto;
+    }
+
+    .onboarding-page {
+        height: auto;
+        min-height: 100dvh;
+        align-items: flex-start;
+        padding: 16px 0 24px;
+    }
+
     .onboarding-container {
         width: 94%;
         gap: 12px;
+        /* ensure container never exceeds viewport width */
+        max-width: 100%;
     }
 
     .question-card {
         padding: 24px 20px;
-        max-height: 85vh;
+        max-height: none;  /* let card grow naturally; page scrolls instead */
+        overflow-y: visible;
     }
 
     .progress-bar {
@@ -456,6 +472,10 @@ html, body {
 }
 
 @media (max-width: 480px) {
+    .onboarding-page {
+        padding: 12px 0 28px;
+    }
+
     .onboarding-container {
         width: 96%;
         gap: 10px;
@@ -463,7 +483,8 @@ html, body {
 
     .question-card {
         padding: 16px 12px;
-        max-height: 90vh;
+        max-height: none;  /* full natural height — page scrolls */
+        overflow-y: visible;
         border-radius: 16px;
     }
 
