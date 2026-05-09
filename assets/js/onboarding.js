@@ -221,6 +221,9 @@ function renderOptionButtons(step) {
                  .forEach(b => b.classList.remove('selected'));
             btn.classList.add('selected');
             userChoices[step.id] = label;
+
+            // Auto-advance to next step after selection
+            setTimeout(() => advanceFromOptionStep(step), 250);
         });
 
         group.appendChild(btn);
@@ -229,11 +232,26 @@ function renderOptionButtons(step) {
     questionCard.appendChild(group);
 }
 
+// ── Auto-advance from option steps ────────────────────────────────
+function advanceFromOptionStep(step) {
+    // Selection is already made, so just advance
+    if (currentStep < onboardingSteps.length - 1) {
+        currentStep++;
+        renderStep(currentStep);
+    } else {
+        // Last step - complete onboarding
+        localStorage.setItem('userProfile', JSON.stringify(userChoices));
+        window.location.href = 'world-reveal.html';
+    }
+}
+
 // ── Nav buttons ───────────────────────────────────────────────────
 function renderNavButtons(stepIndex) {
+    const step = onboardingSteps[stepIndex];
     const nav = document.createElement('div');
     nav.className = 'nav-buttons';
 
+    // Back button (always shown except on first step)
     if (stepIndex > 0) {
         const back = document.createElement('button');
         back.className = 'nav-button back';
@@ -245,11 +263,14 @@ function renderNavButtons(stepIndex) {
         nav.appendChild(back);
     }
 
-    const next = document.createElement('button');
-    next.className = 'nav-button next';
-    next.textContent = onboardingSteps[stepIndex].nextButtonText;
-    next.addEventListener('click', goToNextStep);
-    nav.appendChild(next);
+    // Next button only for setup step (option steps auto-advance on tile click)
+    if (step.type === 'setup') {
+        const next = document.createElement('button');
+        next.className = 'nav-button next';
+        next.textContent = step.nextButtonText;
+        next.addEventListener('click', goToNextStep);
+        nav.appendChild(next);
+    }
 
     questionCard.appendChild(nav);
 }

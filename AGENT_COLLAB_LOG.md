@@ -542,6 +542,55 @@ Notes / Next Steps:
 ## 2026-05-09 - Codex
 
 Prompt:
+> Add the first game flow and test the uploaded Emmett Scientist Google Flow welcome-wave video when that costume is selected.
+
+Actions Taken:
+- Moved the uploaded Emmett Scientist video into a stable app asset path:
+  - `assets/videos/characters/emmett/scientist/welcome-wave.mp4`
+- Updated `world-reveal.html` to include an optional intro video layer inside the character panel.
+- Updated `world-reveal.js` so the Emmett + Scientist combination plays the welcome-wave video on the world reveal screen.
+- Added a reusable intro-video lookup pattern so future character/style videos can be added by mapping:
+  - `{characterSlug}/{styleSlug}` -> video path
+- Updated `game.html` so it reads `gameProfile` / `userProfile` from `localStorage`.
+- Updated the game to use the real selected:
+  - character
+  - style/costume
+  - world
+  - vibe
+- Changed the game background path to:
+  - `assets/images/world-backgrounds/{world}/vibes/{vibe}/background.png`
+- Changed the game character path to:
+  - `assets/images/characters/{character}/{style}.png`
+- Removed missing themed item/container image requests for now so the game uses SVG fallback art without 404 console errors.
+
+Files/Folders Changed:
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\world-reveal.html`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\css\world-reveal.css`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\js\world-reveal.js`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\game.html`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\videos\characters\emmett\scientist\welcome-wave.mp4`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\AGENT_COLLAB_LOG.md`
+
+Verification:
+- Rendered iPhone world reveal with profile:
+  - Emmett + Scientist + Space + Magical
+- Confirmed the intro video loaded from:
+  - `assets/videos/characters/emmett/scientist/welcome-wave.mp4`
+- Confirmed the video was visible and playing on world reveal.
+- Clicked Play and confirmed navigation to `game.html`.
+- Confirmed the game loaded:
+  - background: `space/vibes/magical/background.png`
+  - character: `emmett/scientist.png`
+- Confirmed the game used SVG fallback items/zones with no console errors.
+
+GitHub/Netlify:
+- Pending at time of entry.
+
+---
+
+## 2026-05-09 - Codex
+
+Prompt:
 > Apply the approved visual suggestion updates to both mobile and normal web versions.
 
 Actions Taken:

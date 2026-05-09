@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ReadyKiddo — Sorting Game</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ── Tokens ───────────────────────────────────────────── */
+  :root {
+    --rk-blue-deep: #09395f;
+    --rk-blue: #0b5f95;
+    --rk-blue-light: #2a8fd1;
+    --rk-cream: #fff7e8;
+    --rk-paper: #fffaf2;
+
+    --color-red:    #e23b3b;
+    --color-blue:   #2a7fd9;
+    --color-yellow: #f4c83b;
+    --color-green:  #4aaf5a;
+    --color-purple: #9558c4;
+
+    --shadow-card: 0 10px 30px rgba(9, 57, 95, 0.18), 0 2px 6px rgba(9, 57, 95, 0.08);
+    --shadow-pop:  0 8px 0 rgba(0, 0, 0, 0.12);
+
+    --font: 'Fredoka', system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 100%; height: 100%;
+    font-family: var(--font);
+    overflow: hidden;
+    background: #0a1428;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  /* ── Stage ───────────────────────────────────────────── */
+  .game {
+    position: relative;
+    width: 100%;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .bg {
+    position: absolute; inset: 0;
+    background-size: cover;
+    background-position: center;
+    transition: background-image 0.6s ease;
+  }
+  .bg::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,0.25) 100%);
+  }
+
+  /* ── Top HUD ─────────────────────────────────────────── */
+  .hud {
+    position: absolute;
+    top: 18px; left: 18px; right: 18px;
+    display: flex; align-items: center; gap: 14px;
+    z-index: 30;
+  }
+  .hud-btn {
+    width: 44px; height: 44px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.92);
+    border: none;
+    display: grid; place-items: center;
+    cursor: pointer;
+    box-shadow: var(--shadow-card);
+    color: var(--rk-blue-deep);
+    font-size: 20px;
+    transition: transform 0.15s ease;
+  }
+  .hud-btn:hover { transform: translateY(-1px); }
+  .hud-btn:active { transform: translateY(1px); }
+  .hud-btn svg { width: 22px; height: 22px; }
+
+  .progress {
+    flex: 1;
+    display: flex; gap: 8px;
+    height: 14px;
+    align-items: center;
+  }
+  .pip {
+    flex: 1;
+    height: 12px;
+    background: rgba(255,255,255,0.45);
+    border-radius: 999px;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .pip.done {
+    background: linear-gradient(90deg, #f4c83b, #ffae3b);
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.6) inset, 0 2px 6px rgba(244,200,59,0.5);
+  }
+  .pip.current {
+    background: rgba(255,255,255,0.95);
+    transform: scale(1.04);
+  }
+
+  /* ── Character + speech ──────────────────────────────── */
+  .character {
+    position: absolute;
+    left: 0; bottom: -8px;
+    width: 36%;
+    max-width: 560px;
+    pointer-events: none;
+    z-index: 10;
+    animation: charRise 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  .character img {
+    width: 100%; height: 100%;
+    object-fit: contain;
+    object-position: bottom center;
+    filter:
+      drop-shadow(0 0 1px rgba(255,255,255,0.9))
+      drop-shadow(0 12px 18px rgba(0,0,0,0.35));
+  }
+  .character.cheer img { animation: cheer 0.6s ease-in-out; }
+  .character.nod img   { animation: nod 0.5s ease-in-out; }
+  .character.encourage img { animation: sway 0.7s ease-in-out; }
+
+  @keyframes charRise {
+    from { opacity: 0; transform: translateY(40px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes cheer {
+    0%, 100% { transform: translateY(0) rotate(0); }
+    25% { transform: translateY(-18px) rotate(-2deg); }
+    50% { transform: translateY(-8px) rotate(0); }
+    75% { transform: translateY(-18px) rotate(2deg); }
+  }
+  @keyframes nod {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-6px); }
+  }
+  @keyframes sway {
+    0%, 100% { transform: rotate(0); }
+    25% { transform: rotate(-2deg); }
+    75% { transform: rotate(2deg); }
+  }
+
+  .bubble {
+    position: absolute;
+    z-index: 25;
+    left: 28%;
+    bottom: 64%;
+    max-width: 320px;
+    background: white;
+    border-radius: 22px;
+    padding: 16px 20px;
+    font-size: 19px;
+    font-weight: 500;
+    color: var(--rk-blue-deep);
+    line-height: 1.35;
+    box-shadow: var(--shadow-card);
+    animation: bubblePop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  .bubble::before {
+    content: '';
+    position: absolute;
+    left: 32px; bottom: -12px;
+    width: 24px; height: 24px;
+    background: white;
+    transform: rotate(45deg);
+    box-shadow: 4px 4px 8px rgba(9,57,95,0.08);
+  }
+  @keyframes bubblePop {
+    from { opacity: 0; transform: scale(0.8) translateY(8px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  /* ── Item to drag ─────────────────────────────────────── */
+  .item-stage {
+    position: absolute;
+    left: 38%;
+    right: 4%;
+    top: 16%;
+    bottom: 38%;
+    display: grid;
+    place-items: center;
+    z-index: 15;
+    pointer-events: none;
+  }
+  .item {
+    width: clamp(140px, 22vw, 220px);
+    height: clamp(140px, 22vw, 220px);
+    background: white;
+    border-radius: 36px;
+    box-shadow: 0 16px 32px rgba(0,0,0,0.25), inset 0 -6px 0 rgba(0,0,0,0.06);
+    display: grid; place-items: center;
+    cursor: grab;
+    pointer-events: auto;
+    touch-action: none;
+    animation: itemEnter 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .item:hover { transform: translateY(-4px) rotate(-2deg); box-shadow: 0 22px 38px rgba(0,0,0,0.3); }
+  .item.dragging { cursor: grabbing; transform: scale(1.08) rotate(4deg); transition: none; z-index: 50; box-shadow: 0 28px 40px rgba(0,0,0,0.35); }
+  .item.correct { animation: itemCorrect 0.5s ease forwards; }
+  .item.wrong   { animation: itemWrong 0.4s ease; }
+  .item img { width: 100%; height: 100%; object-fit: contain; object-position: center; }
+  .item svg { width: 64%; height: 64%; }
+  .item .count-badge {
+    position: absolute; top: -10px; right: -10px;
+    background: var(--rk-blue);
+    color: white;
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    font-weight: 700;
+    font-size: 20px;
+    box-shadow: 0 4px 10px rgba(11,95,149,0.4);
+    border: 3px solid white;
+  }
+  @keyframes itemEnter {
+    from { opacity: 0; transform: scale(0.4) rotate(-15deg); }
+    to   { opacity: 1; transform: scale(1) rotate(0); }
+  }
+  @keyframes itemCorrect {
+    to { opacity: 0; transform: scale(0.3); }
+  }
+  @keyframes itemWrong {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-12px) rotate(-3deg); }
+    75% { transform: translateX(12px) rotate(3deg); }
+  }
+
+  /* ── Drop zones (color boxes) ─────────────────────────── */
+  .zones {
+    position: absolute;
+    left: 0; right: 0; bottom: 4%;
+    display: flex;
+    justify-content: center;
+    gap: clamp(10px, 1.5vw, 22px);
+    padding: 0 4%;
+    z-index: 20;
+  }
+  .zone {
+    --zc: var(--color-red);
+    flex: 1;
+    max-width: 150px;
+    aspect-ratio: 1.05;
+    border-radius: 28px;
+    background: var(--zc);
+    display: grid; place-items: center;
+    cursor: pointer;
+    box-shadow:
+      var(--shadow-pop),
+      inset 0 -8px 0 rgba(0,0,0,0.18),
+      inset 0 4px 0 rgba(255,255,255,0.25);
+    border: 4px solid white;
+    position: relative;
+    transition: transform 0.2s ease;
+    animation: zoneIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    overflow: hidden;
+  }
+  .zone:nth-child(1) { animation-delay: 0.10s; }
+  .zone:nth-child(2) { animation-delay: 0.18s; }
+  .zone:nth-child(3) { animation-delay: 0.26s; }
+  .zone:nth-child(4) { animation-delay: 0.34s; }
+  .zone:nth-child(5) { animation-delay: 0.42s; }
+  @keyframes zoneIn {
+    from { opacity: 0; transform: translateY(40px) scale(0.7); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* Container image */
+  .zone img {
+    position: absolute;
+    width: 70%;
+    height: 70%;
+    object-fit: contain;
+    opacity: 0.85;
+    pointer-events: none;
+  }
+
+  .zone::after {
+    content: '';
+    position: absolute;
+    inset: 18%;
+    border: 4px dashed rgba(255,255,255,0.55);
+    border-radius: 18px;
+    pointer-events: none;
+  }
+  .zone.over {
+    transform: translateY(-10px) scale(1.05);
+    box-shadow:
+      0 18px 30px rgba(0,0,0,0.3),
+      inset 0 -8px 0 rgba(0,0,0,0.18),
+      inset 0 4px 0 rgba(255,255,255,0.25),
+      0 0 0 6px rgba(255,255,255,0.45);
+  }
+  .zone.pulse { animation: zonePulse 0.5s ease; }
+  @keyframes zonePulse {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px) scale(1.08); }
+  }
+
+  /* ── Confetti / celebration ──────────────────────────── */
+  .confetti {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 60;
+    overflow: hidden;
+  }
+  .confetti span {
+    position: absolute;
+    top: -20px;
+    width: 14px; height: 14px;
+    border-radius: 4px;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall {
+    to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* ── End screen ──────────────────────────────────────── */
+  .end-card {
+    position: absolute;
+    z-index: 70;
+    inset: 0;
+    display: grid; place-items: center;
+    background: rgba(9, 57, 95, 0.45);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    animation: fadeIn 0.4s ease both;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .end-card .panel {
+    background: white;
+    border-radius: 32px;
+    padding: 40px 36px 32px;
+    width: min(440px, 88%);
+    text-align: center;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+    animation: panelPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  @keyframes panelPop {
+    from { opacity: 0; transform: scale(0.7) translateY(20px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .end-card h1 {
+    font-size: 34px;
+    color: var(--rk-blue-deep);
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+  .end-card p {
+    font-size: 17px;
+    color: #4a6577;
+    margin-bottom: 22px;
+    line-height: 1.4;
+  }
+  .stars {
+    display: flex; justify-content: center; gap: 10px;
+    margin: 16px 0 22px;
+  }
+  .star {
+    width: 56px; height: 56px;
+    color: #e5e7eb;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .star.lit {
+    color: #f4c83b;
+    transform: scale(1.15) rotate(-6deg);
+    filter: drop-shadow(0 4px 8px rgba(244,200,59,0.5));
+  }
+  .star.lit:nth-child(2) { transform: scale(1.25) rotate(0); }
+  .star.lit:nth-child(3) { transform: scale(1.15) rotate(6deg); }
+
+  .next-game-btn {
+    background: linear-gradient(135deg, var(--rk-blue) 0%, var(--rk-blue-light) 100%);
+    color: white;
+    border: none;
+    padding: 18px 36px;
+    font-family: inherit;
+    font-size: 19px;
+    font-weight: 700;
+    border-radius: 18px;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(11,95,149,0.4), inset 0 -4px 0 rgba(0,0,0,0.15);
+    transition: transform 0.15s ease;
+  }
+  .next-game-btn:hover { transform: translateY(-2px); }
+  .next-game-btn:active { transform: translateY(1px); }
+
+  /* ── Pause overlay ───────────────────────────────────── */
+  .pause-card {
+    position: absolute;
+    z-index: 65;
+    inset: 0;
+    display: none;
+    place-items: center;
+    background: rgba(9, 57, 95, 0.4);
+    backdrop-filter: blur(4px);
+  }
+  .pause-card.show { display: grid; animation: fadeIn 0.3s ease; }
+  .pause-card .panel {
+    background: white;
+    border-radius: 24px;
+    padding: 28px 32px;
+    text-align: center;
+    box-shadow: var(--shadow-card);
+    min-width: 280px;
+  }
+  .pause-card h2 {
+    color: var(--rk-blue-deep);
+    margin-bottom: 18px;
+    font-weight: 700;
+  }
+
+  /* ── Mobile ──────────────────────────────────────────── */
+  @media (max-width: 768px) {
+    .character {
+      width: 50%;
+      max-width: 280px;
+    }
+    .bubble {
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 60%;
+      max-width: 78%;
+      font-size: 16px;
+      padding: 12px 16px;
+    }
+    .bubble::before { left: 24px; }
+    .item-stage {
+      left: 4%;
+      right: 4%;
+      top: 8%;
+      bottom: 38%;
+    }
+    .zones {
+      bottom: 3%;
+      gap: 8px;
+    }
+    .zone {
+      max-width: none;
+      aspect-ratio: 1;
+      border-radius: 22px;
+      border-width: 3px;
+    }
+    .hud { top: 12px; left: 12px; right: 12px; gap: 10px; }
+    .hud-btn { width: 40px; height: 40px; }
+    .end-card h1 { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+  <div class="game" id="game">
+    <div class="bg" id="bg"></div>
+
+    <!-- HUD -->
+    <div class="hud">
+      <button class="hud-btn" id="pauseBtn" aria-label="Pause">
+        <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1.5"/><rect x="14" y="5" width="4" height="14" rx="1.5"/></svg>
+      </button>
+      <div class="progress" id="progress"></div>
+      <button class="hud-btn" id="soundBtn" aria-label="Sound">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 010 7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+
+    <!-- Character -->
+    <div class="character" id="character">
+      <img alt="" id="characterImg">
+    </div>
+
+    <!-- Speech bubble -->
+    <div class="bubble" id="bubble" style="display:none"></div>
+
+    <!-- Item stage -->
+    <div class="item-stage" id="itemStage"></div>
+
+    <!-- Drop zones -->
+    <div class="zones" id="zones"></div>
+
+    <!-- Pause -->
+    <div class="pause-card" id="pauseCard">
+      <div class="panel">
+        <h2>Take a break?</h2>
+        <button class="next-game-btn" id="resumeBtn">Keep Playing</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ──────────────────────────────────────────────────────────
+   ReadyKiddo — Sorting Game
+   ────────────────────────────────────────────────────────── */
+
+const TWEAK_DEFAULTS = {
+  "childName": "Leo",
+  "character": "mica",
+  "style": "hero",
+  "world": "space",
+  "vibe": "magical",
+  "startBranch": "neutral",
+  "branchStyle": "balanced",
+  "totalItems": 9,
+  "debug": "off"
+};
+
+const state = { ...TWEAK_DEFAULTS };
+applySavedProfile();
+
+// Fallback SVG items (used when images aren't available)
+const SVG = {
+  apple: `<svg viewBox="0 0 100 100"><path d="M50 22c-3-12-12-14-18-12-1 4 3 9 9 11" fill="#4a8a3a"/><ellipse cx="50" cy="58" rx="34" ry="34" fill="var(--c)"/><ellipse cx="38" cy="48" rx="8" ry="6" fill="rgba(255,255,255,0.5)"/></svg>`,
+  ball:  `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="38" fill="var(--c)"/><path d="M14 50a36 36 0 0 0 72 0" stroke="rgba(255,255,255,0.4)" stroke-width="3" fill="none"/><circle cx="40" cy="38" r="8" fill="rgba(255,255,255,0.45)"/></svg>`,
+  star:  `<svg viewBox="0 0 100 100"><path d="M50 10l11 26 28 3-21 19 6 28-24-15-24 15 6-28-21-19 28-3z" fill="var(--c)" stroke="rgba(0,0,0,0.15)" stroke-width="2" stroke-linejoin="round"/></svg>`,
+  square:`<svg viewBox="0 0 100 100"><rect x="18" y="18" width="64" height="64" rx="10" fill="var(--c)"/><rect x="24" y="24" width="20" height="6" rx="2" fill="rgba(255,255,255,0.45)"/></svg>`,
+  triangle:`<svg viewBox="0 0 100 100"><path d="M50 16L86 82H14z" fill="var(--c)" stroke="rgba(0,0,0,0.15)" stroke-width="2" stroke-linejoin="round"/></svg>`,
+  heart: `<svg viewBox="0 0 100 100"><path d="M50 84S14 60 14 38a18 18 0 0 1 36-4 18 18 0 0 1 36 4c0 22-36 46-36 46z" fill="var(--c)"/><circle cx="36" cy="38" r="6" fill="rgba(255,255,255,0.45)"/></svg>`,
+  flower:`<svg viewBox="0 0 100 100"><g fill="var(--c)"><circle cx="50" cy="22" r="14"/><circle cx="78" cy="50" r="14"/><circle cx="50" cy="78" r="14"/><circle cx="22" cy="50" r="14"/><circle cx="50" cy="50" r="12" fill="#fbe27a"/></g></svg>`,
+};
+
+const COLOR_HEX = {
+  red:    '#e23b3b',
+  blue:   '#2a7fd9',
+  yellow: '#f4c83b',
+  green:  '#4aaf5a',
+  purple: '#9558c4',
+};
+
+const ITEM_SHAPES = {
+  red:    ['apple', 'heart', 'ball'],
+  blue:   ['ball', 'square', 'star'],
+  yellow: ['star', 'flower', 'ball'],
+  green:  ['triangle', 'apple', 'square'],
+  purple: ['flower', 'heart', 'star'],
+};
+
+/* ── Branch pools ───────────────────────────────────────── */
+const BRANCHES = {
+  neutral:       { colors: ['red', 'blue'],                      counts: false },
+  'easy-medium': { colors: ['red', 'blue', 'yellow'],            counts: false },
+  medium:        { colors: ['red', 'blue', 'yellow'],            counts: false },
+  'medium-hard': { colors: ['red', 'blue', 'yellow', 'green'],   counts: false },
+  hard:          { colors: ['red', 'blue', 'yellow', 'green', 'purple'], counts: true  },
+};
+const BRANCH_ORDER = ['neutral', 'easy-medium', 'medium', 'medium-hard', 'hard'];
+
+const BRANCH_STYLES = {
+  conservative: { upStreak: 5, downStreak: 3 },
+  balanced:     { upStreak: 3, downStreak: 3 },
+  aggressive:   { upStreak: 2, downStreak: 3 },
+};
+
+/* ── Character lines ───────────────────────────────────── */
+const PHRASES = {
+  greet: name => [
+    `Hey ${name}! Help me sort these items!`,
+    `Hi ${name}! Drop each one in the matching color.`,
+    `Yay, ${name}! Let's sort some stuff together!`,
+  ],
+  correct: [`Yes!`, `Nice one!`, `You got it!`, `Great!`, `Whoa!`],
+  wrong:   [`Try the matching color`, `Look at the color`, `Almost! Try again`],
+  branchUp:   [`You're getting good!`, `Wow, level up!`],
+  branchDown: [`Let's slow down`, `One step at a time`],
+  end: name => [`Amazing work, ${name}!`, `You did it, ${name}!`],
+};
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+
+/* ── DOM ────────────────────────────────────────────────── */
+const $ = id => document.getElementById(id);
+const bgEl = $('bg'),
+      charEl = $('character'),
+      charImg = $('characterImg'),
+      bubble = $('bubble'),
+      itemStage = $('itemStage'),
+      zonesEl = $('zones'),
+      progressEl = $('progress'),
+      pauseBtn = $('pauseBtn'),
+      pauseCard = $('pauseCard'),
+      resumeBtn = $('resumeBtn');
+
+/* ── Game state ─────────────────────────────────────────── */
+let game = null;
+
+class ColorSortGame {
+  constructor() {
+    this.totalItems = parseInt(state.totalItems, 10);
+    this.itemsShown = 0;
+    this.correctCount = 0;
+    this.correctStreak = 0;
+    this.incorrectStreak = 0;
+    this.currentBranch = state.startBranch;
+    this.branchHistory = [this.currentBranch];
+    this.style = BRANCH_STYLES[state.branchStyle];
+    this.currentItem = null;
+    this.busy = false;
+    this.ended = false;
+    this.bubbleTimer = null;
+  }
+
+  start() {
+    setBackground();
+    setCharacter();
+    renderProgress(this.totalItems, 0);
+    this.renderZones();
+    this.say(pick(PHRASES.greet(state.childName)), 2400);
+    setTimeout(() => this.nextItem(), 1400);
+  }
+
+  renderZones() {
+    const colors = BRANCHES[this.currentBranch].colors;
+    zonesEl.innerHTML = '';
+    colors.forEach(c => {
+      const z = document.createElement('div');
+      z.className = 'zone';
+      z.dataset.color = c;
+      z.style.setProperty('--zc', COLOR_HEX[c]);
+
+      zonesEl.appendChild(z);
+    });
+    bindDropZones();
+  }
+
+  nextItem() {
+    if (this.ended) return;
+    if (this.itemsShown >= this.totalItems) return this.end();
+
+    if (this.itemsShown > 0 && this.itemsShown % 3 === 0) {
+      this.evaluateBranch();
+    }
+
+    const branch = BRANCHES[this.currentBranch];
+    const color  = pick(branch.colors);
+    const shape  = pick(ITEM_SHAPES[color]);
+    const count  = branch.counts && Math.random() < 0.5
+                   ? (Math.random() < 0.5 ? 2 : 3)
+                   : 1;
+
+    this.currentItem = { color, shape, count };
+    this.busy = false;
+    this.renderItem();
+    if (state.debug === 'on') this.flashDebug();
+  }
+
+  renderItem() {
+    const { color, shape, count } = this.currentItem;
+    const el = document.createElement('div');
+    el.className = 'item';
+    el.id = 'item';
+    el.style.setProperty('--c', COLOR_HEX[color]);
+
+    el.innerHTML = SVG[shape] || SVG.apple;
+
+    if (count > 1) {
+      const b = document.createElement('div');
+      b.className = 'count-badge';
+      b.textContent = count;
+      el.appendChild(b);
+    }
+    itemStage.innerHTML = '';
+    itemStage.appendChild(el);
+    bindDrag(el);
+  }
+
+  handleDrop(droppedColor, zoneEl) {
+    if (this.busy) return;
+    const item = this.currentItem;
+    const correct = droppedColor === item.color;
+
+    this.busy = true;
+    this.itemsShown++;
+
+    if (correct) {
+      this.correctCount++;
+      this.correctStreak++;
+      this.incorrectStreak = 0;
+      zoneEl.classList.add('pulse');
+      setTimeout(() => zoneEl.classList.remove('pulse'), 500);
+
+      const itemEl = $('item');
+      if (itemEl) itemEl.classList.add('correct');
+      this.cheer();
+      this.say(pick(PHRASES.correct), 1100);
+
+      renderProgress(this.totalItems, this.itemsShown, this.itemsShown - 1);
+      setTimeout(() => this.nextItem(), 750);
+    } else {
+      this.incorrectStreak++;
+      this.correctStreak = 0;
+
+      const itemEl = $('item');
+      if (itemEl) itemEl.classList.add('wrong');
+
+      this.encourage();
+      const phrase = `That's ${droppedColor}. We need ${item.color}.`;
+      this.say(phrase, 1600);
+
+      setTimeout(() => {
+        if (itemEl) itemEl.classList.remove('wrong');
+        renderProgress(this.totalItems, this.itemsShown, this.itemsShown - 1, true);
+        this.nextItem();
+      }, 1700);
+    }
+  }
+
+  evaluateBranch() {
+    const idx = BRANCH_ORDER.indexOf(this.currentBranch);
+    let target = this.currentBranch;
+
+    if (this.correctStreak >= this.style.upStreak && idx < BRANCH_ORDER.length - 1) {
+      target = BRANCH_ORDER[idx + 1];
+      if (Math.random() < 0.4) this.say(pick(PHRASES.branchUp), 1400);
+    } else if (this.incorrectStreak >= this.style.downStreak && idx > 0) {
+      target = BRANCH_ORDER[idx - 1];
+    }
+
+    if (target !== this.currentBranch) {
+      this.currentBranch = target;
+      this.branchHistory.push(target);
+      this.correctStreak = 0;
+      this.incorrectStreak = 0;
+      this.renderZones();
+    }
+  }
+
+  cheer() {
+    charEl.classList.remove('encourage', 'nod');
+    void charEl.offsetWidth;
+    charEl.classList.add('nod');
+    setTimeout(() => charEl.classList.remove('nod'), 600);
+  }
+  encourage() {
+    charEl.classList.remove('nod', 'cheer');
+    void charEl.offsetWidth;
+    charEl.classList.add('encourage');
+    setTimeout(() => charEl.classList.remove('encourage'), 800);
+  }
+
+  say(text, ms) {
+    bubble.style.display = 'block';
+    bubble.textContent = text;
+    bubble.style.animation = 'none';
+    void bubble.offsetWidth;
+    bubble.style.animation = '';
+    clearTimeout(this.bubbleTimer);
+    this.bubbleTimer = setTimeout(() => {
+      bubble.style.display = 'none';
+    }, ms);
+  }
+
+  flashDebug() {
+    const tag = document.createElement('div');
+    tag.style.cssText = 'position:absolute;top:70px;left:18px;background:#000;color:#0f0;padding:6px 10px;border-radius:8px;font:12px monospace;z-index:99;';
+    tag.textContent = `branch: ${this.currentBranch} • streak +${this.correctStreak} -${this.incorrectStreak}`;
+    document.querySelectorAll('[data-debug]').forEach(n => n.remove());
+    tag.dataset.debug = '1';
+    $('game').appendChild(tag);
+  }
+
+  end() {
+    this.ended = true;
+    itemStage.innerHTML = '';
+    charEl.classList.add('cheer');
+    this.say('', 0); bubble.style.display = 'none';
+
+    showConfetti();
+
+    const accuracy = this.correctCount / this.totalItems;
+    const stars = accuracy >= 0.85 ? 3 : accuracy >= 0.6 ? 2 : 1;
+    const branchLabel = this.currentBranch.replace('-', ' / ');
+
+    setTimeout(() => showEndCard({
+      name: state.childName,
+      stars,
+      branch: branchLabel,
+      branchHistory: this.branchHistory,
+      correct: this.correctCount,
+      total: this.totalItems,
+    }), 600);
+  }
+}
+
+/* ── Renderers ──────────────────────────────────────────── */
+function setBackground() {
+  bgEl.style.backgroundImage = `url("assets/images/world-backgrounds/${state.world}/vibes/${state.vibe}/background.png")`;
+  bgEl.style.backgroundColor = '#e8d4f1';
+}
+function setCharacter() {
+  charImg.src = `assets/images/characters/${state.character}/${state.style}.png`;
+  charImg.alt = `${state.character} ${state.style}`;
+}
+function renderProgress(total, done, currentIdx = -1, missed = false) {
+  progressEl.innerHTML = '';
+  for (let i = 0; i < total; i++) {
+    const p = document.createElement('div');
+    p.className = 'pip';
+    if (i < done) {
+      p.classList.add('done');
+      if (missed && i === done - 1) {
+        p.style.background = 'rgba(255,255,255,0.55)';
+        p.style.boxShadow = 'inset 0 0 0 2px rgba(255,255,255,0.7)';
+      }
+    } else if (i === done) {
+      p.classList.add('current');
+    }
+    progressEl.appendChild(p);
+  }
+}
+
+/* ── Drag-and-drop (mouse + touch unified) ─────────────── */
+function bindDrag(itemEl) {
+  let startX, startY, originX, originY;
+  let dragging = false;
+  let activeZone = null;
+
+  function getPoint(e) {
+    if (e.touches && e.touches[0]) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    if (e.changedTouches && e.changedTouches[0]) return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+    return { x: e.clientX, y: e.clientY };
+  }
+
+  function onDown(e) {
+    e.preventDefault();
+    if (game.busy || game.ended) return;
+    const r = itemEl.getBoundingClientRect();
+    const p = getPoint(e);
+    startX = p.x; startY = p.y;
+    originX = r.left; originY = r.top;
+    itemEl.style.position = 'fixed';
+    itemEl.style.left = r.left + 'px';
+    itemEl.style.top = r.top + 'px';
+    itemEl.style.margin = '0';
+    itemEl.classList.add('dragging');
+    dragging = true;
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('mouseup', onUp);
+    document.addEventListener('touchend', onUp);
+  }
+  function onMove(e) {
+    if (!dragging) return;
+    e.preventDefault();
+    const p = getPoint(e);
+    const dx = p.x - startX, dy = p.y - startY;
+    itemEl.style.left = (originX + dx) + 'px';
+    itemEl.style.top  = (originY + dy) + 'px';
+
+    const zone = zoneAt(p.x, p.y);
+    if (zone !== activeZone) {
+      if (activeZone) activeZone.classList.remove('over');
+      if (zone) zone.classList.add('over');
+      activeZone = zone;
+    }
+  }
+  function onUp(e) {
+    if (!dragging) return;
+    dragging = false;
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('touchmove', onMove);
+    document.removeEventListener('mouseup', onUp);
+    document.removeEventListener('touchend', onUp);
+
+    const p = getPoint(e);
+    const zone = zoneAt(p.x, p.y);
+    if (activeZone) activeZone.classList.remove('over');
+
+    if (zone) {
+      game.handleDrop(zone.dataset.color, zone);
+    } else {
+      itemEl.style.transition = 'left 0.3s ease, top 0.3s ease';
+      itemEl.style.left = originX + 'px';
+      itemEl.style.top  = originY + 'px';
+      itemEl.classList.remove('dragging');
+      setTimeout(() => {
+        itemEl.style.position = '';
+        itemEl.style.left = '';
+        itemEl.style.top = '';
+        itemEl.style.transition = '';
+      }, 320);
+    }
+  }
+  itemEl.addEventListener('mousedown', onDown);
+  itemEl.addEventListener('touchstart', onDown, { passive: false });
+}
+function zoneAt(x, y) {
+  const zones = document.querySelectorAll('.zone');
+  for (const z of zones) {
+    const r = z.getBoundingClientRect();
+    if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return z;
+  }
+  return null;
+}
+function bindDropZones() {
+  document.querySelectorAll('.zone').forEach(z => {
+    z.addEventListener('click', () => {
+      const itemEl = $('item');
+      if (!itemEl || game.busy || game.ended) return;
+      const ir = itemEl.getBoundingClientRect();
+      const zr = z.getBoundingClientRect();
+      const dx = (zr.left + zr.width/2) - (ir.left + ir.width/2);
+      const dy = (zr.top + zr.height/2) - (ir.top + ir.height/2);
+      itemEl.style.transition = 'transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1)';
+      itemEl.style.transform = `translate(${dx}px, ${dy}px) scale(0.6)`;
+      setTimeout(() => game.handleDrop(z.dataset.color, z), 280);
+    });
+  });
+}
+
+/* ── Confetti ───────────────────────────────────────────── */
+function showConfetti() {
+  const wrap = document.createElement('div');
+  wrap.className = 'confetti';
+  const colors = ['#f4c83b', '#e23b3b', '#2a7fd9', '#4aaf5a', '#9558c4', '#ffae3b'];
+  for (let i = 0; i < 60; i++) {
+    const c = document.createElement('span');
+    c.style.left = Math.random() * 100 + '%';
+    c.style.background = colors[i % colors.length];
+    c.style.animationDuration = (1.6 + Math.random() * 1.6) + 's';
+    c.style.animationDelay = (Math.random() * 0.5) + 's';
+    c.style.transform = `rotate(${Math.random() * 360}deg)`;
+    wrap.appendChild(c);
+  }
+  $('game').appendChild(wrap);
+  setTimeout(() => wrap.remove(), 4000);
+}
+
+/* ── End card ───────────────────────────────────────────── */
+function showEndCard({ name, stars, branch, branchHistory, correct, total }) {
+  const card = document.createElement('div');
+  card.className = 'end-card';
+  const starSvg = `<svg viewBox="0 0 100 100" class="star"><path d="M50 6l13 30 33 3-25 22 8 33-29-17-29 17 8-33-25-22 33-3z" fill="currentColor"/></svg>`;
+  const journey = branchHistory.length > 1
+    ? `Journey: ${branchHistory.map(b => b.replace('-', ' / ')).join(' → ')}`
+    : `Stayed at ${branch}`;
+  card.innerHTML = `
+    <div class="panel">
+      <div class="stars">
+        ${[1,2,3].map(i => starSvg.replace('class="star"', `class="star${i <= stars ? ' lit' : ''}"`)).join('')}
+      </div>
+      <h1>${pick(PHRASES.end(name))}</h1>
+      <p>You sorted ${correct} of ${total} items.<br><span style="font-size:13px;color:#94a3b8;">${journey}</span></p>
+      <button class="next-game-btn" id="restartBtn">Next Adventure →</button>
+    </div>
+  `;
+  $('game').appendChild(card);
+  setTimeout(() => {
+    card.querySelectorAll('.star').forEach((s, i) => {
+      setTimeout(() => s.classList.add(i < stars ? 'lit' : ''), 200 + i * 200);
+    });
+  }, 100);
+  $('restartBtn').addEventListener('click', () => {
+    card.remove();
+    document.querySelectorAll('[data-debug]').forEach(n => n.remove());
+    startGame();
+  });
+}
+
+/* ── Pause ──────────────────────────────────────────────── */
+pauseBtn.addEventListener('click', () => pauseCard.classList.add('show'));
+resumeBtn.addEventListener('click', () => pauseCard.classList.remove('show'));
+
+/* ── Boot ───────────────────────────────────────────────── */
+function startGame() {
+  game = new ColorSortGame();
+  game.start();
+}
+
+function applySavedProfile() {
+  const saved = localStorage.getItem('gameProfile') || localStorage.getItem('userProfile');
+  if (!saved) return;
+
+  try {
+    const profile = JSON.parse(saved);
+    state.childName = profile.childName || state.childName;
+    state.character = slugify(profile.character || state.character);
+    state.style = slugify(profile.style || state.style);
+    state.world = slugify(profile.theme || profile.world || state.world);
+    state.vibe = slugify(profile.vibe || state.vibe);
+  } catch (err) {
+    console.warn('Could not load ReadyKiddo game profile:', err);
+  }
+}
+
+function slugify(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+startGame();
+</script>
+</body>
+</html>

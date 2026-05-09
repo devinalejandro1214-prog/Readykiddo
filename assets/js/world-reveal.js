@@ -29,6 +29,7 @@ function loadWorldReveal(profile) {
     const characterImage = document.getElementById('characterImage');
     characterImage.src = characterPath;
     characterImage.alt = `${profile.character} wearing ${profile.style || 'Plain'} outfit`;
+    setupIntroVideo(profile);
 
     const backgroundImage = document.getElementById('backgroundImage');
     backgroundImage.src = backgroundPath;
@@ -42,6 +43,41 @@ function loadWorldReveal(profile) {
         localStorage.setItem('gameProfile', JSON.stringify(profile));
         window.location.href = 'game.html';
     });
+}
+
+function setupIntroVideo(profile) {
+    const characterSlug = slugify(profile.character);
+    const styleSlug = slugify(profile.style || 'plain');
+    const introPath = getIntroVideoPath(characterSlug, styleSlug);
+    const panel = document.querySelector('.reveal-character-panel');
+    const video = document.getElementById('introVideo');
+
+    if (!introPath || !panel || !video) return;
+
+    panel.classList.add('has-intro');
+    video.src = introPath;
+    video.setAttribute('aria-label', `${profile.character} welcomes you to the world`);
+
+    video.addEventListener('ended', () => {
+        panel.classList.add('video-finished');
+    });
+
+    video.addEventListener('error', () => {
+        panel.classList.remove('has-intro');
+        panel.classList.add('video-finished');
+    });
+
+    video.play().catch(() => {
+        video.controls = true;
+    });
+}
+
+function getIntroVideoPath(characterSlug, styleSlug) {
+    const introVideos = {
+        'emmett/scientist': 'assets/videos/characters/emmett/scientist/welcome-wave.mp4'
+    };
+
+    return introVideos[`${characterSlug}/${styleSlug}`] || null;
 }
 
 function slugify(value) {
