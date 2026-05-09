@@ -440,3 +440,55 @@ Notes / Next Steps:
 - Local browser validation passed with no console errors or failed requests.
 - Tested sample flow: Mica + Beach + Silly + Wizard.
 - Reveal background resolved to `assets/images/world-backgrounds/beach/vibes/silly/background.png`.
+
+---
+
+## 2026-05-09 - Claude Code
+
+Prompt:
+> Fix the coding so: vibe step shows that world's vibes, style step shows that character's costumes, world reveal shows character on left in costume with game coming soon window on right.
+
+Actions Taken:
+- Rewrote `assets/js/onboarding.js`:
+  - Added `slugify()` helper (matches world-reveal.js)
+  - Added `getVibeOptions()` — dynamically builds vibe buttons from the selected world's actual backgrounds: `assets/images/world-backgrounds/{worldSlug}/vibes/{vibeSlug}/background.png`
+  - Added `getStyleOptions()` — dynamically builds style buttons from the selected character's actual costume PNGs: `assets/images/characters/{charSlug}/{style}.png`
+  - Added `resolveOptions(step)` — returns dynamic options for vibe/style steps, static options for theme
+  - Subtitle personalizes per step: "Choose the feeling for your Beach world" / "Pick an outfit for Trish"
+  - Simplified `renderOptionButtons()` — all picture steps use same image-card renderer
+- Rewrote `world-reveal.html`:
+  - New two-panel layout: character panel (left 42%) + game panel (right 58%)
+  - Left: character image full-height, anchored to bottom
+  - Right: welcome card (name + world/vibe/style tags) + game coming soon window + "Let's Go!" button
+  - Removed music display (music step removed from onboarding)
+- Rewrote `assets/css/world-reveal.css`:
+  - Desktop: flex row, character left, game panel right, character anchored bottom
+  - `characterRise` animation, staggered `panelSlide` on cards
+  - Vibe color applied to card backgrounds
+  - Mobile (<768px): stacks vertically, character top, cards below, scrollable
+  - Phone (<480px) and small phone (<360px) compact breakpoints
+- Rewrote `assets/js/world-reveal.js`:
+  - No manifest fetch — uses direct predictable paths
+  - Character: `assets/images/characters/{charSlug}/{styleSlug}.png`
+  - Background: `assets/images/world-backgrounds/{worldSlug}/vibes/{vibeSlug}/background.png`
+  - Applies vibe theme color to card backgrounds
+  - "Let's Go!" navigates to `game.html`
+
+Files/Folders Changed:
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\js\onboarding.js`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\world-reveal.html`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\css\world-reveal.css`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\js\world-reveal.js`
+
+GitHub/Netlify:
+- Code only. Ready for Codex to commit and push.
+
+Notes / Next Steps:
+- Verified in preview (Beach+Silly+Trish and Space+Magical+Mica+Hero flows):
+  - Vibe step shows selected world's actual vibe background images ✓
+  - Style step shows selected character's actual costume PNGs ✓
+  - Subtitles personalize to chosen world/character ✓
+  - World reveal: correct background, character in costume on left, game window on right ✓
+  - Vibe color applied to card backgrounds (purple for Magical, etc.) ✓
+  - Mobile layout stacks correctly ✓
+- Next code step: `game.html` — waiting on Devin confirmation this flow looks good.

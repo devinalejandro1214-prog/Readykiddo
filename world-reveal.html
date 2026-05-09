@@ -8,41 +8,47 @@
 </head>
 <body>
     <div class="world-reveal-page">
+
+        <!-- Full-page background (world + vibe) -->
         <div class="background-container">
-            <img id="backgroundImage" class="background-image" src="" alt="World background">
-            <img id="vibeOverlay" class="vibe-overlay" src="" alt="">
+            <img id="backgroundImage" class="background-image" src="" alt="Your world background">
         </div>
 
-        <div class="world-container">
-            <div class="world-header">
-                <h1 id="welcomeTitle"></h1>
-                <p id="welcomeSubtitle"></p>
+        <!-- Two-panel layout -->
+        <div class="reveal-layout">
+
+            <!-- LEFT: Character standing in their costume -->
+            <div class="reveal-character-panel">
+                <img id="characterImage" class="character-image" src="" alt="Your character">
             </div>
 
-            <div class="character-display">
-                <img id="characterImage" src="" alt="Your character" class="character-image">
-            </div>
+            <!-- RIGHT: Welcome card + game window + button -->
+            <div class="reveal-game-panel">
 
-            <div class="world-details">
-                <div class="detail-item">
-                    <span class="detail-label">World:</span>
-                    <span id="themeDisplay"></span>
+                <div class="welcome-card">
+                    <h1 id="welcomeTitle"></h1>
+                    <p class="welcome-sub">Your personalized world is ready!</p>
+                    <div class="world-tags">
+                        <span class="world-tag" id="themeDisplay"></span>
+                        <span class="world-tag" id="vibeDisplay"></span>
+                        <span class="world-tag" id="styleDisplay"></span>
+                    </div>
                 </div>
-                <div class="detail-item">
-                    <span class="detail-label">Vibe:</span>
-                    <span id="vibeDisplay"></span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Music:</span>
-                    <span id="musicDisplay"></span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Style:</span>
-                    <span id="styleDisplay"></span>
-                </div>
-            </div>
 
-            <button id="startGameButton" class="start-game-button">Start Your First Game</button>
+                <div class="game-soon-window">
+                    <div class="game-soon-header">
+                        <span class="game-soon-icon">🎮</span>
+                        <h2>Your First Game</h2>
+                    </div>
+                    <div class="game-soon-body">
+                        <p class="game-soon-text">Coming Soon!</p>
+                        <p class="game-soon-sub">Get ready for an amazing adventure!</p>
+                    </div>
+                </div>
+
+                <button id="startGameButton" class="start-game-button">Let's Go! →</button>
+
+            </div>
         </div>
     </div>
 

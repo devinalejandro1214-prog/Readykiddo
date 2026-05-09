@@ -1,8 +1,9 @@
 // ── Onboarding Steps ─────────────────────────────────────────────
-// Step 1: Setup (names + character selection)
-// Step 2: Pick your world (theme)
-// Step 3: Vibe
-// Step 4: Style
+// Step 1: Setup  (names + character selection)
+// Step 2: Theme  (Pick your world — static picture buttons)
+// Step 3: Vibe   (dynamic — shows the SELECTED world's vibe backgrounds)
+// Step 4: Style  (dynamic — shows the SELECTED character's costume PNGs)
+
 const onboardingSteps = [
     {
         id: 'setup',
@@ -15,11 +16,11 @@ const onboardingSteps = [
         subtitle: 'Choose the environment for your adventure',
         type: 'options',
         options: [
-            { label: 'Space', image: 'assets/images/buttons/worlds/space.png' },
-            { label: 'Jungle', image: 'assets/images/buttons/worlds/jungle.png' },
-            { label: 'Beach', image: 'assets/images/buttons/worlds/beach.png' },
-            { label: 'Castle', image: 'assets/images/buttons/worlds/castle.png' },
-            { label: 'Studio', image: 'assets/images/buttons/worlds/studio.png' },
+            { label: 'Space',      image: 'assets/images/buttons/worlds/space.png' },
+            { label: 'Jungle',     image: 'assets/images/buttons/worlds/jungle.png' },
+            { label: 'Beach',      image: 'assets/images/buttons/worlds/beach.png' },
+            { label: 'Castle',     image: 'assets/images/buttons/worlds/castle.png' },
+            { label: 'Studio',     image: 'assets/images/buttons/worlds/studio.png' },
             { label: 'Candy Land', image: 'assets/images/buttons/worlds/candy-land.png' }
         ],
         nextButtonText: 'Next'
@@ -27,30 +28,17 @@ const onboardingSteps = [
     {
         id: 'vibe',
         title: 'What kind of adventure do you want?',
-        subtitle: 'Choose the feeling',
+        subtitle: 'Choose the feeling for your world',
         type: 'options',
-        options: [
-            { label: 'Cozy', image: 'assets/images/buttons/vibes/cozy.png' },
-            { label: 'Exciting', image: 'assets/images/buttons/vibes/exciting.png' },
-            { label: 'Magical', image: 'assets/images/buttons/vibes/magical.png' },
-            { label: 'Silly', image: 'assets/images/buttons/vibes/silly.png' },
-            { label: 'Brave', image: 'assets/images/buttons/vibes/brave.png' }
-        ],
+        dynamic: true,   // built at render time from the selected world
         nextButtonText: 'Next'
     },
     {
         id: 'style',
-        title: 'What should your character look like?',
-        subtitle: 'Choose your outfit style',
+        title: 'What should your character wear?',
+        subtitle: 'Pick an outfit',
         type: 'options',
-        options: [
-            { label: 'Plain', image: 'assets/images/buttons/styles/plain.png' },
-            { label: 'Hero', image: 'assets/images/buttons/styles/hero.png' },
-            { label: 'Explorer', image: 'assets/images/buttons/styles/explorer.png' },
-            { label: 'Wizard', image: 'assets/images/buttons/styles/wizard.png' },
-            { label: 'Artist', image: 'assets/images/buttons/styles/artist.png' },
-            { label: 'Scientist', image: 'assets/images/buttons/styles/scientist.png' }
-        ],
+        dynamic: true,   // built at render time from the selected character
         nextButtonText: 'Reveal My World'
     }
 ];
@@ -69,11 +57,46 @@ let currentStep = 0;
 let userChoices  = {};
 
 // ── DOM ───────────────────────────────────────────────────────────
-const questionCard  = document.getElementById('questionCard');
-const progressFill  = document.querySelector('.progress-fill');
+const questionCard = document.getElementById('questionCard');
+const progressFill = document.querySelector('.progress-fill');
 
 // ── Init ──────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => renderStep(currentStep));
+
+// ── Slugify helper ─────────────────────────────────────────────────
+function slugify(value) {
+    return String(value || '')
+        .trim()
+        .toLowerCase()
+        .replace(/&/g, 'and')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+}
+
+// ── Dynamic option builders ────────────────────────────────────────
+// Vibe: uses the selected world's actual vibe background images
+function getVibeOptions() {
+    const worldSlug = slugify(userChoices.theme || '');
+    return ['Cozy', 'Exciting', 'Magical', 'Silly', 'Brave'].map(v => ({
+        label: v,
+        image: `assets/images/world-backgrounds/${worldSlug}/vibes/${slugify(v)}/background.png`
+    }));
+}
+
+// Style: uses the selected character's actual costume PNGs
+function getStyleOptions() {
+    const charSlug = slugify(userChoices.character || '');
+    return ['Plain', 'Hero', 'Explorer', 'Wizard', 'Artist', 'Scientist'].map(s => ({
+        label: s,
+        image: `assets/images/characters/${charSlug}/${s.toLowerCase()}.png`
+    }));
+}
+
+function resolveOptions(step) {
+    if (step.id === 'vibe')  return getVibeOptions();
+    if (step.id === 'style') return getStyleOptions();
+    return step.options;
+}
 
 // ── Render dispatcher ─────────────────────────────────────────────
 function renderStep(stepIndex) {
@@ -95,7 +118,6 @@ function renderStep(stepIndex) {
 
 // ── Step 1: Setup form ────────────────────────────────────────────
 function renderSetupForm() {
-    // Two-column name inputs
     const form = document.createElement('div');
     form.className = 'setup-form';
 
@@ -137,6 +159,7 @@ function renderSetupForm() {
         const card = document.createElement('button');
         card.className = 'setup-character-card' +
                          (userChoices.character === char.name ? ' selected' : '');
+        card.setAttribute('aria-label', char.name);
 
         card.innerHTML = `
             <img src="${char.image}" alt="${char.name}" class="setup-character-image">
@@ -157,36 +180,41 @@ function renderSetupForm() {
     questionCard.appendChild(section);
 }
 
-// ── Steps 2+: question + options ──────────────────────────────────
+// ── Steps 2+: question title ──────────────────────────────────────
 function renderQuestionTitle(step) {
+    // For vibe step, update subtitle with the chosen world name
+    let subtitle = step.subtitle;
+    if (step.id === 'vibe' && userChoices.theme) {
+        subtitle = `Choose the feeling for your ${userChoices.theme} world`;
+    }
+    if (step.id === 'style' && userChoices.character) {
+        subtitle = `Pick an outfit for ${userChoices.character}`;
+    }
+
     questionCard.innerHTML = `
         <h2 class="question-title">${step.title}</h2>
-        <p class="question-subtitle">${step.subtitle}</p>
+        <p class="question-subtitle">${subtitle}</p>
     `;
 }
 
+// ── Option buttons (image cards) ──────────────────────────────────
 function renderOptionButtons(step) {
-    const group = document.createElement('div');
-    group.className = step.options.some(option => typeof option === 'object')
-        ? 'button-group image-option-group'
-        : (step.options.length > 6 ? 'button-group button-group-two-col' : 'button-group');
+    const options = resolveOptions(step);
 
-    step.options.forEach(option => {
+    const group = document.createElement('div');
+    group.className = 'button-group image-option-group';
+
+    options.forEach(option => {
         const label = typeof option === 'object' ? option.label : option;
         const btn = document.createElement('button');
-        btn.className = 'option-button' +
-                        (option.image ? ' image-option-button' : '') +
+        btn.className = 'option-button image-option-button' +
                         (userChoices[step.id] === label ? ' selected' : '');
+        btn.setAttribute('aria-label', label);
 
-        if (option.image) {
-            btn.innerHTML = `
-                <img src="${option.image}" alt="" class="option-button-image">
-                <span class="option-button-label">${label}</span>
-            `;
-            btn.setAttribute('aria-label', label);
-        } else {
-            btn.textContent = label;
-        }
+        btn.innerHTML = `
+            <img src="${option.image}" alt="${label}" class="option-button-image">
+            <span class="option-button-label">${label}</span>
+        `;
 
         btn.addEventListener('click', () => {
             group.querySelectorAll('.option-button')
@@ -234,9 +262,9 @@ function goToNextStep() {
         const childName  = document.getElementById('childNameInput').value.trim();
         const parentName = document.getElementById('parentNameInput').value.trim();
 
-        if (!childName)              { alert("Please enter the child's name.");    return; }
-        if (!parentName)             { alert("Please enter the parent's name.");   return; }
-        if (!userChoices.character)  { alert('Please select a character.');        return; }
+        if (!childName)             { alert("Please enter the child's name.");  return; }
+        if (!parentName)            { alert("Please enter the parent's name."); return; }
+        if (!userChoices.character) { alert('Please select a character.');      return; }
 
         userChoices.childName  = childName;
         userChoices.parentName = parentName;
