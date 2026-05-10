@@ -553,3 +553,7 @@ body {
         flex: 1;
     }
 }
+
+.option-button.selected::after {
+    content: "\2713";
+}

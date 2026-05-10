@@ -129,7 +129,7 @@ function renderSetupForm() {
         <label class="input-label">What is your name?</label>
         <input type="text" id="childNameInput" class="input-field"
                placeholder="Enter your name..."
-               value="${userChoices.childName || ''}">
+               value="${escapeAttribute(userChoices.childName || '')}">
     `;
 
     // Right — parent
@@ -140,7 +140,7 @@ function renderSetupForm() {
         <label class="input-label">Parent / Guardian Name</label>
         <input type="text" id="parentNameInput" class="input-field"
                placeholder="Enter parent name..."
-               value="${userChoices.parentName || ''}">
+               value="${escapeAttribute(userChoices.parentName || '')}">
     `;
 
     form.appendChild(leftCol);
@@ -302,4 +302,12 @@ function goToNextStep() {
         localStorage.setItem('userProfile', JSON.stringify(userChoices));
         window.location.href = 'world-reveal.html';
     }
+}
+
+function escapeAttribute(value) {
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
 }
