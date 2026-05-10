@@ -46,6 +46,22 @@ class ColorSortGame {
       charImg.src = this.context.characterPath;
     }
 
+    // Check for saved progress
+    const saved = this.loadProgress();
+    if (saved) {
+      const shouldResume = await this.showResumePrompt(saved);
+      if (shouldResume) {
+        this.restoreProgress(saved);
+      } else {
+        this.clearProgress();
+      }
+      this.renderZones();
+      this.renderProgress();
+      this.renderScore();
+      setTimeout(() => this.presentNextItem(), 600);
+      return;
+    }
+
     // Greet player
     await this.context.speak(
       `Hi ${this.context.childName}! Help me sort items by color!`
@@ -54,9 +70,79 @@ class ColorSortGame {
     // Render zones and progress
     this.renderZones();
     this.renderProgress();
+    this.renderScore();
 
     // Start first item
     setTimeout(() => this.presentNextItem(), 800);
+  }
+
+  saveProgress() {
+    const state = {
+      itemsShown: this.itemsShown,
+      correctCount: this.correctCount,
+      correctStreak: this.correctStreak,
+      incorrectStreak: this.incorrectStreak,
+      currentBranch: this.currentBranch,
+      branchHistory: this.branchHistory,
+      performance: this.performance,
+      savedAt: Date.now()
+    };
+    localStorage.setItem(this.getProgressKey(), JSON.stringify(state));
+  }
+
+  loadProgress() {
+    const raw = localStorage.getItem(this.getProgressKey());
+    if (!raw) return null;
+    try {
+      const saved = JSON.parse(raw);
+      if (!saved || typeof saved.itemsShown !== 'number') return null;
+      return saved;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  clearProgress() {
+    localStorage.removeItem(this.getProgressKey());
+  }
+
+  getProgressKey() {
+    return `colorSortProgress_${this.context.childId}`;
+  }
+
+  restoreProgress(state) {
+    this.itemsShown = Math.min(state.itemsShown || 0, this.totalItems);
+    this.correctCount = state.correctCount || 0;
+    this.correctStreak = state.correctStreak || 0;
+    this.incorrectStreak = state.incorrectStreak || 0;
+    this.currentBranch = state.currentBranch || 'neutral';
+    this.branchHistory = Array.isArray(state.branchHistory) ? state.branchHistory : [this.currentBranch];
+    this.performance = state.performance || this.performance;
+  }
+
+  showResumePrompt(saved) {
+    return new Promise(resolve => {
+      const overlay = document.createElement('div');
+      overlay.className = 'pause-overlay';
+      overlay.innerHTML = `
+        <div class="pause-panel">
+          <h2>Welcome back!</h2>
+          <p>You sorted ${saved.itemsShown} of ${this.totalItems} items. Continue where you left off?</p>
+          <button class="pause-btn pause-btn-primary" id="resumeSavedBtn">Continue</button>
+          <button class="pause-btn pause-btn-secondary" id="startFreshBtn">Start Fresh</button>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+
+      document.getElementById('resumeSavedBtn').addEventListener('click', () => {
+        overlay.remove();
+        resolve(true);
+      });
+      document.getElementById('startFreshBtn').addEventListener('click', () => {
+        overlay.remove();
+        resolve(false);
+      });
+    });
   }
 
   render() {
@@ -72,6 +158,7 @@ class ColorSortGame {
             </svg>
           </button>
           <div class="color-progress" id="colorProgress"></div>
+          <div class="color-score" id="colorScore" aria-live="polite" aria-label="Score">0 / ${this.totalItems}</div>
         </div>
 
         <!-- Item to sort -->
@@ -108,6 +195,12 @@ class ColorSortGame {
       }
       progressEl.appendChild(pip);
     }
+  }
+
+  renderScore() {
+    const scoreEl = document.getElementById('colorScore');
+    if (!scoreEl) return;
+    scoreEl.textContent = `${this.correctCount} / ${this.totalItems}`;
   }
 
   renderZones() {
@@ -318,6 +411,7 @@ class ColorSortGame {
       const item = document.getElementById('colorItem');
       if (item) item.classList.add('correct');
 
+      this.renderScore();
       this.context.speak(`Great job! That's ${this.currentColor}!`);
       this.context.characterAnimation('cheer');
 
@@ -375,6 +469,7 @@ class ColorSortGame {
 
   async end() {
     this.ended = true;
+    this.clearProgress();
 
     // Calculate metrics
     const accuracy =
@@ -465,7 +560,38 @@ class ColorSortGame {
   }
 
   togglePause() {
-    alert('Game paused. Resume playing?');
+    if (this.ended) return;
+
+    const existing = document.getElementById('pauseOverlay');
+    if (existing) {
+      existing.remove();
+      this.busy = false;
+      return;
+    }
+
+    this.busy = true;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'pause-overlay';
+    overlay.id = 'pauseOverlay';
+    overlay.innerHTML = `
+      <div class="pause-panel">
+        <h2>Paused</h2>
+        <button class="pause-btn pause-btn-primary" id="pauseResumeBtn">Resume</button>
+        <button class="pause-btn pause-btn-secondary" id="pauseSaveExitBtn">Save &amp; Exit</button>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    document.getElementById('pauseResumeBtn').addEventListener('click', () => {
+      overlay.remove();
+      this.busy = false;
+    });
+
+    document.getElementById('pauseSaveExitBtn').addEventListener('click', () => {
+      this.saveProgress();
+      window.location.href = 'world-reveal.html';
+    });
   }
 }
 

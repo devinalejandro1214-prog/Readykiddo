@@ -18,6 +18,11 @@ class GameShell {
 
   createGameContext() {
     const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+    if (!profile.childId) {
+      profile.childId = `child_${Date.now()}`;
+      localStorage.setItem('userProfile', JSON.stringify(profile));
+    }
+
     const worldSlug = slugify(profile.theme || 'space');
     const characterSlug = slugify(profile.character || 'mica');
     const styleSlug = slugify(profile.style || 'plain');
@@ -27,7 +32,7 @@ class GameShell {
       // User info
       childName: profile.childName || 'Explorer',
       parentName: profile.parentName || 'Parent',
-      childId: profile.childId || `child_${Date.now()}`,
+      childId: profile.childId,
 
       // World & character selection
       world: profile.theme || 'space',

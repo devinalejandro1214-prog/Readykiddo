@@ -375,6 +375,24 @@ const ITEM_GENERATORS = {
       ${sparkle(74, 20, 4.5)}${sparkle(26, 62, 3.5)}${sparkle(78, 68, 3)}
     </svg>`,
 
+  squareTile: c => `
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="sqtg${c}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="${LIGHT[c]}"/>
+          <stop offset="55%" stop-color="${COLOR_HEX[c]}"/>
+          <stop offset="100%" stop-color="${DARK[c]}"/>
+        </linearGradient>
+      </defs>
+      <rect x="16" y="16" width="68" height="68" rx="6"
+            fill="url(#sqtg${c})" stroke="${DARK[c]}" stroke-width="3"/>
+      <rect x="24" y="24" width="52" height="52" rx="4"
+            fill="none" stroke="${LIGHT[c]}" stroke-width="4" opacity="0.55"/>
+      <path d="M28 30h26M28 40h18" stroke="white" stroke-width="4" stroke-linecap="round" opacity="0.65"/>
+      <circle cx="68" cy="68" r="5" fill="${DARK[c]}" opacity="0.22"/>
+      ${sparkle(74, 22, 4)}${sparkle(24, 76, 3)}
+    </svg>`,
+
   shield: c => `
     <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
       <defs>
