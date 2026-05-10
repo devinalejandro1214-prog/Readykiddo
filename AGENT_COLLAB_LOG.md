@@ -61,6 +61,35 @@ Before working, read AGENT_COLLAB_LOG.md in the ReadyKiddo2.0 folder. Your role 
 ## 2026-05-09 - Codex
 
 Prompt:
+> Claude built the game as a universal fluid game. Ensure the file structure is accurate and upload to Git.
+
+Actions Taken:
+- Reviewed Claude's universal game structure.
+- Confirmed the game system files are organized under:
+  - `assets/js/games/`
+  - `assets/css/`
+  - `assets/images/games/sorting-game/`
+  - `game-loader.html`
+- Updated `world-reveal.js` so the Play button launches `game-loader.html?game=color-sort`.
+- Updated the universal game shell to use slug-safe asset paths, including multi-word worlds like `Candy Land` -> `candy-land`.
+- Exposed `ColorSortGame` and `ShapeRecognitionGame` on `window` so the dynamic registry loader can instantiate them.
+- Updated the sorting-game README so its path notes match the current WebP world/vibe backgrounds and character style assets.
+
+Verification:
+- Local browser test passed from `world-reveal.html` into `game-loader.html?game=color-sort`.
+- Confirmed Candy Land + Magical loads `assets/images/world-backgrounds/candy-land/vibes/magical/background.webp`.
+- Confirmed Emmett Scientist loads `assets/images/characters/emmett/scientist.png`.
+- Confirmed color sort initializes without the loader error.
+- Confirmed direct `game-loader.html?game=shape-recognition` initializes without errors.
+
+GitHub/Netlify:
+- Pending at time of entry.
+
+---
+
+## 2026-05-09 - Codex
+
+Prompt:
 > Do the image-loading fix as long as it does not change the look.
 
 Actions Taken:

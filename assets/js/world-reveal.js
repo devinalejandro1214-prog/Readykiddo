@@ -41,7 +41,7 @@ function loadWorldReveal(profile) {
 
     document.getElementById('startGameButton').addEventListener('click', () => {
         localStorage.setItem('gameProfile', JSON.stringify(profile));
-        window.location.href = 'game.html';
+        window.location.href = 'game-loader.html?game=color-sort';
     });
 }
 
