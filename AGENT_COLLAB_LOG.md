@@ -58,6 +58,42 @@ Before working, read AGENT_COLLAB_LOG.md in the ReadyKiddo2.0 folder. Your role 
 
 ---
 
+## 2026-05-09 - Codex
+
+Prompt:
+> Do the image-loading fix as long as it does not change the look.
+
+Actions Taken:
+- Added WebP copies beside the existing PNG artwork for large landing, onboarding, world button, vibe button, and world/vibe background images.
+- Kept all original PNGs in place as fallbacks and did not alter the source artwork.
+- Updated production image references so large backgrounds and visual option buttons load WebP first.
+- Left transparent character/costume PNGs unchanged to preserve their edges and transparency.
+
+Files/Folders Changed:
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\index.html`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\onboarding.html`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\css\onboarding.css`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\js\onboarding.js`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\js\world-reveal.js`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\game.html`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\images\buttons\buttons.json`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\images\backgrounds\*.webp`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\images\buttons\**\*.webp`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\images\world-backgrounds\**\*.webp`
+
+Verification:
+- Converted 50 image assets from PNG to WebP.
+- Converted PNG source set was about 94.57 MB; WebP output is about 11.47 MB, roughly 87.9% smaller.
+- Local browser verification passed on an iPhone-sized viewport.
+- Confirmed landing, onboarding, world option buttons, vibe option buttons, world reveal, and game background load WebP assets.
+- Confirmed character/costume assets still load PNG files.
+- Confirmed no browser console errors in the tested flow.
+
+GitHub/Netlify:
+- Pending at time of entry.
+
+---
+
 ## 2026-05-07 - Codex
 
 Prompt:

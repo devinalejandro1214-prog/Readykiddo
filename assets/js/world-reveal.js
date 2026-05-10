@@ -21,7 +21,7 @@ function loadWorldReveal(profile) {
     const vibeSlug = slugify(profile.vibe);
 
     const characterPath = `assets/images/characters/${charSlug}/${styleSlug}.png`;
-    const backgroundPath = `assets/images/world-backgrounds/${worldSlug}/vibes/${vibeSlug}/background.png`;
+    const backgroundPath = `assets/images/world-backgrounds/${worldSlug}/vibes/${vibeSlug}/background.webp`;
 
     document.getElementById('welcomeTitle').textContent =
         `Hi, ${profile.childName}! Welcome to your ${profile.vibe} ${profile.theme}.`;

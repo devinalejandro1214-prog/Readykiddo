@@ -21,6 +21,7 @@
     --color-yellow: #f4c83b;
     --color-green:  #4aaf5a;
     --color-purple: #9558c4;
+    --color-orange: #ff9d2f;
 
     --shadow-card: 0 10px 30px rgba(9, 57, 95, 0.18), 0 2px 6px rgba(9, 57, 95, 0.08);
     --shadow-pop:  0 8px 0 rgba(0, 0, 0, 0.12);
@@ -532,6 +533,7 @@ const COLOR_HEX = {
   yellow: '#f4c83b',
   green:  '#4aaf5a',
   purple: '#9558c4',
+  orange: '#ff9d2f',
 };
 
 const ITEM_SHAPES = {
@@ -540,15 +542,16 @@ const ITEM_SHAPES = {
   yellow: ['star', 'flower', 'ball'],
   green:  ['triangle', 'apple', 'square'],
   purple: ['flower', 'heart', 'star'],
+  orange: ['ball', 'star', 'triangle'],
 };
 
 /* ── Branch pools ───────────────────────────────────────── */
 const BRANCHES = {
-  neutral:       { colors: ['red', 'blue'],                      counts: false },
-  'easy-medium': { colors: ['red', 'blue', 'yellow'],            counts: false },
-  medium:        { colors: ['red', 'blue', 'yellow'],            counts: false },
-  'medium-hard': { colors: ['red', 'blue', 'yellow', 'green'],   counts: false },
-  hard:          { colors: ['red', 'blue', 'yellow', 'green', 'purple'], counts: true  },
+  neutral:       { colors: ['red', 'blue'],                                    counts: false },
+  'easy-medium': { colors: ['red', 'blue', 'yellow'],                          counts: false },
+  medium:        { colors: ['red', 'blue', 'yellow', 'orange'],                counts: false },
+  'medium-hard': { colors: ['red', 'blue', 'yellow', 'green', 'purple'],       counts: false },
+  hard:          { colors: ['red', 'blue', 'yellow', 'orange', 'green', 'purple'], counts: true  },
 };
 const BRANCH_ORDER = ['neutral', 'easy-medium', 'medium', 'medium-hard', 'hard'];
 
@@ -789,7 +792,7 @@ class ColorSortGame {
 
 /* ── Renderers ──────────────────────────────────────────── */
 function setBackground() {
-  bgEl.style.backgroundImage = `url("assets/images/world-backgrounds/${state.world}/vibes/${state.vibe}/background.png")`;
+  bgEl.style.backgroundImage = `url("assets/images/world-backgrounds/${state.world}/vibes/${state.vibe}/background.webp")`;
   bgEl.style.backgroundColor = '#e8d4f1';
 }
 function setCharacter() {

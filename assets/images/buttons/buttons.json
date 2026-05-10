@@ -3,59 +3,59 @@
     {
       "id": "space",
       "label": "Space",
-      "image": "assets/images/buttons/worlds/space.png"
+      "image": "assets/images/buttons/worlds/space.webp"
     },
     {
       "id": "jungle",
       "label": "Jungle",
-      "image": "assets/images/buttons/worlds/jungle.png"
+      "image": "assets/images/buttons/worlds/jungle.webp"
     },
     {
       "id": "beach",
       "label": "Beach",
-      "image": "assets/images/buttons/worlds/beach.png"
+      "image": "assets/images/buttons/worlds/beach.webp"
     },
     {
       "id": "castle",
       "label": "Castle",
-      "image": "assets/images/buttons/worlds/castle.png"
+      "image": "assets/images/buttons/worlds/castle.webp"
     },
     {
       "id": "studio",
       "label": "Studio",
-      "image": "assets/images/buttons/worlds/studio.png"
+      "image": "assets/images/buttons/worlds/studio.webp"
     },
     {
       "id": "candy-land",
       "label": "Candy Land",
-      "image": "assets/images/buttons/worlds/candy-land.png"
+      "image": "assets/images/buttons/worlds/candy-land.webp"
     }
   ],
   "vibes": [
     {
       "id": "cozy",
       "label": "Cozy",
-      "image": "assets/images/buttons/vibes/cozy.png"
+      "image": "assets/images/buttons/vibes/cozy.webp"
     },
     {
       "id": "exciting",
       "label": "Exciting",
-      "image": "assets/images/buttons/vibes/exciting.png"
+      "image": "assets/images/buttons/vibes/exciting.webp"
     },
     {
       "id": "magical",
       "label": "Magical",
-      "image": "assets/images/buttons/vibes/magical.png"
+      "image": "assets/images/buttons/vibes/magical.webp"
     },
     {
       "id": "silly",
       "label": "Silly",
-      "image": "assets/images/buttons/vibes/silly.png"
+      "image": "assets/images/buttons/vibes/silly.webp"
     },
     {
       "id": "brave",
       "label": "Brave",
-      "image": "assets/images/buttons/vibes/brave.png"
+      "image": "assets/images/buttons/vibes/brave.webp"
     }
   ],
   "styles": [

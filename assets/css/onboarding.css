@@ -40,9 +40,14 @@ body {
     overflow: hidden;
 }
 
+.background-container picture,
 .background-image {
+    display: block;
     width: 100%;
     height: 100%;
+}
+
+.background-image {
     object-fit: cover;
 }
 

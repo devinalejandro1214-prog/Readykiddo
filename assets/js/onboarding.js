@@ -16,12 +16,12 @@ const onboardingSteps = [
         subtitle: 'Choose the environment for your adventure',
         type: 'options',
         options: [
-            { label: 'Space',      image: 'assets/images/buttons/worlds/space.png' },
-            { label: 'Jungle',     image: 'assets/images/buttons/worlds/jungle.png' },
-            { label: 'Beach',      image: 'assets/images/buttons/worlds/beach.png' },
-            { label: 'Castle',     image: 'assets/images/buttons/worlds/castle.png' },
-            { label: 'Studio',     image: 'assets/images/buttons/worlds/studio.png' },
-            { label: 'Candy Land', image: 'assets/images/buttons/worlds/candy-land.png' }
+            { label: 'Space',      image: 'assets/images/buttons/worlds/space.webp' },
+            { label: 'Jungle',     image: 'assets/images/buttons/worlds/jungle.webp' },
+            { label: 'Beach',      image: 'assets/images/buttons/worlds/beach.webp' },
+            { label: 'Castle',     image: 'assets/images/buttons/worlds/castle.webp' },
+            { label: 'Studio',     image: 'assets/images/buttons/worlds/studio.webp' },
+            { label: 'Candy Land', image: 'assets/images/buttons/worlds/candy-land.webp' }
         ],
         nextButtonText: 'Next'
     },
@@ -79,7 +79,7 @@ function getVibeOptions() {
     const worldSlug = slugify(userChoices.theme || '');
     return ['Cozy', 'Exciting', 'Magical', 'Silly', 'Brave'].map(v => ({
         label: v,
-        image: `assets/images/world-backgrounds/${worldSlug}/vibes/${slugify(v)}/background.png`
+        image: `assets/images/world-backgrounds/${worldSlug}/vibes/${slugify(v)}/background.webp`
     }));
 }
 
