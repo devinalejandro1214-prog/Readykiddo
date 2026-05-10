@@ -25,7 +25,7 @@ Complete these steps before the automation can run end to end:
 2. Add Netlify function environment variables: `GITHUB_TOKEN`, `GITHUB_REPOSITORY`, and optionally `ALLOWED_ORIGIN`.
 3. Set `GITHUB_REPOSITORY` to `devinalejandro1214-prog/Readykiddo`.
 4. Give the feedback GitHub token permission to create issues and apply labels in `devinalejandro1214-prog/Readykiddo`.
-5. Create GitHub labels: `feedback`, `needs-approval`, and `approved-for-agent`.
+5. Create the GitHub label `approved-for-agent`. The feedback function creates `feedback` and `needs-approval` automatically if the token has label write access.
 6. Add the repository secret `CLAUDE_CODE_OAUTH_TOKEN`.
 7. Ensure GitHub Actions are enabled and the workflow has `contents`, `issues`, and `pull-requests` write permissions.
 8. Protect `main` and require PR review before merge.

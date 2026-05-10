@@ -81,6 +81,8 @@ async function createGitHubIssue(feedback) {
         throw new Error('GitHub issue creation is not configured.');
     }
 
+    await ensureGitHubLabels(repository, token);
+
     const title = `[Feedback] ${feedback.type}: ${truncate(feedback.message, 72)}`;
     const body = [
         '## Feedback',
@@ -116,6 +118,37 @@ async function createGitHubIssue(feedback) {
     }
 
     return data;
+}
+
+async function ensureGitHubLabels(repository, token) {
+    const labelDefinitions = [
+        { name: 'feedback', color: '0e8a16', description: 'Feedback submitted from the ReadyKiddo site' },
+        { name: 'needs-approval', color: 'fbca04', description: 'Needs human approval before agent work' }
+    ];
+
+    for (const label of labelDefinitions) {
+        const response = await fetch(`https://api.github.com/repos/${repository}/labels`, {
+            method: 'POST',
+            headers: githubHeaders(token),
+            body: JSON.stringify(label)
+        });
+
+        if (response.ok || response.status === 422) {
+            continue;
+        }
+
+        const data = await response.json().catch(() => null);
+        throw new Error(`GitHub label creation failed: ${response.status} ${JSON.stringify(data)}`);
+    }
+}
+
+function githubHeaders(token) {
+    return {
+        Accept: 'application/vnd.github+json',
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'User-Agent': 'readykiddo-feedback-agent'
+    };
 }
 
 function corsHeaders(event) {
