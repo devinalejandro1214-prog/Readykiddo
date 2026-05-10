@@ -11,7 +11,7 @@ const SHAPE_ITEMS_MAP = {
   circle:    ['planet', 'lollipop', 'beachball', 'gummy', 'fruit', 'cupcake'],
   triangle:  ['rocket', 'leaf', 'crown', 'shell'],
   star:      ['star', 'starfish', 'flower'],
-  square:    ['gem', 'paintblob'],
+  square:    ['squareTile'],
   rectangle: ['shield', 'brush', 'note']
 };
 
@@ -22,7 +22,8 @@ const ALL_ITEMS = [
   'fruit', 'leaf', 'flower',
   'starfish', 'shell', 'beachball',
   'gem', 'shield', 'crown',
-  'paintblob', 'brush', 'note'
+  'paintblob', 'brush', 'note',
+  'squareTile'
 ];
 
 // Branch order — used consistently everywhere
@@ -53,6 +54,7 @@ class ShapeRecognitionGame {
     this.busy = false;
     this.ended = false;
     this.itemStartTime = 0;
+    this.answerHistory = [];
   }
 
   /* ── Lifecycle ──────────────────────────────────────────── */
@@ -109,7 +111,7 @@ class ShapeRecognitionGame {
     for (let i = 0; i < this.totalItems; i++) {
       const pip = document.createElement('div');
       pip.className = 'shape-pip';
-      if (i < this.itemsShown) pip.classList.add('done');
+      if (i < this.itemsShown) pip.classList.add(this.answerHistory[i] ? 'correct' : 'incorrect');
       else if (i === this.itemsShown) pip.classList.add('current');
       progressEl.appendChild(pip);
     }
@@ -281,6 +283,7 @@ class ShapeRecognitionGame {
       this.context.characterAnimation('nod');
     }
 
+    this.answerHistory.push(isCorrect);
     this.itemsShown++;
     this.performance.totalItems++;
 
