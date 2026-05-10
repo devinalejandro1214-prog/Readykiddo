@@ -34,7 +34,15 @@ jobs:
           branch_name_template: "{{prefix}}feedback-{{entityNumber}}-{{timestamp}}"
           track_progress: "true"
           prompt: |
-            Implement the approved feedback from this GitHub issue in the ReadyKiddo repository.
+            Implement the smallest safe fix for the approved feedback in this GitHub issue.
+
+            Scope rules:
+            - Treat the issue text as the only approved work.
+            - Make the smallest focused change that resolves the specific request.
+            - Do not refactor unrelated code.
+            - Do not redesign pages, rename files, or change workflows unless the issue explicitly asks for it.
+            - If the request is ambiguous, risky, or too broad for a small safe fix, stop and comment on the issue explaining what clarification is needed.
+            - If the fix needs secrets, production access, third-party account setup, or manual product decisions, stop and comment instead of guessing.
 
             Guardrails:
             - Create code changes on an agent branch and open a pull request.
@@ -42,7 +50,8 @@ jobs:
             - Do not deploy production.
             - Keep changes scoped to the approved issue.
             - Preserve existing user-facing flows unless the issue explicitly asks to change them.
-            - Run available test commands before finishing and include results in the PR body.
+            - Run `npm test`, `npm run build`, and `git diff --check` before finishing.
+            - Include the test results in the PR body.
             - In the PR body, mention that Codex should review the PR before merge.
           claude_args: |
-            --max-turns 10
+            --max-turns 30
