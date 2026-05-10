@@ -54,6 +54,7 @@ class ColorSortGame {
     // Render zones and progress
     this.renderZones();
     this.renderProgress();
+    this.renderScore();
 
     // Start first item
     setTimeout(() => this.presentNextItem(), 800);
@@ -72,6 +73,7 @@ class ColorSortGame {
             </svg>
           </button>
           <div class="color-progress" id="colorProgress"></div>
+          <div class="color-score" id="colorScore" aria-live="polite" aria-label="Score">0 / ${this.totalItems}</div>
         </div>
 
         <!-- Item to sort -->
@@ -108,6 +110,12 @@ class ColorSortGame {
       }
       progressEl.appendChild(pip);
     }
+  }
+
+  renderScore() {
+    const scoreEl = document.getElementById('colorScore');
+    if (!scoreEl) return;
+    scoreEl.textContent = `${this.correctCount} / ${this.totalItems}`;
   }
 
   renderZones() {
@@ -318,6 +326,7 @@ class ColorSortGame {
       const item = document.getElementById('colorItem');
       if (item) item.classList.add('correct');
 
+      this.renderScore();
       this.context.speak(`Great job! That's ${this.currentColor}!`);
       this.context.characterAnimation('cheer');
 

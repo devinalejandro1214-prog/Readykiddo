@@ -65,6 +65,24 @@
   height: 22px;
 }
 
+/* ── Score ──────────────────────────────────────────────── */
+.color-score {
+  min-width: 68px;
+  height: 44px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #09395f;
+  font-size: 17px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-card);
+  white-space: nowrap;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+}
+
 /* ── Progress ───────────────────────────────────────────── */
 .color-progress {
   flex: 1;
@@ -407,6 +425,12 @@
   .hud-btn {
     width: 40px;
     height: 40px;
+  }
+
+  .color-score {
+    min-width: 58px;
+    height: 40px;
+    font-size: 15px;
   }
 
   .color-item-stage {
