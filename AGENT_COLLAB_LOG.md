@@ -83,7 +83,9 @@ Verification:
 - Confirmed direct `game-loader.html?game=shape-recognition` initializes without errors.
 
 GitHub/Netlify:
-- Pending at time of entry.
+- Committed as `e595b67 Add universal game loader system`.
+- Pushed to GitHub `main`.
+- Verified live Netlify site serves `game-loader.html`, the game registry, color-sort game script, color-sort CSS, and updated `world-reveal.js`.
 
 ---
 
