@@ -90,7 +90,9 @@ Verification:
 - Confirmed no browser console errors in the tested flow.
 
 GitHub/Netlify:
-- Pending at time of entry.
+- Committed as `683df22 Optimize ReadyKiddo image loading with WebP`.
+- Pushed to GitHub `main`.
+- Verified live Netlify site serves the new WebP assets from `https://readykiddo.com`.
 
 ---
 
