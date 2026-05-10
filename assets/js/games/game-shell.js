@@ -68,6 +68,11 @@ class GameShell {
   async speak(text) {
     if (!this.audioEnabled) return;
 
+    if (window.ReadyKiddoAudio) {
+      await window.ReadyKiddoAudio.speak(text);
+      return;
+    }
+
     // Check if Web Speech API is available
     const SpeechSynthesisUtterance = window.SpeechSynthesisUtterance || null;
     const speechSynthesis = window.speechSynthesis || null;
