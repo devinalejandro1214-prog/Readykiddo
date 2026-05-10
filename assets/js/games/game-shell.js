@@ -73,46 +73,27 @@ class GameShell {
       return;
     }
 
-    // Check if Web Speech API is available
-    const SpeechSynthesisUtterance = window.SpeechSynthesisUtterance || null;
-    const speechSynthesis = window.speechSynthesis || null;
-
-    if (!SpeechSynthesisUtterance || !speechSynthesis) {
-      console.log(`[Character says] ${text}`);
-      return;
-    }
-
-    // Create and configure utterance
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.9; // Slightly slower for clarity
-    utterance.pitch = 1;
-    utterance.volume = 1;
-
-    // Speak
-    speechSynthesis.cancel(); // Clear any queued speech
-    speechSynthesis.speak(utterance);
+    console.log(`[Recorded audio unavailable] ${text}`);
   }
 
   playSound(soundKey) {
     if (!this.audioEnabled) return;
 
-    // Map sound keys to audio prompts
     const soundMap = {
-      correct: 'assets/sounds/correct.mp3',
-      wrong: 'assets/sounds/wrong.mp3',
-      levelup: 'assets/sounds/levelup.mp3',
-      leveldown: 'assets/sounds/leveldown.mp3',
-      celebration: 'assets/sounds/celebration.mp3'
+      correct: 'correct',
+      wrong: 'try again',
+      levelup: 'ready',
+      leveldown: 'almost there',
+      celebration: 'yay'
     };
 
-    const soundPath = soundMap[soundKey];
-    if (!soundPath) {
+    const prompt = soundMap[soundKey];
+    if (!prompt || !window.ReadyKiddoAudio) {
       console.log(`[Sound] ${soundKey}`);
       return;
     }
 
-    // For now, just log. Audio files can be added later
-    console.log(`[Sound playing] ${soundKey}`);
+    window.ReadyKiddoAudio.speak(prompt);
   }
 
   /* ─────────────────────────────────────────────────────────

@@ -1,101 +1,128 @@
 (function () {
-    const VOICE_PRIORITY = [
-        'aria',
-        'jenny',
-        'ava',
-        'samantha',
-        'karen',
-        'google us english',
-        'google uk english female',
-        'microsoft zira',
-        'microsoft heera',
-        'microsoft hazel',
-        'alex'
-    ];
+    const AUDIO_BASE = 'assets/audio/voice/';
 
-    let voicesPromise = null;
+    const AUDIO_MAP = {
+        welcome: 'em-welcome-world.m4a',
+        'welcome to your': 'em-welcome-world.m4a',
+        'excited welcome': 'em-excited-welcome.m4a',
+        ready: 'em-ready-lets-go.m4a',
+        'let us play': 'em-ready-lets-go.m4a',
+        "let's play": 'em-ready-lets-go.m4a',
+        'match the colors': 'em-match-colors.m4a',
+        'sort items by color': 'em-match-colors.m4a',
+        'matching color': 'em-match-colors.m4a',
+        'match the shapes': 'em-match-shapes.m4a',
+        'find some shapes': 'em-match-shapes.m4a',
+        'matching shape': 'em-match-shapes.m4a',
 
-    function loadVoices() {
-        const synth = window.speechSynthesis;
-        if (!synth) return Promise.resolve([]);
+        red: 'em-find-red.m4a',
+        blue: 'em-find-blue.m4a',
+        yellow: 'em-find-yellow.m4a',
+        green: 'em-find-green.m4a',
+        orange: 'em-find-orange.m4a',
+        purple: 'em-find-purple.m4a',
 
-        if (voicesPromise) return voicesPromise;
+        circle: 'em-circle.m4a',
+        square: 'em-square.m4a',
+        triangle: 'em-triangle.m4a',
+        star: 'em-yay.m4a',
+        rectangle: 'em-great-job.m4a',
 
-        voicesPromise = new Promise(resolve => {
-            const existing = synth.getVoices();
-            if (existing.length) {
-                resolve(existing);
+        correct: 'em-you-got-it.m4a',
+        'you got it': 'em-you-got-it.m4a',
+        'you found it': 'em-you-found-it.m4a',
+        'great job': 'em-great-job.m4a',
+        'that is right': 'em-you-got-it.m4a',
+        "that's right": 'em-you-got-it.m4a',
+        yay: 'em-yay.m4a',
+        amazing: 'em-yay.m4a',
+        wow: 'gray-wow.m4a',
+
+        wrong: 'em-try-again.m4a',
+        'try again': 'em-try-again.m4a',
+        'look at the shape': 'em-try-again.m4a',
+        'we need': 'em-try-again.m4a',
+        'aww man': 'em-aww-man.m4a',
+        'almost there': 'em-almost-there.m4a',
+        'easier colors': 'em-almost-there.m4a',
+        'easier shapes': 'em-almost-there.m4a',
+        'keep it up': 'em-keep-it-up.m4a',
+        funny: 'em-funny.m4a'
+    };
+
+    let currentAudio = null;
+    let audioQueue = Promise.resolve();
+
+    function normalize(text) {
+        return String(text || '')
+            .toLowerCase()
+            .replace(/[’]/g, "'")
+            .replace(/[^a-z0-9' ]+/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+    }
+
+    function getAudioPath(text) {
+        const lower = normalize(text);
+        if (!lower) return null;
+        if (AUDIO_MAP[lower]) return AUDIO_BASE + AUDIO_MAP[lower];
+
+        let bestKey = null;
+        let bestLength = 0;
+        for (const key of Object.keys(AUDIO_MAP)) {
+            if (lower.includes(key) && key.length > bestLength) {
+                bestKey = key;
+                bestLength = key.length;
+            }
+        }
+
+        return bestKey ? AUDIO_BASE + AUDIO_MAP[bestKey] : null;
+    }
+
+    function playNow(path) {
+        return new Promise(resolve => {
+            if (!path) {
+                resolve(false);
                 return;
             }
 
-            const done = () => resolve(synth.getVoices());
-            synth.addEventListener('voiceschanged', done, { once: true });
-            setTimeout(done, 700);
-        });
+            const audio = new Audio(path);
+            currentAudio = audio;
+            audio.volume = 1;
 
-        return voicesPromise;
-    }
-
-    function pickVoice(voices) {
-        const englishVoices = voices.filter(voice => /^en(-|_)?/i.test(voice.lang || ''));
-        const pool = englishVoices.length ? englishVoices : voices;
-
-        for (const preferred of VOICE_PRIORITY) {
-            const match = pool.find(voice => voice.name.toLowerCase().includes(preferred));
-            if (match) return match;
-        }
-
-        const natural = pool.find(voice => /natural|premium|enhanced|neural/i.test(voice.name));
-        return natural || pool[0] || null;
-    }
-
-    async function speak(text, options = {}) {
-        const SpeechSynthesisUtterance = window.SpeechSynthesisUtterance || null;
-        const synth = window.speechSynthesis || null;
-
-        if (!SpeechSynthesisUtterance || !synth || !text) {
-            console.log(`[Character says] ${text}`);
-            return;
-        }
-
-        const voices = await loadVoices();
-        const utterance = new SpeechSynthesisUtterance(text);
-        const voice = pickVoice(voices);
-
-        if (voice) {
-            utterance.voice = voice;
-            utterance.lang = voice.lang || 'en-US';
-        } else {
-            utterance.lang = 'en-US';
-        }
-
-        utterance.rate = options.rate || 0.88;
-        utterance.pitch = options.pitch || 1.08;
-        utterance.volume = options.volume || 1;
-
-        return new Promise(resolve => {
-            let finished = false;
-            const finish = () => {
-                if (finished) return;
-                finished = true;
-                resolve();
+            let settled = false;
+            const finish = played => {
+                if (settled) return;
+                settled = true;
+                if (currentAudio === audio) currentAudio = null;
+                resolve(played);
             };
 
-            utterance.onend = finish;
-            utterance.onerror = finish;
+            audio.addEventListener('ended', () => finish(true), { once: true });
+            audio.addEventListener('error', () => {
+                console.warn(`[ReadyKiddoAudio] Missing recorded audio: ${path}`);
+                finish(false);
+            }, { once: true });
 
-            synth.cancel();
-            synth.speak(utterance);
-
-            const fallbackMs = Math.max(1600, Math.min(6500, text.length * 75));
-            setTimeout(finish, fallbackMs);
+            audio.play().catch(error => {
+                console.warn(`[ReadyKiddoAudio] Recorded audio blocked: ${error.message}`);
+                finish(false);
+            });
         });
+    }
+
+    function playPath(path) {
+        audioQueue = audioQueue.then(() => playNow(path));
+        return audioQueue;
+    }
+
+    function speak(text) {
+        return playPath(getAudioPath(text));
     }
 
     window.ReadyKiddoAudio = {
-        loadVoices,
+        getAudioPath,
+        play: playPath,
         speak
     };
-
-    loadVoices();
 }());

@@ -51,10 +51,9 @@ async function startGameWithWelcome(profile) {
     startButton.disabled = true;
     startButton.querySelector('span:last-child').textContent = 'Starting...';
 
-    const welcomeText = `Welcome to your ${profile.vibe} ${profile.theme} world, ${profile.childName}! Let's play.`;
-
     if (window.ReadyKiddoAudio) {
-        await window.ReadyKiddoAudio.speak(welcomeText, { rate: 0.86, pitch: 1.1 });
+        await window.ReadyKiddoAudio.speak('welcome');
+        await window.ReadyKiddoAudio.speak('ready');
     }
 
     localStorage.setItem('gameProfile', JSON.stringify(profile));
