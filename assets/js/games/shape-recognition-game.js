@@ -53,6 +53,7 @@ class ShapeRecognitionGame {
     this.busy = false;
     this.ended = false;
     this.itemStartTime = 0;
+    this.answerHistory = [];  // true = correct, false = incorrect, per round
   }
 
   /* ── Lifecycle ──────────────────────────────────────────── */
@@ -109,7 +110,7 @@ class ShapeRecognitionGame {
     for (let i = 0; i < this.totalItems; i++) {
       const pip = document.createElement('div');
       pip.className = 'shape-pip';
-      if (i < this.itemsShown) pip.classList.add('done');
+      if (i < this.itemsShown) pip.classList.add(this.answerHistory[i] ? 'correct' : 'incorrect');
       else if (i === this.itemsShown) pip.classList.add('current');
       progressEl.appendChild(pip);
     }
@@ -281,6 +282,7 @@ class ShapeRecognitionGame {
       this.context.characterAnimation('nod');
     }
 
+    this.answerHistory.push(isCorrect);
     this.itemsShown++;
     this.performance.totalItems++;
 
