@@ -46,6 +46,21 @@ class ColorSortGame {
       charImg.src = this.context.characterPath;
     }
 
+    // Check for saved progress
+    const saved = this.loadProgress();
+    if (saved) {
+      const shouldResume = await this.showResumePrompt(saved);
+      if (shouldResume) {
+        this.restoreProgress(saved);
+      } else {
+        this.clearProgress();
+      }
+      this.renderZones();
+      this.renderProgress();
+      setTimeout(() => this.presentNextItem(), 600);
+      return;
+    }
+
     // Greet player
     await this.context.speak(
       `Hi ${this.context.childName}! Help me sort items by color!`
@@ -57,6 +72,71 @@ class ColorSortGame {
 
     // Start first item
     setTimeout(() => this.presentNextItem(), 800);
+  }
+
+  saveProgress() {
+    const key = `colorSortProgress_${this.context.childId}`;
+    const state = {
+      itemsShown: this.itemsShown,
+      correctCount: this.correctCount,
+      correctStreak: this.correctStreak,
+      incorrectStreak: this.incorrectStreak,
+      currentBranch: this.currentBranch,
+      branchHistory: this.branchHistory,
+      performance: this.performance,
+      savedAt: Date.now()
+    };
+    localStorage.setItem(key, JSON.stringify(state));
+  }
+
+  loadProgress() {
+    const key = `colorSortProgress_${this.context.childId}`;
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  clearProgress() {
+    localStorage.removeItem(`colorSortProgress_${this.context.childId}`);
+  }
+
+  restoreProgress(state) {
+    this.itemsShown = state.itemsShown;
+    this.correctCount = state.correctCount;
+    this.correctStreak = state.correctStreak;
+    this.incorrectStreak = state.incorrectStreak;
+    this.currentBranch = state.currentBranch;
+    this.branchHistory = state.branchHistory;
+    this.performance = state.performance;
+  }
+
+  showResumePrompt(saved) {
+    return new Promise(resolve => {
+      const overlay = document.createElement('div');
+      overlay.className = 'pause-overlay';
+      overlay.innerHTML = `
+        <div class="pause-panel">
+          <h2>Welcome back!</h2>
+          <p>You sorted ${saved.itemsShown} of ${this.totalItems} items. Continue where you left off?</p>
+          <button class="pause-btn pause-btn-primary" id="resumeSavedBtn">Continue</button>
+          <button class="pause-btn pause-btn-secondary" id="startFreshBtn">Start Fresh</button>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+
+      document.getElementById('resumeSavedBtn').addEventListener('click', () => {
+        overlay.remove();
+        resolve(true);
+      });
+      document.getElementById('startFreshBtn').addEventListener('click', () => {
+        overlay.remove();
+        resolve(false);
+      });
+    });
   }
 
   render() {
@@ -375,6 +455,7 @@ class ColorSortGame {
 
   async end() {
     this.ended = true;
+    this.clearProgress();
 
     // Calculate metrics
     const accuracy =
@@ -465,7 +546,38 @@ class ColorSortGame {
   }
 
   togglePause() {
-    alert('Game paused. Resume playing?');
+    if (this.ended) return;
+
+    const existing = document.getElementById('pauseOverlay');
+    if (existing) {
+      existing.remove();
+      this.busy = false;
+      return;
+    }
+
+    this.busy = true;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'pause-overlay';
+    overlay.id = 'pauseOverlay';
+    overlay.innerHTML = `
+      <div class="pause-panel">
+        <h2>Paused</h2>
+        <button class="pause-btn pause-btn-primary" id="pauseResumeBtn">Resume</button>
+        <button class="pause-btn pause-btn-secondary" id="pauseSaveExitBtn">Save &amp; Exit</button>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    document.getElementById('pauseResumeBtn').addEventListener('click', () => {
+      overlay.remove();
+      this.busy = false;
+    });
+
+    document.getElementById('pauseSaveExitBtn').addEventListener('click', () => {
+      this.saveProgress();
+      window.location.href = 'world-reveal.html';
+    });
   }
 }
 
