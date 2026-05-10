@@ -24,6 +24,14 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Debug workflow configuration
+        run: |
+          echo "github.sha=${{ github.sha }}"
+          echo "github.workflow_ref=${{ github.workflow_ref }}"
+          echo "github.workflow_sha=${{ github.workflow_sha }}"
+          echo "configured claude_args=--max-turns 30"
+          grep -n "claude_args\|max-turns" .github/workflows/approved-feedback-agent.yml
+
       - name: Run Claude Code on approved feedback
         uses: anthropics/claude-code-action@v1
         with:
@@ -53,5 +61,4 @@ jobs:
             - Run `npm test`, `npm run build`, and `git diff --check` before finishing.
             - Include the test results in the PR body.
             - In the PR body, mention that Codex should review the PR before merge.
-          claude_args: |
-            --max-turns 30
+          claude_args: "--max-turns 30"
