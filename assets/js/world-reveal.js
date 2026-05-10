@@ -40,9 +40,24 @@ function loadWorldReveal(profile) {
     document.getElementById('styleDisplay').textContent = profile.style || 'Plain';
 
     document.getElementById('startGameButton').addEventListener('click', () => {
-        localStorage.setItem('gameProfile', JSON.stringify(profile));
-        window.location.href = 'game-loader.html?game=color-sort';
+        startGameWithWelcome(profile);
     });
+}
+
+async function startGameWithWelcome(profile) {
+    const startButton = document.getElementById('startGameButton');
+    if (startButton.disabled) return;
+
+    startButton.disabled = true;
+    startButton.querySelector('span:last-child').textContent = 'Starting...';
+
+    if (window.ReadyKiddoAudio) {
+        await window.ReadyKiddoAudio.speak('welcome');
+        await window.ReadyKiddoAudio.speak('ready');
+    }
+
+    localStorage.setItem('gameProfile', JSON.stringify(profile));
+    window.location.href = 'game-loader.html?game=color-sort';
 }
 
 function setupIntroVideo(profile) {

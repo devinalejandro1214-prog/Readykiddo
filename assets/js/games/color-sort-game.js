@@ -290,6 +290,7 @@ class ColorSortGame {
 
     this.renderItem();
     this.renderProgress();
+    this.context.speak(this.currentColor);
   }
 
   renderItem() {

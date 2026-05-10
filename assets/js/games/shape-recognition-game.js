@@ -200,6 +200,7 @@ class ShapeRecognitionGame {
     this.renderChoices();
     this.renderProgress();
     this.updateInstruction(shape);
+    this.context.speak(shape);
   }
 
   /* ── Rendering ──────────────────────────────────────────── */
