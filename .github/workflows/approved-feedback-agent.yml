@@ -1,0 +1,48 @@
+name: Approved Feedback Agent
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  actions: read
+
+concurrency:
+  group: feedback-agent-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  implement-approved-feedback:
+    if: github.event.label.name == 'approved-for-agent'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Claude Code on approved feedback
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          label_trigger: approved-for-agent
+          branch_prefix: agent/
+          branch_name_template: "{{prefix}}feedback-{{entityNumber}}-{{timestamp}}"
+          track_progress: "true"
+          prompt: |
+            Implement the approved feedback from this GitHub issue in the ReadyKiddo repository.
+
+            Guardrails:
+            - Create code changes on an agent branch and open a pull request.
+            - Do not merge the pull request.
+            - Do not deploy production.
+            - Keep changes scoped to the approved issue.
+            - Preserve existing user-facing flows unless the issue explicitly asks to change them.
+            - Run available test commands before finishing and include results in the PR body.
+            - In the PR body, mention that Codex should review the PR before merge.
+          claude_args: |
+            --max-turns 10
