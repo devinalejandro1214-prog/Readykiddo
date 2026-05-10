@@ -452,7 +452,7 @@ body {
 
     .image-option-button {
         min-height: 142px;
-        padding: 7px;
+        padding: 10px;
     }
 
     .nav-buttons {
@@ -522,7 +522,7 @@ body {
     .button-group-two-col,
     .image-option-group {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 8px;
+        gap: 10px;
     }
 
     .option-button {
@@ -533,7 +533,7 @@ body {
 
     .image-option-button {
         min-height: 132px;
-        padding: 6px;
+        padding: 10px;
         border-radius: 16px;
     }
 
