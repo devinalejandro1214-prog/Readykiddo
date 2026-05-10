@@ -140,13 +140,6 @@ class ColorSortGame {
         this.handleDrop(color, zone);
       });
 
-      zone.addEventListener('click', () => {
-        const item = document.getElementById('colorItem');
-        if (item && !this.busy) {
-          this.handleDrop(color, zone);
-        }
-      });
-
       zonesEl.appendChild(zone);
     });
   }
@@ -215,21 +208,88 @@ class ColorSortGame {
     const item = document.createElement('div');
     item.className = 'color-item';
     item.id = 'colorItem';
-    item.draggable = true;
+    item.draggable = false;
+    item.dataset.color = this.currentColor;
     item.innerHTML = itemSvg;
 
-    // Drag events
-    item.addEventListener('dragstart', e => {
-      e.dataTransfer.effectAllowed = 'move';
-      item.classList.add('dragging');
-    });
-
-    item.addEventListener('dragend', () => {
-      item.classList.remove('dragging');
+    item.addEventListener('pointerdown', e => {
+      this.startPointerDrag(e, item);
     });
 
     itemStage.innerHTML = '';
     itemStage.appendChild(item);
+  }
+
+  startPointerDrag(event, item) {
+    if (this.busy || event.button > 0) return;
+
+    event.preventDefault();
+    const rect = item.getBoundingClientRect();
+    const offsetX = event.clientX - rect.left;
+    const offsetY = event.clientY - rect.top;
+    let activeZone = null;
+
+    const moveItem = pointerEvent => {
+      item.style.left = `${pointerEvent.clientX - offsetX}px`;
+      item.style.top = `${pointerEvent.clientY - offsetY}px`;
+
+      item.style.pointerEvents = 'none';
+      const zone = document.elementFromPoint(pointerEvent.clientX, pointerEvent.clientY)?.closest('.color-zone');
+      item.style.pointerEvents = '';
+
+      if (zone !== activeZone) {
+        document.querySelectorAll('.color-zone.over').forEach(z => z.classList.remove('over'));
+        activeZone = zone;
+        if (activeZone) activeZone.classList.add('over');
+      }
+    };
+
+    const resetItem = () => {
+      item.classList.remove('dragging');
+      item.style.position = '';
+      item.style.left = '';
+      item.style.top = '';
+      item.style.width = '';
+      item.style.height = '';
+      item.style.zIndex = '';
+      item.style.pointerEvents = '';
+      document.querySelectorAll('.color-zone.over').forEach(z => z.classList.remove('over'));
+    };
+
+    const endDrag = pointerEvent => {
+      document.removeEventListener('pointermove', moveItem);
+      document.removeEventListener('pointerup', endDrag);
+      document.removeEventListener('pointercancel', cancelDrag);
+
+      item.style.pointerEvents = 'none';
+      const zone = document.elementFromPoint(pointerEvent.clientX, pointerEvent.clientY)?.closest('.color-zone');
+      item.style.pointerEvents = '';
+
+      resetItem();
+
+      if (zone?.dataset?.color) {
+        this.handleDrop(zone.dataset.color, zone);
+      }
+    };
+
+    const cancelDrag = () => {
+      document.removeEventListener('pointermove', moveItem);
+      document.removeEventListener('pointerup', endDrag);
+      document.removeEventListener('pointercancel', cancelDrag);
+      resetItem();
+    };
+
+    item.classList.add('dragging');
+    item.style.position = 'fixed';
+    item.style.left = `${rect.left}px`;
+    item.style.top = `${rect.top}px`;
+    item.style.width = `${rect.width}px`;
+    item.style.height = `${rect.height}px`;
+    item.style.zIndex = '1000';
+
+    document.addEventListener('pointermove', moveItem);
+    document.addEventListener('pointerup', endDrag);
+    document.addEventListener('pointercancel', cancelDrag);
   }
 
   handleDrop(droppedColor, zoneEl) {

@@ -61,6 +61,31 @@ Before working, read AGENT_COLLAB_LOG.md in the ReadyKiddo2.0 folder. Your role 
 ## 2026-05-09 - Codex
 
 Prompt:
+> Update needed. For mobile the game needs to be drag and drop not press the button.
+
+Actions Taken:
+- Removed the color-zone click/tap answer shortcut from the color-sort game.
+- Switched the color item to custom pointer dragging so touch screens and mouse users drag the item onto a zone.
+- Kept the pause and next-game buttons clickable.
+- Changed color zones from pointer cursor to default cursor so they do not visually behave like answer buttons.
+
+Files/Folders Changed:
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\js\games\color-sort-game.js`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\css\color-sort-game.css`
+
+Verification:
+- Local mobile-sized browser test confirmed tapping a color zone does not advance progress.
+- Local mobile-sized browser test confirmed dragging the color item onto the correct zone advances progress.
+- Confirmed no browser console errors during the tested color-sort flow.
+
+GitHub/Netlify:
+- Pending at time of entry.
+
+---
+
+## 2026-05-09 - Codex
+
+Prompt:
 > Claude built the game as a universal fluid game. Ensure the file structure is accurate and upload to Git.
 
 Actions Taken:
