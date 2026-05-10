@@ -1,6 +1,5 @@
 const DEFAULT_LABELS = ['feedback', 'needs-approval'];
 const MAX_MESSAGE_LENGTH = 2000;
-const crypto = require('crypto');
 
 exports.handler = async function feedbackHandler(event) {
     const headers = corsHeaders(event);
@@ -31,27 +30,20 @@ exports.handler = async function feedbackHandler(event) {
     }
 
     try {
-        const savedFeedback = await saveFeedback(feedback);
-        const issue = await createGitHubIssue(feedback, savedFeedback);
-
-        if (savedFeedback && issue && savedFeedback.id) {
-            await updateFeedbackIssueUrl(savedFeedback.id, issue.html_url);
-        }
+        const issue = await createGitHubIssue(feedback);
 
         return jsonResponse(201, {
             ok: true,
-            feedbackId: savedFeedback && savedFeedback.id,
             issueUrl: issue && issue.html_url
         }, headers);
     } catch (error) {
         console.error('feedback submission failed', error);
-        return jsonResponse(500, { error: 'Feedback could not be saved.' }, headers);
+        return jsonResponse(500, { error: 'Feedback could not be submitted.' }, headers);
     }
 };
 
 function normalizeFeedback(payload, event) {
     const userAgent = getHeader(event, 'user-agent');
-    const ipAddress = getHeader(event, 'x-nf-client-connection-ip') || getHeader(event, 'client-ip');
 
     return {
         type: sanitizeText(payload.type || 'idea', 40),
@@ -61,7 +53,7 @@ function normalizeFeedback(payload, event) {
         page: sanitizeText(payload.page || '', 240),
         url: sanitizeText(payload.url || '', 500),
         userAgent: sanitizeText(payload.userAgent || userAgent || '', 500),
-        ipHash: hashIp(ipAddress || '')
+        timestamp: new Date().toISOString()
     };
 }
 
@@ -81,61 +73,7 @@ function validateFeedback(feedback) {
     return null;
 }
 
-async function saveFeedback(feedback) {
-    const supabaseUrl = process.env.SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    const tableName = process.env.FEEDBACK_TABLE || 'feedback';
-
-    if (!supabaseUrl || !supabaseKey) {
-        throw new Error('Supabase feedback database is not configured.');
-    }
-
-    const response = await fetch(`${supabaseUrl.replace(/\/$/, '')}/rest/v1/${tableName}`, {
-        method: 'POST',
-        headers: {
-            apikey: supabaseKey,
-            Authorization: `Bearer ${supabaseKey}`,
-            'Content-Type': 'application/json',
-            Prefer: 'return=representation'
-        },
-        body: JSON.stringify({
-            type: feedback.type,
-            message: feedback.message,
-            email: feedback.email || null,
-            page: feedback.page || null,
-            url: feedback.url || null,
-            user_agent: feedback.userAgent || null,
-            ip_hash: feedback.ipHash || null,
-            status: 'needs-approval',
-            issue_url: null
-        })
-    });
-
-    const data = await response.json().catch(() => null);
-    if (!response.ok) {
-        throw new Error(`Supabase insert failed: ${response.status} ${JSON.stringify(data)}`);
-    }
-
-    return Array.isArray(data) ? data[0] : data;
-}
-
-async function updateFeedbackIssueUrl(feedbackId, issueUrl) {
-    const supabaseUrl = process.env.SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    const tableName = process.env.FEEDBACK_TABLE || 'feedback';
-
-    await fetch(`${supabaseUrl.replace(/\/$/, '')}/rest/v1/${tableName}?id=eq.${encodeURIComponent(feedbackId)}`, {
-        method: 'PATCH',
-        headers: {
-            apikey: supabaseKey,
-            Authorization: `Bearer ${supabaseKey}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ issue_url: issueUrl })
-    });
-}
-
-async function createGitHubIssue(feedback, savedFeedback) {
+async function createGitHubIssue(feedback) {
     const token = process.env.GITHUB_TOKEN;
     const repository = process.env.GITHUB_REPOSITORY;
 
@@ -153,7 +91,8 @@ async function createGitHubIssue(feedback, savedFeedback) {
         `- Page: ${feedback.page || 'Unknown'}`,
         `- URL: ${feedback.url || 'Unknown'}`,
         `- Email: ${feedback.email || 'Not provided'}`,
-        `- Feedback ID: ${savedFeedback && savedFeedback.id ? savedFeedback.id : 'Not returned'}`,
+        `- User agent: ${feedback.userAgent || 'Unknown'}`,
+        `- Timestamp: ${feedback.timestamp}`,
         '',
         '## Approval Gate',
         'Add the `approved-for-agent` label only after a human has reviewed this request.',
@@ -199,14 +138,6 @@ function sanitizeText(value, maxLength) {
 
 function truncate(value, maxLength) {
     return value.length > maxLength ? `${value.slice(0, maxLength - 1)}...` : value;
-}
-
-function hashIp(value) {
-    if (!value) return null;
-    return crypto
-        .createHash('sha256')
-        .update(`${process.env.IP_HASH_SALT || 'readykiddo'}:${value}`)
-        .digest('hex');
 }
 
 function getHeader(event, name) {
