@@ -61,6 +61,31 @@ Before working, read AGENT_COLLAB_LOG.md in the ReadyKiddo2.0 folder. Your role 
 ## 2026-05-10 - Codex
 
 Prompt:
+> Check every character except Mia/Mica and use the silent animated welcome MP4s on world reveal, matching each animation to the selected character costume.
+
+Actions Taken:
+- Audited local `ReadyKiddo2.0` character folders for silent welcome MP4s.
+- Matched MP4 thumbnails to the repo costume PNGs.
+- Copied matched welcome videos into `assets/videos/characters/{character}/{style}/welcome-wave.mp4`.
+- Wired `world-reveal.js` so the selected character/style plays the matching silent welcome animation on the world reveal screen.
+- Skipped Mica/Mia as requested.
+- Noted missing source videos:
+  - Trish has no MP4 files in the local ReadyKiddo2.0 folder.
+  - Plain styles do not have matching MP4s for the checked characters.
+  - Amelia scientist does not have a matching MP4.
+
+Verification:
+- Confirmed 19 mapped video paths exist.
+- `npm test` passed.
+
+GitHub/Netlify:
+- Prepared on `codex/audit-claude-game-updates` for PR review.
+
+---
+
+## 2026-05-10 - Codex
+
+Prompt:
 > The game should have 12 rounds and 6 shapes. Same thing with colors. Add a resume button to the landing page so the user can go back into the world they've been working on.
 
 Actions Taken:

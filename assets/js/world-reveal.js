@@ -140,7 +140,25 @@ function setupIntroVideo(profile) {
 
 function getIntroVideoPath(characterSlug, styleSlug) {
     const introVideos = {
-        'emmett/scientist': 'assets/videos/characters/emmett/scientist/welcome-wave.mp4'
+        'amelia/artist': 'assets/videos/characters/amelia/artist/welcome-wave.mp4',
+        'amelia/explorer': 'assets/videos/characters/amelia/explorer/welcome-wave.mp4',
+        'amelia/hero': 'assets/videos/characters/amelia/hero/welcome-wave.mp4',
+        'amelia/wizard': 'assets/videos/characters/amelia/wizard/welcome-wave.mp4',
+        'aria/artist': 'assets/videos/characters/aria/artist/welcome-wave.mp4',
+        'aria/explorer': 'assets/videos/characters/aria/explorer/welcome-wave.mp4',
+        'aria/hero': 'assets/videos/characters/aria/hero/welcome-wave.mp4',
+        'aria/scientist': 'assets/videos/characters/aria/scientist/welcome-wave.mp4',
+        'aria/wizard': 'assets/videos/characters/aria/wizard/welcome-wave.mp4',
+        'emmett/artist': 'assets/videos/characters/emmett/artist/welcome-wave.mp4',
+        'emmett/explorer': 'assets/videos/characters/emmett/explorer/welcome-wave.mp4',
+        'emmett/hero': 'assets/videos/characters/emmett/hero/welcome-wave.mp4',
+        'emmett/scientist': 'assets/videos/characters/emmett/scientist/welcome-wave.mp4',
+        'emmett/wizard': 'assets/videos/characters/emmett/wizard/welcome-wave.mp4',
+        'steven/artist': 'assets/videos/characters/steven/artist/welcome-wave.mp4',
+        'steven/explorer': 'assets/videos/characters/steven/explorer/welcome-wave.mp4',
+        'steven/hero': 'assets/videos/characters/steven/hero/welcome-wave.mp4',
+        'steven/scientist': 'assets/videos/characters/steven/scientist/welcome-wave.mp4',
+        'steven/wizard': 'assets/videos/characters/steven/wizard/welcome-wave.mp4'
     };
 
     return introVideos[`${characterSlug}/${styleSlug}`] || null;
