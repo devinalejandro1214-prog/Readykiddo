@@ -7,7 +7,7 @@ class ColorSortGame {
   constructor(context) {
     this.context = context;
     this.worldSlug = context.worldSlug;
-    this.totalItems = 9;
+    this.totalItems = 12;
     this.itemsShown = 0;
     this.correctCount = 0;
     this.correctStreak = 0;
@@ -29,6 +29,9 @@ class ColorSortGame {
     this.busy = false;
     this.ended = false;
     this.itemStartTime = 0;
+    this.lastCorrectPhrase = null;
+    this.lastWrongPhrase = null;
+    this.colorSeen = {};
   }
 
   async startGame() {
@@ -49,7 +52,8 @@ class ColorSortGame {
     // Check for saved progress
     const saved = this.loadProgress();
     if (saved) {
-      const shouldResume = await this.showResumePrompt(saved);
+      const resumeRequested = new URLSearchParams(window.location.search).get('resume') === 'true';
+      const shouldResume = resumeRequested || await this.showResumePrompt(saved);
       if (shouldResume) {
         this.restoreProgress(saved);
       } else {
@@ -62,10 +66,8 @@ class ColorSortGame {
       return;
     }
 
-    // Greet player
-    await this.context.speak(
-      `Hi ${this.context.childName}! Help me sort items by color!`
-    );
+    await this.context.speak('ready');
+    await this.context.speak('match the colors');
 
     // Render zones and progress
     this.renderZones();
@@ -85,6 +87,7 @@ class ColorSortGame {
       currentBranch: this.currentBranch,
       branchHistory: this.branchHistory,
       performance: this.performance,
+      colorSeen: this.colorSeen,
       savedAt: Date.now()
     };
     localStorage.setItem(this.getProgressKey(), JSON.stringify(state));
@@ -118,6 +121,7 @@ class ColorSortGame {
     this.currentBranch = state.currentBranch || 'neutral';
     this.branchHistory = Array.isArray(state.branchHistory) ? state.branchHistory : [this.currentBranch];
     this.performance = state.performance || this.performance;
+    this.colorSeen = state.colorSeen || {};
   }
 
   showResumePrompt(saved) {
@@ -242,7 +246,7 @@ class ColorSortGame {
       neutral: ['red', 'blue'],
       'easy-medium': ['red', 'blue', 'yellow'],
       medium: ['red', 'blue', 'yellow', 'orange'],
-      'medium-hard': ['red', 'blue', 'yellow', 'green', 'purple'],
+      'medium-hard': ['red', 'blue', 'yellow', 'orange', 'green'],
       hard: ['red', 'blue', 'yellow', 'orange', 'green', 'purple']
     };
     return colorBranches[this.currentBranch] || colorBranches.neutral;
@@ -264,14 +268,14 @@ class ColorSortGame {
     if (this.ended) return;
     if (this.itemsShown >= this.totalItems) return this.end();
 
-    // Evaluate branch every 3 items
-    if (this.itemsShown > 0 && this.itemsShown % 3 === 0) {
-      this.evaluateBranch();
-    }
+    this.advanceBranchByProgress();
 
-    // Select color from current branch
     const colors = this.getBranchColors();
-    this.currentColor = colors[Math.floor(Math.random() * colors.length)];
+    if (!this.colorSeen) this.colorSeen = {};
+    const unseen = colors.filter(color => !this.colorSeen[color]);
+    const colorPool = unseen.length > 0 ? unseen : colors;
+    this.currentColor = colorPool[Math.floor(Math.random() * colorPool.length)];
+    this.colorSeen[this.currentColor] = true;
 
     // Get world items
     const worldItems = getWorldItems(this.worldSlug);
@@ -413,7 +417,10 @@ class ColorSortGame {
       if (item) item.classList.add('correct');
 
       this.renderScore();
-      this.context.speak(`Great job! That's ${this.currentColor}!`);
+      const correctPhrases = ['you got it', 'you found it', 'great job', 'yay'];
+      const pick = this.randomPickAvoidRepeat(correctPhrases, this.lastCorrectPhrase);
+      this.lastCorrectPhrase = pick;
+      this.context.speak(pick);
       this.context.characterAnimation('cheer');
 
       // Advance after the correct fade animation (0.5s) + buffer
@@ -429,14 +436,35 @@ class ColorSortGame {
         setTimeout(() => item.classList.remove('wrong'), 450);
       }
 
-      // Specific feedback: tell child what color it was AND what's needed
-      this.context.speak(
-        `That's ${droppedColor}. We need ${this.currentColor}!`
-      );
+      const wrongPhrases = ['try again', 'aww man'];
+      const wrongPick = this.randomPickAvoidRepeat(wrongPhrases, this.lastWrongPhrase);
+      this.lastWrongPhrase = wrongPick;
+      this.context.speak(wrongPick);
       this.context.characterAnimation('nod');
 
       // Advance to next item after feedback — wrong answers still progress the game
       setTimeout(() => this.presentNextItem(), 1600);
+    }
+  }
+
+  randomPickAvoidRepeat(options, lastPick) {
+    if (options.length === 1) return options[0];
+    const filtered = options.filter(option => option !== lastPick);
+    const pool = filtered.length > 0 ? filtered : options;
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  advanceBranchByProgress() {
+    const branchOrder = ['neutral', 'easy-medium', 'medium', 'medium-hard', 'hard'];
+    const targetIndex = Math.min(branchOrder.length - 1, Math.floor(this.itemsShown / 2));
+    const targetBranch = branchOrder[targetIndex];
+
+    if (targetBranch !== this.currentBranch) {
+      this.currentBranch = targetBranch;
+      this.branchHistory.push(this.currentBranch);
+      this.context.speak('keep it up');
+      this.context.characterAnimation('celebrate');
+      this.renderZones();
     }
   }
 

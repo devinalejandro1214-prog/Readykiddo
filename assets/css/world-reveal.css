@@ -214,6 +214,51 @@ body {
     line-height: 1;
 }
 
+.resume-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    pointer-events: auto;
+}
+
+.resume-section[hidden] {
+    display: none;
+}
+
+.resume-game-button {
+    min-width: 190px;
+    min-height: 50px;
+    padding: 12px 22px;
+    border: 3px solid white;
+    border-radius: 999px;
+    color: var(--ready-blue);
+    background: var(--paper);
+    box-shadow: 0 10px 24px rgba(16, 35, 56, 0.18);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 20px;
+    font-weight: 700;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.resume-game-button:hover,
+.resume-game-button:focus-visible {
+    outline: none;
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 14px 30px rgba(16, 35, 56, 0.26);
+}
+
+.resume-hint {
+    max-width: 260px;
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
 @keyframes characterRise {
     from {
         opacity: 0;

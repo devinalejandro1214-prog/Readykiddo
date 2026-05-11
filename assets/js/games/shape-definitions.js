@@ -93,6 +93,21 @@ const SHAPES = {
               stroke-linecap="round"
               stroke-linejoin="round"/>
       </svg>`;
+  },
+
+  diamond: (size = 'large') => {
+    const radius = size === 'large' ? 40 : size === 'medium' ? 30 : 20;
+    const strokeWidth = size === 'large' ? 4 : size === 'medium' ? 3 : 2;
+
+    return `
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="50,${50 - radius} ${50 + radius},50 50,${50 + radius} ${50 - radius},50"
+                 fill="none"
+                 stroke="${SHAPE_COLORS.primary}"
+                 stroke-width="${strokeWidth}"
+                 stroke-linecap="round"
+                 stroke-linejoin="round"/>
+      </svg>`;
   }
 };
 

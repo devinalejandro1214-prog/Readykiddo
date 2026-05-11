@@ -8,11 +8,12 @@
    and to exclude matching items from wrong-answer pool.
    ───────────────────────────────────────────────────────── */
 const SHAPE_ITEMS_MAP = {
-  circle:    ['planet', 'lollipop', 'beachball', 'gummy', 'fruit', 'cupcake'],
-  triangle:  ['rocket', 'leaf', 'crown', 'shell'],
+  circle:    ['planet', 'lollipop', 'beachball', 'fruit', 'cupcake', 'paintblob'],
+  triangle:  ['rocket', 'crown', 'shell'],
   star:      ['star', 'starfish', 'flower'],
   square:    ['squareTile'],
-  rectangle: ['shield', 'brush', 'note']
+  rectangle: ['shield', 'brush', 'note'],
+  diamond:   ['gem']
 };
 
 // Every item across all worlds (used to build wrong-answer pool)
@@ -33,7 +34,7 @@ class ShapeRecognitionGame {
   constructor(context) {
     this.context = context;
     this.worldSlug = context.worldSlug;
-    this.totalItems = 10;
+    this.totalItems = 12;
     this.itemsShown = 0;
     this.correctCount = 0;
     this.incorrectStreak = 0;
@@ -55,6 +56,9 @@ class ShapeRecognitionGame {
     this.ended = false;
     this.itemStartTime = 0;
     this.answerHistory = [];
+    this.lastCorrectPhrase = null;
+    this.lastWrongPhrase = null;
+    this.shapeSeen = {};
   }
 
   /* ── Lifecycle ──────────────────────────────────────────── */
@@ -69,9 +73,92 @@ class ShapeRecognitionGame {
     const charImg = document.getElementById('gameCharacterImg');
     if (charImg && this.context.characterPath) charImg.src = this.context.characterPath;
 
-    await this.context.speak(`Hi ${this.context.childName}! Let's find some shapes!`);
+    const saved = this.loadProgress();
+    if (saved) {
+      const resumeRequested = new URLSearchParams(window.location.search).get('resume') === 'true';
+      const shouldResume = resumeRequested || await this.showResumePrompt(saved);
+      if (shouldResume) {
+        this.restoreProgress(saved);
+      } else {
+        this.clearProgress();
+      }
+    }
+
+    await this.context.speak('ready');
+    await this.context.speak('match the shapes');
     this.renderProgress();
     setTimeout(() => this.presentNextItem(), 800);
+  }
+
+  saveProgress() {
+    const state = {
+      itemsShown: this.itemsShown,
+      correctCount: this.correctCount,
+      incorrectStreak: this.incorrectStreak,
+      currentBranch: this.currentBranch,
+      branchHistory: this.branchHistory,
+      performance: this.performance,
+      answerHistory: this.answerHistory,
+      shapeSeen: this.shapeSeen,
+      savedAt: Date.now()
+    };
+    localStorage.setItem(this.getProgressKey(), JSON.stringify(state));
+  }
+
+  loadProgress() {
+    const raw = localStorage.getItem(this.getProgressKey());
+    if (!raw) return null;
+    try {
+      const saved = JSON.parse(raw);
+      if (!saved || typeof saved.itemsShown !== 'number') return null;
+      return saved;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  clearProgress() {
+    localStorage.removeItem(this.getProgressKey());
+  }
+
+  getProgressKey() {
+    return `shapeRecognitionProgress_${this.context.childId}`;
+  }
+
+  restoreProgress(state) {
+    this.itemsShown = Math.min(state.itemsShown || 0, this.totalItems);
+    this.correctCount = state.correctCount || 0;
+    this.incorrectStreak = state.incorrectStreak || 0;
+    this.currentBranch = state.currentBranch || 'neutral';
+    this.branchHistory = Array.isArray(state.branchHistory) ? state.branchHistory : [this.currentBranch];
+    this.performance = state.performance || this.performance;
+    this.answerHistory = Array.isArray(state.answerHistory) ? state.answerHistory : [];
+    this.shapeSeen = state.shapeSeen || {};
+  }
+
+  showResumePrompt(saved) {
+    return new Promise(resolve => {
+      const overlay = document.createElement('div');
+      overlay.className = 'pause-overlay';
+      overlay.innerHTML = `
+        <div class="pause-panel">
+          <h2>Welcome back!</h2>
+          <p>You found ${saved.itemsShown} of ${this.totalItems} shapes. Continue where you left off?</p>
+          <button class="pause-btn pause-btn-primary" id="resumeSavedShapeBtn">Continue</button>
+          <button class="pause-btn pause-btn-secondary" id="startFreshShapeBtn">Start Fresh</button>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+
+      document.getElementById('resumeSavedShapeBtn').addEventListener('click', () => {
+        overlay.remove();
+        resolve(true);
+      });
+      document.getElementById('startFreshShapeBtn').addEventListener('click', () => {
+        overlay.remove();
+        resolve(false);
+      });
+    });
   }
 
   /* ── DOM Setup ──────────────────────────────────────────── */
@@ -127,11 +214,16 @@ class ShapeRecognitionGame {
    * Hard+    → all 5 shapes
    */
   selectShape() {
-    const all = ['circle', 'square', 'triangle', 'star', 'rectangle'];
-    if (this.currentBranch === 'neutral')       return all[Math.floor(Math.random() * 2)];
-    if (this.currentBranch === 'easy-medium')   return all[Math.floor(Math.random() * 3)];
-    if (this.currentBranch === 'medium')        return all[Math.floor(Math.random() * 4)];
-    return all[Math.floor(Math.random() * 5)];
+    const all = ['circle', 'square', 'triangle', 'star', 'rectangle', 'diamond'];
+    let available = all;
+    if (this.currentBranch === 'neutral') available = all.slice(0, 2);
+    else if (this.currentBranch === 'easy-medium') available = all.slice(0, 3);
+    else if (this.currentBranch === 'medium') available = all.slice(0, 4);
+    else if (this.currentBranch === 'medium-hard') available = all.slice(0, 5);
+
+    const unseen = available.filter(shape => !this.shapeSeen[shape]);
+    const pool = unseen.length > 0 ? unseen : available;
+    return pool[Math.floor(Math.random() * pool.length)];
   }
 
   /* ── Core Round Logic ───────────────────────────────────── */
@@ -140,10 +232,7 @@ class ShapeRecognitionGame {
     if (this.ended) return;
     if (this.itemsShown >= this.totalItems) return this.end();
 
-    // Evaluate difficulty every 3 items (not on first item)
-    if (this.itemsShown > 0 && this.itemsShown % 3 === 0) {
-      this.evaluateBranch();
-    }
+    this.advanceBranchByProgress();
 
     const shape = this.selectShape();
     const worldItems = getWorldItems(this.worldSlug);
@@ -188,6 +277,7 @@ class ShapeRecognitionGame {
     this.currentItem = correctItem;
     this.itemStartTime = Date.now();
     this.busy = false;
+    this.shapeSeen[shape] = true;
 
     // Track per-shape performance
     if (!this.performance.shapesAttempted[shape]) {
@@ -200,7 +290,9 @@ class ShapeRecognitionGame {
     this.renderChoices();
     this.renderProgress();
     this.updateInstruction(shape);
-    this.context.speak(shape);
+    if (['circle', 'square', 'triangle'].includes(shape)) {
+      this.context.speak(shape);
+    }
   }
 
   /* ── Rendering ──────────────────────────────────────────── */
@@ -240,6 +332,7 @@ class ShapeRecognitionGame {
       star:      'Which one looks like a star? ⭐',
       rectangle: 'Which one is a rectangle? 📋'
     };
+    labels.diamond = 'Which one looks like a diamond?';
     const el = document.getElementById('shapeInstruction');
     if (el) el.textContent = labels[shape] || 'Find the matching shape!';
   }
@@ -265,7 +358,10 @@ class ShapeRecognitionGame {
       if (choiceBtn) choiceBtn.classList.add('correct');
 
       // Don't await — speech plays while visual feedback shows
-      this.context.speak(`That's right! ${this.currentShape}!`);
+      const correctPhrases = ['you got it', 'you found it', 'great job', 'yay'];
+      const pick = this.randomPickAvoidRepeat(correctPhrases, this.lastCorrectPhrase);
+      this.lastCorrectPhrase = pick;
+      this.context.speak(pick);
       this.context.characterAnimation('cheer');
 
     } else {
@@ -280,7 +376,10 @@ class ShapeRecognitionGame {
       if (correctBtn) correctBtn.classList.add('correct');
 
       // Don't await — speech plays while showing the correct answer
-      this.context.speak(`Look at the shape more carefully!`);
+      const wrongPhrases = ['try again', 'aww man'];
+      const wrongPick = this.randomPickAvoidRepeat(wrongPhrases, this.lastWrongPhrase);
+      this.lastWrongPhrase = wrongPick;
+      this.context.speak(wrongPick);
       this.context.characterAnimation('nod');
     }
 
@@ -298,6 +397,25 @@ class ShapeRecognitionGame {
   }
 
   /* ── Branch / Difficulty ────────────────────────────────── */
+
+  randomPickAvoidRepeat(options, lastPick) {
+    if (options.length === 1) return options[0];
+    const filtered = options.filter(option => option !== lastPick);
+    const pool = filtered.length > 0 ? filtered : options;
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  advanceBranchByProgress() {
+    const targetIndex = Math.min(BRANCH_ORDER.length - 1, Math.floor(this.itemsShown / 2));
+    const targetBranch = BRANCH_ORDER[targetIndex];
+
+    if (targetBranch !== this.currentBranch) {
+      this.currentBranch = targetBranch;
+      this.branchHistory.push(this.currentBranch);
+      this.context.speak('keep it up');
+      this.context.characterAnimation('celebrate');
+    }
+  }
 
   evaluateBranch() {
     if (this.itemsShown === 0) return;
@@ -324,6 +442,7 @@ class ShapeRecognitionGame {
 
   async end() {
     this.ended = true;
+    this.clearProgress();
 
     const accuracy = this.performance.totalItems > 0
       ? this.performance.correctItems / this.performance.totalItems
@@ -397,7 +516,38 @@ class ShapeRecognitionGame {
   }
 
   togglePause() {
-    alert('Game paused!');
+    if (this.ended) return;
+
+    const existing = document.getElementById('pauseOverlay');
+    if (existing) {
+      existing.remove();
+      this.busy = false;
+      return;
+    }
+
+    this.busy = true;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'pause-overlay';
+    overlay.id = 'pauseOverlay';
+    overlay.innerHTML = `
+      <div class="pause-panel">
+        <h2>Paused</h2>
+        <button class="pause-btn pause-btn-primary" id="pauseResumeBtn">Resume</button>
+        <button class="pause-btn pause-btn-secondary" id="pauseSaveExitBtn">Save &amp; Exit</button>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    document.getElementById('pauseResumeBtn').addEventListener('click', () => {
+      overlay.remove();
+      this.busy = false;
+    });
+
+    document.getElementById('pauseSaveExitBtn').addEventListener('click', () => {
+      this.saveProgress();
+      window.location.href = 'world-reveal.html';
+    });
   }
 }
 
