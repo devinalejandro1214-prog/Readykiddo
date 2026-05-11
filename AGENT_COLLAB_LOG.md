@@ -58,6 +58,44 @@ Before working, read AGENT_COLLAB_LOG.md in the ReadyKiddo2.0 folder. Your role 
 
 ---
 
+## 2026-05-10 - Codex
+
+Prompt:
+> Check Claude's updates, audit, then push the cleaned Git update.
+
+Actions Taken:
+- Audited Claude's local notes and skipped unsafe/stale pieces:
+  - did not add the old `audio-mapping.js` because the live app already uses `assets/js/audio-voice.js`
+  - did not add the raw `Audio attachments/` folder because production uses normalized `assets/audio/voice/` files
+  - did not change square matching to gem/diamond, preserving the corrected `squareTile` mapping
+- Updated shape matching so obvious shapes are used:
+  - circle: planet, lollipop, beachball, fruit, cupcake, paintblob
+  - triangle: rocket, crown, shell
+  - square: squareTile only
+- Added randomized recorded-audio feedback for correct and wrong answers in both color sort and shape recognition.
+- Kept shape-start audio limited to clips that have real matching recordings: circle, square, triangle.
+- Added save/resume behavior for the shape game using the same pause overlay pattern as color sort.
+- Added a world reveal Resume button that appears when saved color sort or shape game progress exists.
+
+Files/Folders Changed:
+- `assets/js/games/color-sort-game.js`
+- `assets/js/games/shape-recognition-game.js`
+- `assets/css/shape-recognition-game.css`
+- `assets/js/world-reveal.js`
+- `assets/css/world-reveal.css`
+- `world-reveal.html`
+- `AGENT_COLLAB_LOG.md`
+
+Verification:
+- `npm test` passed.
+- `npm run build` passed.
+- `git diff --check` passed.
+
+GitHub/Netlify:
+- Cleaned update prepared for PR review. No auto-merge and no production deploy.
+
+---
+
 ## 2026-05-09 - Codex
 
 Prompt:

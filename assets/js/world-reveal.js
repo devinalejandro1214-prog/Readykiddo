@@ -42,6 +42,8 @@ function loadWorldReveal(profile) {
     document.getElementById('startGameButton').addEventListener('click', () => {
         startGameWithWelcome(profile);
     });
+
+    setupResumeButton(profile);
 }
 
 async function startGameWithWelcome(profile) {
@@ -58,6 +60,55 @@ async function startGameWithWelcome(profile) {
 
     localStorage.setItem('gameProfile', JSON.stringify(profile));
     window.location.href = 'game-loader.html?game=color-sort';
+}
+
+function setupResumeButton(profile) {
+    const resume = getSavedGame(profile);
+    const section = document.getElementById('resumeSection');
+    const button = document.getElementById('resumeGameButton');
+    const hint = document.getElementById('resumeHint');
+
+    if (!resume || !section || !button || !hint) return;
+
+    section.hidden = false;
+    button.querySelector('span').textContent = `Resume ${resume.label}`;
+    hint.textContent = `Saved ${resume.itemsShown || 0} rounds in.`;
+
+    button.addEventListener('click', () => {
+        localStorage.setItem('gameProfile', JSON.stringify(profile));
+        window.location.href = `game-loader.html?game=${resume.gameType}&resume=true`;
+    });
+}
+
+function getSavedGame(profile) {
+    const childId = profile.childId;
+    if (!childId) return null;
+
+    const candidates = [
+        {
+            key: `colorSortProgress_${childId}`,
+            gameType: 'color-sort',
+            label: 'Color Sort'
+        },
+        {
+            key: `shapeRecognitionProgress_${childId}`,
+            gameType: 'shape-recognition',
+            label: 'Shape Game'
+        }
+    ];
+
+    return candidates
+        .map(candidate => {
+            try {
+                const saved = JSON.parse(localStorage.getItem(candidate.key) || 'null');
+                if (!saved || typeof saved.itemsShown !== 'number') return null;
+                return { ...candidate, ...saved };
+            } catch (e) {
+                return null;
+            }
+        })
+        .filter(Boolean)
+        .sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0))[0] || null;
 }
 
 function setupIntroVideo(profile) {

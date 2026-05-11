@@ -29,6 +29,8 @@ class ColorSortGame {
     this.busy = false;
     this.ended = false;
     this.itemStartTime = 0;
+    this.lastCorrectPhrase = null;
+    this.lastWrongPhrase = null;
   }
 
   async startGame() {
@@ -49,7 +51,8 @@ class ColorSortGame {
     // Check for saved progress
     const saved = this.loadProgress();
     if (saved) {
-      const shouldResume = await this.showResumePrompt(saved);
+      const resumeRequested = new URLSearchParams(window.location.search).get('resume') === 'true';
+      const shouldResume = resumeRequested || await this.showResumePrompt(saved);
       if (shouldResume) {
         this.restoreProgress(saved);
       } else {
@@ -62,10 +65,8 @@ class ColorSortGame {
       return;
     }
 
-    // Greet player
-    await this.context.speak(
-      `Hi ${this.context.childName}! Help me sort items by color!`
-    );
+    await this.context.speak('ready');
+    await this.context.speak('match the colors');
 
     // Render zones and progress
     this.renderZones();
@@ -242,7 +243,7 @@ class ColorSortGame {
       neutral: ['red', 'blue'],
       'easy-medium': ['red', 'blue', 'yellow'],
       medium: ['red', 'blue', 'yellow', 'orange'],
-      'medium-hard': ['red', 'blue', 'yellow', 'green', 'purple'],
+      'medium-hard': ['red', 'blue', 'yellow', 'orange', 'green'],
       hard: ['red', 'blue', 'yellow', 'orange', 'green', 'purple']
     };
     return colorBranches[this.currentBranch] || colorBranches.neutral;
@@ -413,7 +414,10 @@ class ColorSortGame {
       if (item) item.classList.add('correct');
 
       this.renderScore();
-      this.context.speak(`Great job! That's ${this.currentColor}!`);
+      const correctPhrases = ['you got it', 'you found it', 'great job', 'yay'];
+      const pick = this.randomPickAvoidRepeat(correctPhrases, this.lastCorrectPhrase);
+      this.lastCorrectPhrase = pick;
+      this.context.speak(pick);
       this.context.characterAnimation('cheer');
 
       // Advance after the correct fade animation (0.5s) + buffer
@@ -429,15 +433,22 @@ class ColorSortGame {
         setTimeout(() => item.classList.remove('wrong'), 450);
       }
 
-      // Specific feedback: tell child what color it was AND what's needed
-      this.context.speak(
-        `That's ${droppedColor}. We need ${this.currentColor}!`
-      );
+      const wrongPhrases = ['try again', 'aww man'];
+      const wrongPick = this.randomPickAvoidRepeat(wrongPhrases, this.lastWrongPhrase);
+      this.lastWrongPhrase = wrongPick;
+      this.context.speak(wrongPick);
       this.context.characterAnimation('nod');
 
       // Advance to next item after feedback — wrong answers still progress the game
       setTimeout(() => this.presentNextItem(), 1600);
     }
+  }
+
+  randomPickAvoidRepeat(options, lastPick) {
+    if (options.length === 1) return options[0];
+    const filtered = options.filter(option => option !== lastPick);
+    const pool = filtered.length > 0 ? filtered : options;
+    return pool[Math.floor(Math.random() * pool.length)];
   }
 
   evaluateBranch() {
