@@ -5,4 +5,24 @@ document.addEventListener('DOMContentLoaded', function() {
             window.location.href = 'onboarding.html';
         });
     }
+
+    const resumeWorldButton = document.getElementById('resumeWorldButton');
+    const savedProfile = getSavedProfile();
+    if (resumeWorldButton && savedProfile) {
+        resumeWorldButton.hidden = false;
+        resumeWorldButton.querySelector('span').textContent = `Resume ${savedProfile.theme || 'World'}`;
+        resumeWorldButton.addEventListener('click', function() {
+            window.location.href = 'world-reveal.html';
+        });
+    }
 });
+
+function getSavedProfile() {
+    try {
+        const profile = JSON.parse(localStorage.getItem('userProfile') || 'null');
+        if (!profile || !profile.theme || !profile.character) return null;
+        return profile;
+    } catch (e) {
+        return null;
+    }
+}

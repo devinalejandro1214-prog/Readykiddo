@@ -61,6 +61,27 @@ Before working, read AGENT_COLLAB_LOG.md in the ReadyKiddo2.0 folder. Your role 
 ## 2026-05-10 - Codex
 
 Prompt:
+> The game should have 12 rounds and 6 shapes. Same thing with colors. Add a resume button to the landing page so the user can go back into the world they've been working on.
+
+Actions Taken:
+- Updated Color Sort to run 12 rounds and progress through all six colors.
+- Updated Shape Recognition to run 12 rounds and include six shapes: circle, square, triangle, star, rectangle, and diamond.
+- Added a diamond outline and mapped the diamond target to the gem item while keeping square mapped to the square tile.
+- Added a landing-page Resume World button that appears when a saved user profile exists and routes back to `world-reveal.html`.
+
+Verification:
+- `npm test` passed.
+- `npm run build` passed.
+- `git diff --check` passed.
+
+GitHub/Netlify:
+- Prepared as a follow-up on `codex/audit-claude-game-updates` for PR review.
+
+---
+
+## 2026-05-10 - Codex
+
+Prompt:
 > Check Claude's updates, audit, then push the cleaned Git update.
 
 Actions Taken:

@@ -12,7 +12,8 @@ const SHAPE_ITEMS_MAP = {
   triangle:  ['rocket', 'crown', 'shell'],
   star:      ['star', 'starfish', 'flower'],
   square:    ['squareTile'],
-  rectangle: ['shield', 'brush', 'note']
+  rectangle: ['shield', 'brush', 'note'],
+  diamond:   ['gem']
 };
 
 // Every item across all worlds (used to build wrong-answer pool)
@@ -33,7 +34,7 @@ class ShapeRecognitionGame {
   constructor(context) {
     this.context = context;
     this.worldSlug = context.worldSlug;
-    this.totalItems = 10;
+    this.totalItems = 12;
     this.itemsShown = 0;
     this.correctCount = 0;
     this.incorrectStreak = 0;
@@ -213,11 +214,12 @@ class ShapeRecognitionGame {
    * Hard+    → all 5 shapes
    */
   selectShape() {
-    const all = ['circle', 'square', 'triangle', 'star', 'rectangle'];
+    const all = ['circle', 'square', 'triangle', 'star', 'rectangle', 'diamond'];
     let available = all;
     if (this.currentBranch === 'neutral') available = all.slice(0, 2);
     else if (this.currentBranch === 'easy-medium') available = all.slice(0, 3);
     else if (this.currentBranch === 'medium') available = all.slice(0, 4);
+    else if (this.currentBranch === 'medium-hard') available = all.slice(0, 5);
 
     const unseen = available.filter(shape => !this.shapeSeen[shape]);
     const pool = unseen.length > 0 ? unseen : available;
@@ -230,10 +232,7 @@ class ShapeRecognitionGame {
     if (this.ended) return;
     if (this.itemsShown >= this.totalItems) return this.end();
 
-    // Evaluate difficulty every 3 items (not on first item)
-    if (this.itemsShown > 0 && this.itemsShown % 3 === 0) {
-      this.evaluateBranch();
-    }
+    this.advanceBranchByProgress();
 
     const shape = this.selectShape();
     const worldItems = getWorldItems(this.worldSlug);
@@ -333,6 +332,7 @@ class ShapeRecognitionGame {
       star:      'Which one looks like a star? ⭐',
       rectangle: 'Which one is a rectangle? 📋'
     };
+    labels.diamond = 'Which one looks like a diamond?';
     const el = document.getElementById('shapeInstruction');
     if (el) el.textContent = labels[shape] || 'Find the matching shape!';
   }
@@ -403,6 +403,18 @@ class ShapeRecognitionGame {
     const filtered = options.filter(option => option !== lastPick);
     const pool = filtered.length > 0 ? filtered : options;
     return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  advanceBranchByProgress() {
+    const targetIndex = Math.min(BRANCH_ORDER.length - 1, Math.floor(this.itemsShown / 2));
+    const targetBranch = BRANCH_ORDER[targetIndex];
+
+    if (targetBranch !== this.currentBranch) {
+      this.currentBranch = targetBranch;
+      this.branchHistory.push(this.currentBranch);
+      this.context.speak('keep it up');
+      this.context.characterAnimation('celebrate');
+    }
   }
 
   evaluateBranch() {
