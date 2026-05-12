@@ -365,7 +365,14 @@ class ColorSortGame {
     this.renderZones();
     this.renderItem();
     this.renderProgress();
-    this.context.speak(isRound2 ? 'find all the colors' : 'match the colors');
+
+    const instructionEl = document.getElementById('colorInstruction');
+    if (instructionEl) {
+      instructionEl.textContent = isRound2
+        ? 'Find all the colors!'
+        : `Find the ${this.currentColor}!`;
+    }
+    this.context.speak(isRound2 ? 'find all the colors' : this.currentColor);
   }
 
   renderItem() {
