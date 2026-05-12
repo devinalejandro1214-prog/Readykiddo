@@ -940,6 +940,7 @@ Verification:
 - Mapped Color Sort asset validation passed for 31 world-specific PNG paths.
 
 GitHub/Netlify:
-- Pending commit and push at time of entry.
+- Pushed to `main` in commit `0dac255` (`Match color tiles to selected worlds`).
+- No manual production deploy command was run; Netlify should build from Git.
 
 ---
