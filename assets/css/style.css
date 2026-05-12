@@ -55,7 +55,7 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 14px;
-    margin-top: 180px;
+    margin-top: 230px;
 }
 
 .cta-button {
@@ -134,6 +134,7 @@ body {
     background: var(--paper);
     font-size: 15px;
     line-height: 1;
+    transform: translateY(1px);
 }
 
 @keyframes fadeInUp {
@@ -168,7 +169,7 @@ body {
     .landing-page {
         align-items: flex-end;
         justify-content: center;
-        padding-bottom: 52px;
+        padding-bottom: 28px;
     }
 
     .landing-actions {
@@ -192,7 +193,7 @@ body {
 
 @media (max-width: 480px) {
     .landing-page {
-        padding-bottom: 44px;
+        padding-bottom: 24px;
     }
 
     .cta-button {
@@ -211,7 +212,7 @@ body {
 
 @media (max-width: 360px) {
     .landing-page {
-        padding-bottom: 34px;
+        padding-bottom: 20px;
     }
 
     .cta-button {

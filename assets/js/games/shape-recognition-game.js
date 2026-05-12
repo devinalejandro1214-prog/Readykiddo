@@ -14,6 +14,20 @@ function getShapePNG(shape) {
   return `assets/images/games/shapes/${SHAPE_PNG_COLOR}-${shape}.png`;
 }
 
+const SHAPE_IMAGE_PRELOAD_CACHE = new Map();
+
+function preloadShapeImages() {
+  SHAPE_KEYS.map(getShapePNG).forEach(path => {
+    if (SHAPE_IMAGE_PRELOAD_CACHE.has(path)) return;
+    const img = new Image();
+    img.decoding = 'async';
+    img.loading = 'eager';
+    img.src = path;
+    const ready = img.decode ? img.decode().catch(() => {}) : Promise.resolve();
+    SHAPE_IMAGE_PRELOAD_CACHE.set(path, { img, ready });
+  });
+}
+
 // Branch order — used consistently everywhere
 const BRANCH_ORDER = ['neutral', 'easy-medium', 'medium', 'medium-hard', 'hard'];
 
@@ -52,6 +66,7 @@ class ShapeRecognitionGame {
 
   async startGame() {
     this.render();
+    preloadShapeImages();
 
     // Background & character are already loaded by game-shell, but refresh here in case
     const bgEl = document.getElementById('gameBackground');
@@ -275,6 +290,9 @@ class ShapeRecognitionGame {
       const img = document.createElement('img');
       img.src = pngPath;
       img.alt = shapeName;
+      img.decoding = 'async';
+      img.loading = 'eager';
+      img.fetchPriority = 'high';
       img.style.width = '100%';
       img.style.height = '100%';
       img.style.objectFit = 'contain';

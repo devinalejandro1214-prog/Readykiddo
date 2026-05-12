@@ -3,15 +3,78 @@
    Sort world-specific items by color with adaptive difficulty
    ───────────────────────────────────────────────────────── */
 
-// Explicit PNG mappings for color learning target
+// World-aware PNG mappings for color learning targets.
 const COLOR_PNG_MAP = {
-  red:    'assets/images/games/color-sort/items/red-paintblob.png',
-  blue:   'assets/images/games/color-sort/items/blue-brush.png',
-  yellow: 'assets/images/games/color-sort/items/yellow-note.png',
-  orange: 'assets/images/games/color-sort/items/orange-paintblob.png',
-  green:  'assets/images/games/color-sort/items/green-brush.png',
-  purple: 'assets/images/games/color-sort/items/purple-note.png',
+  studio: {
+    red:    { item: 'paintblob', path: 'assets/images/games/color-sort/items/studio-red-paintblob.png' },
+    blue:   { item: 'brush', path: 'assets/images/games/color-sort/items/studio-blue-brush.png' },
+    yellow: { item: 'note', path: 'assets/images/games/color-sort/items/studio-yellow-note.png' },
+    orange: { item: 'paintblob', path: 'assets/images/games/color-sort/items/studio-orange-paintblob.png' },
+    green:  { item: 'brush', path: 'assets/images/games/color-sort/items/studio-green-brush.png' },
+    purple: { item: 'note', path: 'assets/images/games/color-sort/items/studio-purple-note.png' },
+  },
+  jungle: {
+    red:    { item: 'fruit', path: 'assets/images/games/color-sort/items/jungle-red-fruit.png' },
+    blue:   { item: 'fruit', path: 'assets/images/games/color-sort/items/jungle-blue-fruit.png' },
+    yellow: { item: 'flower', path: 'assets/images/games/color-sort/items/jungle-yellow-flower.png' },
+    orange: { item: 'leaf', path: 'assets/images/games/color-sort/items/jungle-orange-leaf.png' },
+    green:  { item: 'leaf', path: 'assets/images/games/color-sort/items/jungle-green-leaf.png' },
+    purple: { item: 'flower', path: 'assets/images/games/color-sort/items/jungle-purple-flower.png' },
+  },
+  'candy-land': {
+    red:    { item: 'cupcake', path: 'assets/images/games/color-sort/items/candy-land-red-cupcake.png' },
+    blue:   { item: 'lollipop', path: 'assets/images/games/color-sort/items/candy-land-blue-lollipop.png' },
+    yellow: { item: 'gummy', path: 'assets/images/games/color-sort/items/candy-land-yellow-gummy.png' },
+    orange: { item: 'lollipop', path: 'assets/images/games/color-sort/items/candy-land-orange-lollipop.png' },
+    green:  { item: 'gummy', path: 'assets/images/games/color-sort/items/candy-land-green-gummy.png' },
+    purple: { item: 'cupcake', path: 'assets/images/games/color-sort/items/candy-land-purple-cupcake.png' },
+  },
+  castle: {
+    red:    { item: 'crown', path: 'assets/images/games/color-sort/items/castle-red-crown.png' },
+    blue:   { item: 'gem', path: 'assets/images/games/color-sort/items/castle-blue-gem.png' },
+    yellow: { item: 'gem', path: 'assets/images/games/color-sort/items/castle-yellow-gem.png' },
+    orange: { item: 'shield', path: 'assets/images/games/color-sort/items/castle-orange-shield.png' },
+    green:  { item: 'shield', path: 'assets/images/games/color-sort/items/castle-green-shield.png' },
+    purple: { item: 'crown', path: 'assets/images/games/color-sort/items/castle-purple-crown.png' },
+  },
+  space: {
+    blue:   { item: 'planet', path: 'assets/images/games/color-sort/items/space-blue-planet.png' },
+    orange: { item: 'star', path: 'assets/images/games/color-sort/items/space-orange-star.png' },
+    green:  { item: 'rocket', path: 'assets/images/games/color-sort/items/space-green-rocket.png' },
+    purple: { item: 'planet', path: 'assets/images/games/color-sort/items/space-purple-planet.png' },
+  },
+  beach: {
+    orange: { item: 'beachball', path: 'assets/images/games/color-sort/items/beach-orange-beachball.png' },
+    green:  { item: 'starfish', path: 'assets/images/games/color-sort/items/beach-green-starfish.png' },
+    purple: { item: 'shell', path: 'assets/images/games/color-sort/items/beach-purple-shell.png' },
+  }
 };
+
+const IMAGE_PRELOAD_CACHE = new Map();
+
+function preloadImages(paths) {
+  paths
+    .filter(Boolean)
+    .forEach(path => {
+      if (IMAGE_PRELOAD_CACHE.has(path)) return;
+      const img = new Image();
+      img.decoding = 'async';
+      img.loading = 'eager';
+      img.src = path;
+      const ready = img.decode ? img.decode().catch(() => {}) : Promise.resolve();
+      IMAGE_PRELOAD_CACHE.set(path, { img, ready });
+    });
+}
+
+function getColorPNGTarget(worldSlug, color) {
+  const worldMap = COLOR_PNG_MAP[worldSlug] || {};
+  return worldMap[color] || null;
+}
+
+function getColorPNGPaths(worldSlug) {
+  const worldPaths = Object.values(COLOR_PNG_MAP[worldSlug] || {}).map(target => target.path);
+  return [...new Set(worldPaths)];
+}
 
 class ColorSortGame {
   constructor(context) {
@@ -42,11 +105,13 @@ class ColorSortGame {
     this.lastCorrectPhrase = null;
     this.lastWrongPhrase = null;
     this.colorSeen = {};
+    this.preloadedPNGPaths = getColorPNGPaths(this.worldSlug);
   }
 
   async startGame() {
     // Initialize game UI
     this.render();
+    this.preloadPNGTiles();
 
     // Set background and character from context
     const bgEl = document.getElementById('gameBackground');
@@ -290,8 +355,9 @@ class ColorSortGame {
     // Get world items
     const worldItems = getWorldItems(this.worldSlug);
     const randomItem = worldItems[Math.floor(Math.random() * worldItems.length)];
+    const pngTarget = getColorPNGTarget(this.worldSlug, this.currentColor);
 
-    this.currentItem = randomItem;
+    this.currentItem = pngTarget?.item || randomItem;
     this.itemStartTime = Date.now();
     this.busy = false;
 
@@ -317,11 +383,14 @@ class ColorSortGame {
     item.draggable = false;
     item.dataset.color = this.currentColor;
 
-    const pngPath = COLOR_PNG_MAP[this.currentColor];
-    if (pngPath) {
+    const pngTarget = getColorPNGTarget(this.worldSlug, this.currentColor);
+    if (pngTarget?.path) {
       const img = document.createElement('img');
-      img.src = pngPath;
-      img.alt = this.currentColor;
+      img.src = pngTarget.path;
+      img.alt = `${this.currentColor} ${pngTarget.item}`;
+      img.decoding = 'async';
+      img.loading = 'eager';
+      img.fetchPriority = 'high';
       img.style.width = '100%';
       img.style.height = '100%';
       img.style.objectFit = 'contain';
@@ -340,6 +409,10 @@ class ColorSortGame {
 
     itemStage.innerHTML = '';
     itemStage.appendChild(item);
+  }
+
+  preloadPNGTiles() {
+    preloadImages(this.preloadedPNGPaths);
   }
 
   startPointerDrag(event, item) {

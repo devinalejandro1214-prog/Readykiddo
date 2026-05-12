@@ -914,3 +914,32 @@ GitHub/Netlify:
 - Branch: `main`
 
 ---
+## 2026-05-11 19:52 - Codex
+
+Prompt:
+> Everything looks better. The updates needed. The landing page on the start your journy icon needs to be fix. I think gitclaw made the update but I dont need it. Just needs to be moved dowm "Start your journey". Also we need to start the tiles to the correct world.. Can you please fix these. The tiles should match the world ir paint blob needs to be with the studio and leaf in the jungle. Lastly the png's are having issues slow rendering again. Lets adjust this like we did last time.
+
+Actions Taken:
+- Changed the landing CTA text to `Start your journey`.
+- Moved the landing CTA lower on desktop and mobile, and nudged the CTA icon down slightly so it sits visually centered.
+- Replaced the single global Color Sort PNG map with world-aware mappings:
+  - Studio uses paintblob, brush, and note PNGs.
+  - Jungle uses fruit, leaf, and flower PNGs.
+  - Candy Land uses gummy, lollipop, and cupcake PNGs.
+  - Castle uses crown, gem, and shield PNGs.
+  - Space and Beach use available world PNGs with SVG fallback for colors that do not yet have a generated PNG.
+- Added eager PNG preloading/decode caching for Color Sort world tiles.
+- Added eager PNG preloading/decode caching for Shape Recognition choices.
+- Synced the same manager fixes back into Code's local `ReadyKiddo2.0` folder so Code's baseline matches Git.
+
+Verification:
+- `npm test` passed.
+- `npm run build` passed.
+- `git diff --check` passed.
+- `node --check` passed for updated game JS files.
+- Mapped Color Sort asset validation passed for 31 world-specific PNG paths.
+
+GitHub/Netlify:
+- Pending commit and push at time of entry.
+
+---
