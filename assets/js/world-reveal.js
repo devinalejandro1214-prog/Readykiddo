@@ -54,12 +54,14 @@ async function startGameWithWelcome(profile) {
     startButton.querySelector('span:last-child').textContent = 'Starting...';
 
     if (window.ReadyKiddoAudio) {
-        await window.ReadyKiddoAudio.speak('welcome');
-        await window.ReadyKiddoAudio.speak('ready');
+        await window.ReadyKiddoAudio.unlock();
+        window.ReadyKiddoAudio.speak('welcome');
     }
 
     localStorage.setItem('gameProfile', JSON.stringify(profile));
-    window.location.href = 'game-loader.html?game=color-sort';
+    setTimeout(() => {
+        window.location.href = 'game-loader.html?game=color-sort';
+    }, 900);
 }
 
 function setupResumeButton(profile) {
@@ -74,7 +76,8 @@ function setupResumeButton(profile) {
     button.querySelector('span').textContent = `Resume ${resume.label}`;
     hint.textContent = `Saved ${resume.itemsShown || 0} rounds in.`;
 
-    button.addEventListener('click', () => {
+    button.addEventListener('click', async () => {
+        if (window.ReadyKiddoAudio) await window.ReadyKiddoAudio.unlock();
         localStorage.setItem('gameProfile', JSON.stringify(profile));
         window.location.href = `game-loader.html?game=${resume.gameType}&resume=true`;
     });

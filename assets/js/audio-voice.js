@@ -52,6 +52,7 @@
 
     let currentAudio = null;
     let audioQueue = Promise.resolve();
+    let unlocked = false;
 
     function normalize(text) {
         return String(text || '')
@@ -89,6 +90,7 @@
             const audio = new Audio(path);
             currentAudio = audio;
             audio.volume = 1;
+            audio.preload = 'auto';
 
             let settled = false;
             const finish = played => {
@@ -112,7 +114,8 @@
     }
 
     function playPath(path) {
-        audioQueue = audioQueue.then(() => playNow(path));
+        stop();
+        audioQueue = Promise.resolve().then(() => playNow(path));
         return audioQueue;
     }
 
@@ -120,9 +123,43 @@
         return playPath(getAudioPath(text));
     }
 
+    function stop() {
+        if (!currentAudio) return;
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+        currentAudio = null;
+    }
+
+    function unlock() {
+        if (unlocked) return Promise.resolve(true);
+        const path = getAudioPath('ready');
+        if (!path) {
+            unlocked = true;
+            return Promise.resolve(true);
+        }
+        const audio = new Audio(path);
+        audio.preload = 'auto';
+        audio.muted = true;
+        audio.volume = 0;
+        return audio.play()
+            .then(() => {
+                audio.pause();
+                audio.currentTime = 0;
+                audio.muted = false;
+                unlocked = true;
+                return true;
+            })
+            .catch(() => {
+                unlocked = true;
+                return false;
+            });
+    }
+
     window.ReadyKiddoAudio = {
         getAudioPath,
         play: playPath,
-        speak
+        speak,
+        stop,
+        unlock
     };
 }());

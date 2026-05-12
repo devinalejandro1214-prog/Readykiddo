@@ -99,6 +99,8 @@ class ColorSortGame {
     };
     this.currentItem = null;
     this.currentColor = null;
+    this.currentBatchColors = [];
+    this.matchedColors = new Set();
     this.busy = false;
     this.ended = false;
     this.itemStartTime = 0;
@@ -141,8 +143,7 @@ class ColorSortGame {
       return;
     }
 
-    await this.context.speak('ready');
-    await this.context.speak('match the colors');
+    this.context.speak('match the colors');
 
     // Render zones and progress
     this.renderZones();
@@ -309,7 +310,6 @@ class ColorSortGame {
       zone.addEventListener('drop', e => {
         e.preventDefault();
         zone.classList.remove('over');
-        this.handleDrop(color, zone);
       });
 
       zonesEl.appendChild(zone);
@@ -317,14 +317,7 @@ class ColorSortGame {
   }
 
   getBranchColors() {
-    const colorBranches = {
-      neutral: ['red', 'blue'],
-      'easy-medium': ['red', 'blue', 'yellow'],
-      medium: ['red', 'blue', 'yellow', 'orange'],
-      'medium-hard': ['red', 'blue', 'yellow', 'orange', 'green'],
-      hard: ['red', 'blue', 'yellow', 'orange', 'green', 'purple']
-    };
-    return colorBranches[this.currentBranch] || colorBranches.neutral;
+    return ['red', 'blue', 'yellow', 'orange', 'green', 'purple'];
   }
 
   getColorHex(color) {
@@ -343,72 +336,65 @@ class ColorSortGame {
     if (this.ended) return;
     if (this.itemsShown >= this.totalItems) return this.end();
 
-    this.advanceBranchByProgress();
-
     const colors = this.getBranchColors();
-    if (!this.colorSeen) this.colorSeen = {};
-    const unseen = colors.filter(color => !this.colorSeen[color]);
-    const colorPool = unseen.length > 0 ? unseen : colors;
-    this.currentColor = colorPool[Math.floor(Math.random() * colorPool.length)];
-    this.colorSeen[this.currentColor] = true;
-
-    // Get world items
-    const worldItems = getWorldItems(this.worldSlug);
-    const randomItem = worldItems[Math.floor(Math.random() * worldItems.length)];
-    const pngTarget = getColorPNGTarget(this.worldSlug, this.currentColor);
-
-    this.currentItem = pngTarget?.item || randomItem;
+    this.currentBatchColors = [...colors].sort(() => Math.random() - 0.5);
+    this.matchedColors = new Set();
     this.itemStartTime = Date.now();
     this.busy = false;
 
-    // Track color attempt
-    if (!this.performance.colorsAttempted[this.currentColor]) {
-      this.performance.colorsAttempted[this.currentColor] = 0;
-      this.performance.colorsCorrect[this.currentColor] = 0;
-    }
-    this.performance.colorsAttempted[this.currentColor]++;
+    colors.forEach(color => {
+      if (!this.performance.colorsAttempted[color]) {
+        this.performance.colorsAttempted[color] = 0;
+        this.performance.colorsCorrect[color] = 0;
+      }
+    });
 
+    this.renderZones();
     this.renderItem();
     this.renderProgress();
-    this.context.speak(this.currentColor);
+    this.context.speak('match the colors');
   }
 
   renderItem() {
     const itemStage = document.getElementById('colorItemStage');
     if (!itemStage) return;
 
-    const item = document.createElement('div');
-    item.className = 'color-item';
-    item.id = 'colorItem';
-    item.draggable = false;
-    item.dataset.color = this.currentColor;
-
-    const pngTarget = getColorPNGTarget(this.worldSlug, this.currentColor);
-    if (pngTarget?.path) {
-      const img = document.createElement('img');
-      img.src = pngTarget.path;
-      img.alt = `${this.currentColor} ${pngTarget.item}`;
-      img.decoding = 'async';
-      img.loading = 'eager';
-      img.fetchPriority = 'high';
-      img.style.width = '100%';
-      img.style.height = '100%';
-      img.style.objectFit = 'contain';
-      img.onerror = () => {
-        img.style.display = 'none';
-        item.innerHTML = getItemSVG(this.currentItem, this.currentColor);
-      };
-      item.appendChild(img);
-    } else {
-      item.innerHTML = getItemSVG(this.currentItem, this.currentColor);
-    }
-
-    item.addEventListener('pointerdown', e => {
-      this.startPointerDrag(e, item);
-    });
-
     itemStage.innerHTML = '';
-    itemStage.appendChild(item);
+    this.currentBatchColors
+      .filter(color => !this.matchedColors.has(color))
+      .forEach(color => {
+        const item = document.createElement('div');
+        item.className = 'color-item';
+        item.draggable = false;
+        item.dataset.color = color;
+
+        const pngTarget = getColorPNGTarget(this.worldSlug, color);
+        const itemKey = pngTarget?.item || getWorldItems(this.worldSlug)[0] || 'star';
+        if (pngTarget?.path) {
+          const img = document.createElement('img');
+          img.src = pngTarget.path;
+          img.alt = `${color} ${pngTarget.item}`;
+          img.decoding = 'async';
+          img.loading = 'eager';
+          img.fetchPriority = 'high';
+          img.style.width = '100%';
+          img.style.height = '100%';
+          img.style.objectFit = 'contain';
+          img.onerror = () => {
+            img.style.display = 'none';
+            item.innerHTML = getItemSVG(itemKey, color);
+          };
+          item.appendChild(img);
+        } else {
+          item.innerHTML = getItemSVG(itemKey, color);
+        }
+
+        item.addEventListener('pointerdown', e => {
+          this.startPointerDrag(e, item);
+        });
+
+        itemStage.appendChild(item);
+      });
   }
 
   preloadPNGTiles() {
@@ -463,7 +449,7 @@ class ColorSortGame {
       resetItem();
 
       if (zone?.dataset?.color) {
-        this.handleDrop(zone.dataset.color, zone);
+        this.handleDrop(item.dataset.color, zone.dataset.color, zone, item);
       }
     };
 
@@ -487,50 +473,59 @@ class ColorSortGame {
     document.addEventListener('pointercancel', cancelDrag);
   }
 
-  handleDrop(droppedColor, zoneEl) {
+  handleDrop(itemColor, droppedColor, zoneEl, itemEl) {
     if (this.busy) return;
 
-    this.busy = true;
     const responseTime = Date.now() - this.itemStartTime;
     this.performance.responseTimes.push(responseTime);
 
-    // Count every attempt (correct AND wrong) toward totals
-    this.itemsShown++;
     this.performance.totalItems++;
+    this.performance.colorsAttempted[itemColor]++;
 
-    const isCorrect = droppedColor === this.currentColor;
+    const isCorrect = droppedColor === itemColor;
 
     if (isCorrect) {
+      this.busy = true;
       this.correctCount++;
       this.correctStreak++;
       this.incorrectStreak = 0;
       this.performance.correctItems++;
-      this.performance.colorsCorrect[this.currentColor]++;
+      this.performance.colorsCorrect[itemColor]++;
+      this.itemsShown++;
+      this.matchedColors.add(itemColor);
 
       zoneEl.classList.add('pulse');
+      zoneEl.classList.add('matched');
       setTimeout(() => zoneEl.classList.remove('pulse'), 500);
 
-      const item = document.getElementById('colorItem');
-      if (item) item.classList.add('correct');
+      if (itemEl) itemEl.classList.add('correct');
 
       this.renderScore();
+      this.renderProgress();
       const correctPhrases = ['you got it', 'you found it', 'great job', 'yay'];
       const pick = this.randomPickAvoidRepeat(correctPhrases, this.lastCorrectPhrase);
       this.lastCorrectPhrase = pick;
       this.context.speak(pick);
       this.context.characterAnimation('cheer');
 
-      // Advance after the correct fade animation (0.5s) + buffer
-      setTimeout(() => this.presentNextItem(), 900);
+      setTimeout(() => {
+        this.busy = false;
+        if (this.itemsShown >= this.totalItems) {
+          this.end();
+        } else if (this.matchedColors.size >= this.currentBatchColors.length) {
+          this.presentNextItem();
+        } else {
+          this.renderItem();
+        }
+      }, 550);
 
     } else {
       this.incorrectStreak++;
       this.correctStreak = 0;
 
-      const item = document.getElementById('colorItem');
-      if (item) {
-        item.classList.add('wrong');
-        setTimeout(() => item.classList.remove('wrong'), 450);
+      if (itemEl) {
+        itemEl.classList.add('wrong');
+        setTimeout(() => itemEl.classList.remove('wrong'), 450);
       }
 
       const wrongPhrases = ['try again', 'aww man'];
@@ -538,9 +533,6 @@ class ColorSortGame {
       this.lastWrongPhrase = wrongPick;
       this.context.speak(wrongPick);
       this.context.characterAnimation('nod');
-
-      // Advance to next item after feedback — wrong answers still progress the game
-      setTimeout(() => this.presentNextItem(), 1600);
     }
   }
 

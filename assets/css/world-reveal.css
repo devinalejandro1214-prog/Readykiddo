@@ -118,12 +118,14 @@ body {
     min-height: auto;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     pointer-events: none;
 }
 
 .welcome-card {
+    position: absolute;
+    top: 0;
     max-width: min(760px, 88vw);
     padding: 14px 24px;
     border-radius: 999px;
@@ -168,16 +170,16 @@ body {
     align-items: center;
     justify-content: center;
     gap: 12px;
-    min-width: 210px;
-    min-height: 64px;
-    padding: 15px 28px;
+    min-width: 280px;
+    min-height: 86px;
+    padding: 20px 42px;
     border: none;
     border-radius: 999px;
     color: white;
     background: linear-gradient(135deg, var(--ready-blue) 0%, var(--ready-blue-2) 100%);
     box-shadow: 0 14px 30px rgba(9, 57, 95, 0.32);
     cursor: pointer;
-    font-size: 26px;
+    font-size: 34px;
     font-weight: 700;
     pointer-events: auto;
     transition: transform 0.25s ease, box-shadow 0.25s ease;
@@ -204,13 +206,13 @@ body {
 
 .start-icon {
     display: grid;
-    width: 36px;
-    height: 36px;
+    width: 48px;
+    height: 48px;
     place-items: center;
     border-radius: 50%;
     color: var(--ready-blue);
     background: var(--paper);
-    font-size: 15px;
+    font-size: 19px;
     line-height: 1;
 }
 
@@ -327,9 +329,9 @@ body {
     }
 
     .start-game-button {
-        min-width: 180px;
-        min-height: 58px;
-        font-size: 23px;
+        min-width: 230px;
+        min-height: 72px;
+        font-size: 27px;
     }
 }
 
@@ -354,9 +356,9 @@ body {
     }
 
     .start-game-button {
-        min-width: 166px;
-        min-height: 56px;
-        font-size: 21px;
+        min-width: 218px;
+        min-height: 68px;
+        font-size: 25px;
     }
 }
 

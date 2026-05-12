@@ -53,6 +53,8 @@ class ShapeRecognitionGame {
     this.currentItem = null;   // The correct answer item name
     this.currentShape = null;  // The shape being asked about
     this.currentAnswers = [];  // All 4 answer choices
+    this.currentBatchShapes = [];
+    this.matchedShapes = new Set();
     this.busy = false;
     this.ended = false;
     this.itemStartTime = 0;
@@ -86,8 +88,7 @@ class ShapeRecognitionGame {
       }
     }
 
-    await this.context.speak('ready');
-    await this.context.speak('match the shapes');
+    this.context.speak('match the shapes');
     this.renderProgress();
     setTimeout(() => this.presentNextItem(), 800);
   }
@@ -226,9 +227,9 @@ class ShapeRecognitionGame {
     if (this.ended) return;
     if (this.itemsShown >= this.totalItems) return this.end();
 
-    this.advanceBranchByProgress();
-
-    const shape = this.selectShape();
+    this.currentBatchShapes = [...SHAPE_KEYS].sort(() => Math.random() - 0.5);
+    this.currentAnswers = this.currentBatchShapes;
+    this.matchedShapes = new Set();
 
     /* ── Pick answer choices ──────────────────────────────
        All choices show the same shape, so we need 4 different shapes.
@@ -236,34 +237,33 @@ class ShapeRecognitionGame {
        Wrong answers are 3 random shapes from available shapes.
        ───────────────────────────────────────────────────── */
     const allShapes = SHAPE_KEYS;
-    const otherShapes = allShapes.filter(s => s !== shape);
+    const otherShapes = [];
 
     // Shuffle and pick 3 wrong answers
     otherShapes.sort(() => Math.random() - 0.5);
-    const wrongShapes = otherShapes.slice(0, 3);
+    const wrongShapes = [];
 
     // Shuffle all 4 choices so correct isn't always first
-    this.currentAnswers = [shape, ...wrongShapes].sort(() => Math.random() - 0.5);
-    this.currentShape = shape;
-    this.currentItem = shape;
+    this.currentAnswers = this.currentBatchShapes;
+    this.currentShape = null;
+    this.currentItem = null;
     this.itemStartTime = Date.now();
     this.busy = false;
-    this.shapeSeen[shape] = true;
+    this.shapeSeen = this.shapeSeen || {};
 
     // Track per-shape performance
-    if (!this.performance.shapesAttempted[shape]) {
-      this.performance.shapesAttempted[shape] = 0;
-      this.performance.shapesCorrect[shape] = 0;
-    }
-    this.performance.shapesAttempted[shape]++;
+    SHAPE_KEYS.forEach(shape => {
+      if (!this.performance.shapesAttempted[shape]) {
+        this.performance.shapesAttempted[shape] = 0;
+        this.performance.shapesCorrect[shape] = 0;
+      }
+    });
 
     this.renderShape();
     this.renderChoices();
     this.renderProgress();
-    this.updateInstruction(shape);
-    if (['circle', 'square', 'triangle'].includes(shape)) {
-      this.context.speak(shape);
-    }
+    this.updateInstruction();
+    this.context.speak('match the shapes');
   }
 
   /* ── Rendering ──────────────────────────────────────────── */
@@ -271,8 +271,14 @@ class ShapeRecognitionGame {
   renderShape() {
     const shapeStage = document.getElementById('shapeStage');
     if (!shapeStage) return;
-    const shapeSvg = getShapeSVG(this.currentShape, 'large');
-    shapeStage.innerHTML = `<div class="shape-outline">${shapeSvg}</div>`;
+    shapeStage.innerHTML = '';
+    SHAPE_KEYS.forEach(shapeName => {
+      const target = document.createElement('div');
+      target.className = 'shape-target-zone';
+      target.dataset.shape = shapeName;
+      target.innerHTML = `<div class="shape-outline">${getShapeSVG(shapeName, 'medium')}</div>`;
+      shapeStage.appendChild(target);
+    });
   }
 
   renderChoices() {
@@ -280,8 +286,10 @@ class ShapeRecognitionGame {
     if (!choicesEl) return;
     choicesEl.innerHTML = '';
 
-    this.currentAnswers.forEach((shapeName, index) => {
-      const choice = document.createElement('button');
+    this.currentAnswers
+      .filter(shapeName => !this.matchedShapes.has(shapeName))
+      .forEach((shapeName, index) => {
+      const choice = document.createElement('div');
       choice.className = 'shape-choice';
       choice.dataset.index = String(index);
       choice.dataset.item = shapeName;
@@ -304,12 +312,12 @@ class ShapeRecognitionGame {
       };
 
       choice.appendChild(img);
-      choice.addEventListener('click', () => this.handleAnswer(shapeName, index));
+      choice.addEventListener('pointerdown', e => this.startPointerDrag(e, choice));
       choicesEl.appendChild(choice);
     });
   }
 
-  updateInstruction(shape) {
+  updateInstruction() {
     const labels = {
       circle:    'Which one is round like a circle? 🔵',
       square:    'Which one is square? 🟦',
@@ -319,10 +327,127 @@ class ShapeRecognitionGame {
     };
     labels.diamond = 'Which one looks like a diamond?';
     const el = document.getElementById('shapeInstruction');
-    if (el) el.textContent = labels[shape] || 'Find the matching shape!';
+    if (el) el.textContent = 'Drag each shape to its matching outline';
   }
 
   /* ── Answer Handling ────────────────────────────────────── */
+
+  startPointerDrag(event, choice) {
+    if (this.busy || event.button > 0) return;
+    event.preventDefault();
+    const rect = choice.getBoundingClientRect();
+    const offsetX = event.clientX - rect.left;
+    const offsetY = event.clientY - rect.top;
+    let activeTarget = null;
+
+    const moveChoice = pointerEvent => {
+      choice.style.left = `${pointerEvent.clientX - offsetX}px`;
+      choice.style.top = `${pointerEvent.clientY - offsetY}px`;
+      choice.style.pointerEvents = 'none';
+      const target = document.elementFromPoint(pointerEvent.clientX, pointerEvent.clientY)?.closest('.shape-target-zone');
+      choice.style.pointerEvents = '';
+      if (target !== activeTarget) {
+        document.querySelectorAll('.shape-target-zone.over').forEach(zone => zone.classList.remove('over'));
+        activeTarget = target;
+        if (activeTarget) activeTarget.classList.add('over');
+      }
+    };
+
+    const resetChoice = () => {
+      choice.classList.remove('dragging');
+      choice.style.position = '';
+      choice.style.left = '';
+      choice.style.top = '';
+      choice.style.width = '';
+      choice.style.height = '';
+      choice.style.zIndex = '';
+      choice.style.pointerEvents = '';
+      document.querySelectorAll('.shape-target-zone.over').forEach(zone => zone.classList.remove('over'));
+    };
+
+    const endDrag = pointerEvent => {
+      document.removeEventListener('pointermove', moveChoice);
+      document.removeEventListener('pointerup', endDrag);
+      document.removeEventListener('pointercancel', cancelDrag);
+      choice.style.pointerEvents = 'none';
+      const target = document.elementFromPoint(pointerEvent.clientX, pointerEvent.clientY)?.closest('.shape-target-zone');
+      choice.style.pointerEvents = '';
+      resetChoice();
+      if (target?.dataset?.shape) {
+        this.handleShapeDrop(choice.dataset.item, target.dataset.shape, target, choice);
+      }
+    };
+
+    const cancelDrag = () => {
+      document.removeEventListener('pointermove', moveChoice);
+      document.removeEventListener('pointerup', endDrag);
+      document.removeEventListener('pointercancel', cancelDrag);
+      resetChoice();
+    };
+
+    choice.classList.add('dragging');
+    choice.style.position = 'fixed';
+    choice.style.left = `${rect.left}px`;
+    choice.style.top = `${rect.top}px`;
+    choice.style.width = `${rect.width}px`;
+    choice.style.height = `${rect.height}px`;
+    choice.style.zIndex = '1000';
+
+    document.addEventListener('pointermove', moveChoice);
+    document.addEventListener('pointerup', endDrag);
+    document.addEventListener('pointercancel', cancelDrag);
+  }
+
+  handleShapeDrop(itemShape, targetShape, targetEl, choiceEl) {
+    if (this.busy) return;
+    const responseTime = Date.now() - this.itemStartTime;
+    this.performance.responseTimes.push(responseTime);
+    this.performance.totalItems++;
+    this.performance.shapesAttempted[itemShape]++;
+
+    const isCorrect = itemShape === targetShape;
+    if (isCorrect) {
+      this.busy = true;
+      this.correctCount++;
+      this.incorrectStreak = 0;
+      this.performance.correctItems++;
+      this.performance.shapesCorrect[itemShape]++;
+      this.itemsShown++;
+      this.answerHistory.push(true);
+      this.matchedShapes.add(itemShape);
+      if (choiceEl) choiceEl.classList.add('correct');
+      targetEl.classList.add('matched');
+
+      const correctPhrases = ['you got it', 'you found it', 'great job', 'yay'];
+      const pick = this.randomPickAvoidRepeat(correctPhrases, this.lastCorrectPhrase);
+      this.lastCorrectPhrase = pick;
+      this.context.speak(pick);
+      this.context.characterAnimation('cheer');
+
+      setTimeout(() => {
+        this.busy = false;
+        if (this.itemsShown >= this.totalItems) {
+          this.end();
+        } else if (this.matchedShapes.size >= this.currentBatchShapes.length) {
+          this.presentNextItem();
+        } else {
+          this.renderChoices();
+          this.renderProgress();
+        }
+      }, 550);
+    } else {
+      this.incorrectStreak++;
+      if (choiceEl) {
+        choiceEl.classList.add('wrong');
+        setTimeout(() => choiceEl.classList.remove('wrong'), 450);
+      }
+      const wrongPhrases = ['try again', 'aww man'];
+      const wrongPick = this.randomPickAvoidRepeat(wrongPhrases, this.lastWrongPhrase);
+      this.lastWrongPhrase = wrongPick;
+      this.context.speak(wrongPick);
+      this.context.characterAnimation('nod');
+    }
+  }
 
   handleAnswer(itemName, index) {
     if (this.busy) return;

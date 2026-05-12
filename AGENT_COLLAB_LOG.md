@@ -944,3 +944,27 @@ GitHub/Netlify:
 - No manual production deploy command was run; Netlify should build from Git.
 
 ---
+## 2026-05-11 20:34 - Codex
+
+Prompt:
+> New updates. the start your journey button needs to be moved down slightly more. The play button on the world reveal needs to be larger and in the middle. Then the game mechanic lets start adding 6 colors and then they have to drag the right tiles to the squares. The shapes the same thing. Also lets make the website verison enlarge the shapes/colors tiles and the containers. They are small to the screen. Lastly we need to update the audio it keeps falling behind and should activate when the person presses the buttton.
+
+Actions Taken:
+- Moved the landing `Start your journey` CTA lower.
+- Enlarged and centered the world reveal `Play` button on desktop and mobile.
+- Changed Color Sort to show all 6 color tiles and all 6 target squares together.
+- Changed Shape Recognition to show all 6 shape tiles and all 6 outline targets together.
+- Enlarged desktop game tiles and target containers, with mobile grids adjusted to avoid overflow.
+- Updated recorded audio playback so user button press unlocks audio, current audio is interrupted instead of queued, and game start no longer waits on chained audio clips.
+- Synced the same manager fixes back into Code's local `ReadyKiddo2.0` folder.
+
+Verification:
+- `node --check` passed for updated JS files.
+- `npm test` passed.
+- `npm run build` passed.
+- `git diff --check` passed.
+
+GitHub/Netlify:
+- Pending commit and push at time of entry.
+
+---
