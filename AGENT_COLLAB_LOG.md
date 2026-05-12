@@ -1002,6 +1002,7 @@ Verification:
 - `git diff --check` passed.
 
 GitHub/Netlify:
-- Pending commit and push at time of entry.
+- Pushed to `main` in commit `490d3b5` (`Add reviewed round-two game mechanics`).
+- No manual production deploy command was run; Netlify should build from Git.
 
 ---
