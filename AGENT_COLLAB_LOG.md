@@ -965,6 +965,7 @@ Verification:
 - `git diff --check` passed.
 
 GitHub/Netlify:
-- Pending commit and push at time of entry.
+- Pushed to `main` in commit `24bc26c` (`Expand matching boards and fix audio start`).
+- No manual production deploy command was run; Netlify should build from Git.
 
 ---
