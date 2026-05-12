@@ -24,7 +24,7 @@ const SHAPES = {
   },
 
   square: (size = 'large') => {
-    const offset = size === 'large' ? 10 : size === 'medium' ? 20 : 30;
+    const offset = size === 'large' ? 12 : size === 'medium' ? 20 : 28;
     const strokeWidth = size === 'large' ? 4 : size === 'medium' ? 3 : 2;
 
     return `
@@ -38,6 +38,23 @@ const SHAPES = {
               stroke-width="${strokeWidth}"
               stroke-linecap="round"
               stroke-linejoin="round"/>
+      </svg>`;
+  },
+
+  diamond: (size = 'large') => {
+    const cx = 50, cy = 50;
+    const r = size === 'large' ? 38 : size === 'medium' ? 28 : 18;
+    const strokeWidth = size === 'large' ? 4 : size === 'medium' ? 3 : 2;
+    const pts = `${cx},${cy - r} ${cx + r},${cy} ${cx},${cy + r} ${cx - r},${cy}`;
+
+    return `
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="${pts}"
+                 fill="none"
+                 stroke="${SHAPE_COLORS.primary}"
+                 stroke-width="${strokeWidth}"
+                 stroke-linecap="round"
+                 stroke-linejoin="round"/>
       </svg>`;
   },
 
@@ -93,26 +110,11 @@ const SHAPES = {
               stroke-linecap="round"
               stroke-linejoin="round"/>
       </svg>`;
-  },
-
-  diamond: (size = 'large') => {
-    const radius = size === 'large' ? 40 : size === 'medium' ? 30 : 20;
-    const strokeWidth = size === 'large' ? 4 : size === 'medium' ? 3 : 2;
-
-    return `
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <polygon points="50,${50 - radius} ${50 + radius},50 50,${50 + radius} ${50 - radius},50"
-                 fill="none"
-                 stroke="${SHAPE_COLORS.primary}"
-                 stroke-width="${strokeWidth}"
-                 stroke-linecap="round"
-                 stroke-linejoin="round"/>
-      </svg>`;
   }
 };
 
 /* ─────────────────────────────────────────────────────────
-   Helper: Get shape SVG
+   Helper: Get shape SVG (fallback / small thumbnails)
    ───────────────────────────────────────────────────────── */
 
 function getShapeSVG(shapeType, size = 'large') {
@@ -122,4 +124,35 @@ function getShapeSVG(shapeType, size = 'large') {
     return SHAPES.circle(size);
   }
   return generator(size);
+}
+
+/* ─────────────────────────────────────────────────────────
+   PNG Shape Tiles
+   512×512 transparent PNGs at assets/images/games/shapes/
+   Naming: {color}-{filename}.png
+
+   All 6 shape keys map 1-to-1 to their PNG filename.
+   square  → {color}-square.png   (4-sided equal polygon)
+   diamond → {color}-diamond.png  (rotated square / gem outline)
+   ───────────────────────────────────────────────────────── */
+
+const SHAPE_PNG_FILENAMES = {
+  circle:    'circle',
+  triangle:  'triangle',
+  star:      'star',
+  rectangle: 'rectangle',
+  square:    'square',
+  diamond:   'diamond'
+};
+
+const SHAPE_PNG_COLORS = ['red', 'blue', 'green', 'yellow', 'purple', 'orange'];
+
+/**
+ * Returns the path to the PNG tile for a given shape + color.
+ * Falls back to 'circle' shape if the key isn't found.
+ */
+function getShapePNGPath(shapeKey, color) {
+  const filename = SHAPE_PNG_FILENAMES[shapeKey] || 'circle';
+  const safeColor = SHAPE_PNG_COLORS.includes(color) ? color : 'blue';
+  return `assets/images/games/shapes/${safeColor}-${filename}.png`;
 }

@@ -1,31 +1,18 @@
 /* ─────────────────────────────────────────────────────────
    ReadyKiddo — Shape Recognition Game
-   Match items to shape outlines with adaptive difficulty
+   Match shapes to shape outlines with adaptive difficulty
    ───────────────────────────────────────────────────────── */
 
-/* ── All items organized by the shape they look like ─────
-   Used to select a correct item that matches the shown shape,
-   and to exclude matching items from wrong-answer pool.
-   ───────────────────────────────────────────────────────── */
-const SHAPE_ITEMS_MAP = {
-  circle:    ['planet', 'lollipop', 'beachball', 'fruit', 'cupcake', 'paintblob'],
-  triangle:  ['rocket', 'crown', 'shell'],
-  star:      ['star', 'starfish', 'flower'],
-  square:    ['squareTile'],
-  rectangle: ['shield', 'brush', 'note'],
-  diamond:   ['gem']
-};
+// Shape keys defining the 6 shapes for learning target
+const SHAPE_KEYS = ['circle', 'square', 'triangle', 'star', 'rectangle', 'diamond'];
 
-// Every item across all worlds (used to build wrong-answer pool)
-const ALL_ITEMS = [
-  'star', 'planet', 'rocket',
-  'lollipop', 'gummy', 'cupcake',
-  'fruit', 'leaf', 'flower',
-  'starfish', 'shell', 'beachball',
-  'gem', 'shield', 'crown',
-  'paintblob', 'brush', 'note',
-  'squareTile'
-];
+// PNG mapping for shapes: {color}-{shape}.png
+// Use a neutral color (e.g., 'blue') for all answer choices to focus learning on shape
+const SHAPE_PNG_COLOR = 'blue';
+
+function getShapePNG(shape) {
+  return `assets/images/games/shapes/${SHAPE_PNG_COLOR}-${shape}.png`;
+}
 
 // Branch order — used consistently everywhere
 const BRANCH_ORDER = ['neutral', 'easy-medium', 'medium', 'medium-hard', 'hard'];
@@ -206,20 +193,12 @@ class ShapeRecognitionGame {
 
   /* ── Shape Selection ────────────────────────────────────── */
 
-  /**
-   * Returns a shape name based on current difficulty branch.
-   * Neutral  → circle | square  (2 simplest shapes)
-   * Easy-Med → + triangle       (3 shapes)
-   * Medium   → + star           (4 shapes)
-   * Hard+    → all 5 shapes
-   */
   selectShape() {
-    const all = ['circle', 'square', 'triangle', 'star', 'rectangle', 'diamond'];
-    let available = all;
-    if (this.currentBranch === 'neutral') available = all.slice(0, 2);
-    else if (this.currentBranch === 'easy-medium') available = all.slice(0, 3);
-    else if (this.currentBranch === 'medium') available = all.slice(0, 4);
-    else if (this.currentBranch === 'medium-hard') available = all.slice(0, 5);
+    let available = SHAPE_KEYS;
+    if (this.currentBranch === 'neutral') available = SHAPE_KEYS.slice(0, 2);
+    else if (this.currentBranch === 'easy-medium') available = SHAPE_KEYS.slice(0, 3);
+    else if (this.currentBranch === 'medium') available = SHAPE_KEYS.slice(0, 4);
+    else if (this.currentBranch === 'medium-hard') available = SHAPE_KEYS.slice(0, 5);
 
     const unseen = available.filter(shape => !this.shapeSeen[shape]);
     const pool = unseen.length > 0 ? unseen : available;
@@ -235,46 +214,23 @@ class ShapeRecognitionGame {
     this.advanceBranchByProgress();
 
     const shape = this.selectShape();
-    const worldItems = getWorldItems(this.worldSlug);
 
-    /* ── Pick CORRECT answer ──────────────────────────────
-       The correct item must LOOK LIKE the current shape.
-       Prefer an item from the child's selected world.
-       Fall back to any global item that matches the shape.
+    /* ── Pick answer choices ──────────────────────────────
+       All choices show the same shape, so we need 4 different shapes.
+       The correct answer is the current shape.
+       Wrong answers are 3 random shapes from available shapes.
        ───────────────────────────────────────────────────── */
-    const matchingItems = SHAPE_ITEMS_MAP[shape] || [];
-    const worldMatches = worldItems.filter(item => matchingItems.includes(item));
+    const allShapes = SHAPE_KEYS;
+    const otherShapes = allShapes.filter(s => s !== shape);
 
-    let correctItem;
-    if (worldMatches.length > 0) {
-      correctItem = worldMatches[Math.floor(Math.random() * worldMatches.length)];
-    } else {
-      // No world item matches this shape — use any global item that does
-      correctItem = matchingItems[Math.floor(Math.random() * matchingItems.length)];
-    }
+    // Shuffle and pick 3 wrong answers
+    otherShapes.sort(() => Math.random() - 0.5);
+    const wrongShapes = otherShapes.slice(0, 3);
 
-    /* ── Pick WRONG answers ───────────────────────────────
-       Wrong items must NOT look like the current shape.
-       Prefer world items first, then fill from the global pool.
-       ───────────────────────────────────────────────────── */
-    const nonMatchingAll = ALL_ITEMS.filter(
-      item => item !== correctItem && !matchingItems.includes(item)
-    );
-
-    // Shuffle the wrong-answer pool
-    nonMatchingAll.sort(() => Math.random() - 0.5);
-    const wrongAnswers = nonMatchingAll.slice(0, 3);
-
-    // Safety: if somehow we don't have 3 wrongs, skip round
-    if (wrongAnswers.length < 3) {
-      console.warn('[ShapeGame] Not enough wrong answers, regenerating...');
-      return this.presentNextItem();
-    }
-
-    // Shuffle all 4 choices so correct item isn't always first
-    this.currentAnswers = [correctItem, ...wrongAnswers].sort(() => Math.random() - 0.5);
+    // Shuffle all 4 choices so correct isn't always first
+    this.currentAnswers = [shape, ...wrongShapes].sort(() => Math.random() - 0.5);
     this.currentShape = shape;
-    this.currentItem = correctItem;
+    this.currentItem = shape;
     this.itemStartTime = Date.now();
     this.busy = false;
     this.shapeSeen[shape] = true;
@@ -309,17 +265,28 @@ class ShapeRecognitionGame {
     if (!choicesEl) return;
     choicesEl.innerHTML = '';
 
-    this.currentAnswers.forEach((itemName, index) => {
+    this.currentAnswers.forEach((shapeName, index) => {
       const choice = document.createElement('button');
       choice.className = 'shape-choice';
       choice.dataset.index = String(index);
-      choice.dataset.item = itemName;
+      choice.dataset.item = shapeName;
 
-      // Render all choices in a neutral blue so children judge by SHAPE, not color
-      const itemSvg = getItemSVG(itemName, 'blue');
-      choice.innerHTML = itemSvg || `<span>${itemName}</span>`;
+      const pngPath = getShapePNG(shapeName);
+      const img = document.createElement('img');
+      img.src = pngPath;
+      img.alt = shapeName;
+      img.style.width = '100%';
+      img.style.height = '100%';
+      img.style.objectFit = 'contain';
 
-      choice.addEventListener('click', () => this.handleAnswer(itemName, index));
+      img.onerror = () => {
+        img.style.display = 'none';
+        const shapeSvg = getShapeSVG(shapeName, 'medium');
+        choice.innerHTML = shapeSvg || `<span>${shapeName}</span>`;
+      };
+
+      choice.appendChild(img);
+      choice.addEventListener('click', () => this.handleAnswer(shapeName, index));
       choicesEl.appendChild(choice);
     });
   }

@@ -3,6 +3,16 @@
    Sort world-specific items by color with adaptive difficulty
    ───────────────────────────────────────────────────────── */
 
+// Explicit PNG mappings for color learning target
+const COLOR_PNG_MAP = {
+  red:    'assets/images/games/color-sort/items/red-paintblob.png',
+  blue:   'assets/images/games/color-sort/items/blue-brush.png',
+  yellow: 'assets/images/games/color-sort/items/yellow-note.png',
+  orange: 'assets/images/games/color-sort/items/orange-paintblob.png',
+  green:  'assets/images/games/color-sort/items/green-brush.png',
+  purple: 'assets/images/games/color-sort/items/purple-note.png',
+};
+
 class ColorSortGame {
   constructor(context) {
     this.context = context;
@@ -301,14 +311,28 @@ class ColorSortGame {
     const itemStage = document.getElementById('colorItemStage');
     if (!itemStage) return;
 
-    const itemSvg = getItemSVG(this.currentItem, this.currentColor);
-
     const item = document.createElement('div');
     item.className = 'color-item';
     item.id = 'colorItem';
     item.draggable = false;
     item.dataset.color = this.currentColor;
-    item.innerHTML = itemSvg;
+
+    const pngPath = COLOR_PNG_MAP[this.currentColor];
+    if (pngPath) {
+      const img = document.createElement('img');
+      img.src = pngPath;
+      img.alt = this.currentColor;
+      img.style.width = '100%';
+      img.style.height = '100%';
+      img.style.objectFit = 'contain';
+      img.onerror = () => {
+        img.style.display = 'none';
+        item.innerHTML = getItemSVG(this.currentItem, this.currentColor);
+      };
+      item.appendChild(img);
+    } else {
+      item.innerHTML = getItemSVG(this.currentItem, this.currentColor);
+    }
 
     item.addEventListener('pointerdown', e => {
       this.startPointerDrag(e, item);

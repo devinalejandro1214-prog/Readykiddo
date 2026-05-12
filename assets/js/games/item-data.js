@@ -204,6 +204,115 @@ const ITEM_GENERATORS = {
       <circle cx="60" cy="50" r="1.5" fill="${DARK[c]}" opacity="0.5"/>
     </svg>`,
 
+  candycane: c => `
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="62" cy="94" rx="16" ry="3" fill="#000" opacity="0.12"/>
+      <!-- Dark outline pass -->
+      <path d="M62 90 L62 42 Q62 12 36 12 Q10 12 10 38 Q10 58 30 58"
+            stroke="${DARK[c]}" stroke-width="18" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- Main color body -->
+      <path d="M62 90 L62 42 Q62 12 36 12 Q10 12 10 38 Q10 58 30 58"
+            stroke="${COLOR_HEX[c]}" stroke-width="14" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- White diagonal stripes -->
+      <path d="M62 90 L62 42 Q62 12 36 12 Q10 12 10 38 Q10 58 30 58"
+            stroke="white" stroke-width="5.5" fill="none" stroke-linecap="round" stroke-linejoin="round"
+            stroke-dasharray="10,17" stroke-dashoffset="4" opacity="0.82"/>
+      <!-- Gloss highlight -->
+      <path d="M58 87 L58 44 Q58 17 36 17 Q14 17 14 38 Q14 54 30 54"
+            stroke="white" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.38"/>
+      ${sparkle(80, 18, 4)}${sparkle(20, 74, 3)}
+    </svg>`,
+
+  icecream: c => `
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="icsg${c}" cx="36%" cy="28%" r="68%">
+          <stop offset="0%" stop-color="${LIGHT[c]}"/>
+          <stop offset="60%" stop-color="${COLOR_HEX[c]}"/>
+          <stop offset="100%" stop-color="${DARK[c]}"/>
+        </radialGradient>
+        <linearGradient id="iccg${c}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f8e874"/>
+          <stop offset="100%" stop-color="#c88e28"/>
+        </linearGradient>
+      </defs>
+      <ellipse cx="50" cy="95" rx="18" ry="3" fill="#000" opacity="0.12"/>
+      <!-- Scoop dome -->
+      <circle cx="50" cy="42" r="32" fill="url(#icsg${c})" stroke="${DARK[c]}" stroke-width="2.5"/>
+      <!-- Drips -->
+      <path d="M20 58 Q16 68 20 77" stroke="${COLOR_HEX[c]}" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.7"/>
+      <path d="M80 62 Q84 71 80 79" stroke="${COLOR_HEX[c]}" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.6"/>
+      <!-- Cone -->
+      <path d="M18 72 L50 96 L82 72 Z" fill="url(#iccg${c})" stroke="#a06020" stroke-width="2.5" stroke-linejoin="round"/>
+      <!-- Cone waffle grid -->
+      <line x1="34" y1="72" x2="42" y2="96" stroke="#a06020" stroke-width="1.5" opacity="0.5"/>
+      <line x1="50" y1="72" x2="50" y2="96" stroke="#a06020" stroke-width="1.5" opacity="0.5"/>
+      <line x1="66" y1="72" x2="58" y2="96" stroke="#a06020" stroke-width="1.5" opacity="0.5"/>
+      <line x1="18" y1="78" x2="82" y2="78" stroke="#a06020" stroke-width="1.5" opacity="0.5"/>
+      <line x1="24" y1="84" x2="76" y2="84" stroke="#a06020" stroke-width="1.5" opacity="0.5"/>
+      <line x1="32" y1="90" x2="68" y2="90" stroke="#a06020" stroke-width="1.5" opacity="0.5"/>
+      <!-- Scoop highlight -->
+      <ellipse cx="37" cy="31" rx="11" ry="6.5" fill="white" opacity="0.48" transform="rotate(-15 37 31)"/>
+      <circle cx="34" cy="29" r="4" fill="white" opacity="0.72"/>
+      ${sparkle(80, 20, 4)}${sparkle(17, 55, 3)}
+    </svg>`,
+
+  gumdrop: c => `
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="gdg${c}" cx="36%" cy="26%" r="70%">
+          <stop offset="0%" stop-color="${LIGHT[c]}"/>
+          <stop offset="58%" stop-color="${COLOR_HEX[c]}"/>
+          <stop offset="100%" stop-color="${DARK[c]}"/>
+        </radialGradient>
+      </defs>
+      <ellipse cx="50" cy="92" rx="34" ry="4" fill="#000" opacity="0.12"/>
+      <!-- Dome body -->
+      <path d="M18 70 C18 16 82 16 82 70 L88 70 Q92 70 92 80 Q92 88 84 88 L16 88 Q8 88 8 80 Q8 70 12 70 Z"
+            fill="url(#gdg${c})" stroke="${DARK[c]}" stroke-width="2.5" stroke-linejoin="round"/>
+      <!-- Sugar ridge lines on base -->
+      <line x1="10" y1="76" x2="90" y2="76" stroke="${DARK[c]}" stroke-width="1.5" opacity="0.18"/>
+      <line x1="9" y1="83" x2="91" y2="83" stroke="${DARK[c]}" stroke-width="1.5" opacity="0.18"/>
+      <!-- Dome highlight -->
+      <ellipse cx="34" cy="32" rx="13" ry="8" fill="white" opacity="0.46" transform="rotate(-14 34 32)"/>
+      <ellipse cx="30" cy="29" rx="6.5" ry="4" fill="white" opacity="0.72" transform="rotate(-14 30 29)"/>
+      <!-- Small dots (sugar texture) -->
+      <circle cx="62" cy="58" r="2.5" fill="${LIGHT[c]}" opacity="0.5"/>
+      <circle cx="72" cy="44" r="2" fill="${LIGHT[c]}" opacity="0.4"/>
+      <circle cx="30" cy="55" r="2" fill="${LIGHT[c]}" opacity="0.4"/>
+      ${sparkle(78, 22, 4)}${sparkle(18, 64, 3)}
+    </svg>`,
+
+  cherry: c => `
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="chg${c}" cx="35%" cy="27%" r="66%">
+          <stop offset="0%" stop-color="${LIGHT[c]}"/>
+          <stop offset="58%" stop-color="${COLOR_HEX[c]}"/>
+          <stop offset="100%" stop-color="${DARK[c]}"/>
+        </radialGradient>
+      </defs>
+      <ellipse cx="30" cy="95" rx="18" ry="3" fill="#000" opacity="0.12"/>
+      <ellipse cx="70" cy="95" rx="18" ry="3" fill="#000" opacity="0.12"/>
+      <!-- Left stem: curves up from left cherry to top center -->
+      <path d="M34 64 Q34 34 50 26" stroke="#3d6b2a" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <!-- Right stem: curves up from right cherry to top center -->
+      <path d="M66 64 Q70 40 50 26" stroke="#3d6b2a" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <!-- Leaf at the junction -->
+      <path d="M48 28 Q44 14 58 16 Q56 28 48 28 Z" fill="#5aa341" stroke="#3d6b2a" stroke-width="1.5" stroke-linejoin="round"/>
+      <!-- Left cherry -->
+      <circle cx="30" cy="78" r="20" fill="url(#chg${c})" stroke="${DARK[c]}" stroke-width="2.5"/>
+      <!-- Right cherry -->
+      <circle cx="70" cy="78" r="20" fill="url(#chg${c})" stroke="${DARK[c]}" stroke-width="2.5"/>
+      <!-- Left highlight -->
+      <ellipse cx="22" cy="69" rx="7" ry="4.5" fill="white" opacity="0.5" transform="rotate(-14 22 69)"/>
+      <circle cx="20" cy="68" r="3.5" fill="white" opacity="0.72"/>
+      <!-- Right highlight -->
+      <ellipse cx="62" cy="69" rx="7" ry="4.5" fill="white" opacity="0.5" transform="rotate(-14 62 69)"/>
+      <circle cx="60" cy="68" r="3.5" fill="white" opacity="0.72"/>
+      ${sparkle(86, 62, 3.5)}${sparkle(14, 62, 3)}
+    </svg>`,
+
   // JUNGLE
   fruit: c => `
     <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -351,6 +460,132 @@ const ITEM_GENERATORS = {
       <circle cx="30" cy="26" r="3" fill="white" opacity="0.7"/>
     </svg>`,
 
+  // BEACH (additional)
+  surfboard: c => `
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="sfbdg${c}" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="${DARK[c]}"/>
+          <stop offset="40%" stop-color="${LIGHT[c]}"/>
+          <stop offset="100%" stop-color="${DARK[c]}"/>
+        </linearGradient>
+      </defs>
+      <!-- Board body — pointed nose (top), rounded rails, pinched tail (bottom) -->
+      <path d="M50 7C59 9,68 22,68 46C68 66,62 80,56 87C53 91,50 92,50 92C50 92,47 91,44 87C38 80,32 66,32 46C32 22,41 9,50 7z"
+            fill="url(#sfbdg${c})" stroke="${DARK[c]}" stroke-width="2.5" stroke-linejoin="round"/>
+      <!-- Single thruster fin at tail -->
+      <path d="M54 85Q62 93,62 99L50 92Q52 89,54 85z"
+            fill="${DARK[c]}" stroke="${DARK[c]}" stroke-width="1.5" stroke-linejoin="round"/>
+      <!-- Decorative stripe across mid-board -->
+      <path d="M34 46C38 42,62 42,66 46C62 50,38 50,34 46z"
+            fill="${LIGHT[c]}" opacity="0.45"/>
+      <!-- Gloss highlight running down the left rail -->
+      <ellipse cx="43" cy="26" rx="5" ry="13" fill="white" opacity="0.45" transform="rotate(-6 43 26)"/>
+      <circle cx="50" cy="13" r="3" fill="white" opacity="0.5"/>
+    </svg>`,
+
+  sandcastle: c => `
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="sdcg${c}" x1="20%" y1="0%" x2="80%" y2="100%">
+          <stop offset="0%" stop-color="${LIGHT[c]}"/>
+          <stop offset="100%" stop-color="${DARK[c]}"/>
+        </linearGradient>
+      </defs>
+      <!-- Base mound (trapezoid) -->
+      <path d="M10 90L90 90L86 76L14 76z" fill="url(#sdcg${c})" stroke="${DARK[c]}" stroke-width="2.5" stroke-linejoin="round"/>
+      <!-- Left tower body -->
+      <rect x="13" y="52" width="22" height="24" fill="url(#sdcg${c})" stroke="${DARK[c]}" stroke-width="2.5"/>
+      <!-- Left battlements (3 merlons + 2 gaps) -->
+      <rect x="13" y="40" width="5" height="14" rx="1" fill="url(#sdcg${c})" stroke="${DARK[c]}" stroke-width="2"/>
+      <rect x="21" y="40" width="5" height="14" rx="1" fill="url(#sdcg${c})" stroke="${DARK[c]}" stroke-width="2"/>
+      <rect x="29" y="40" width="6" height="14" rx="1" fill="url(#sdcg${c})" stroke="${DARK[c]}" stroke-width="2"/>
+      <!-- Centre tower body (tallest) -->
+      <rect x="37" y="34" width="26" height="42" fill="url(#sdcg${c})" stroke="${DARK[c]}" stroke-width="2.5"/>
+      <!-- Centre battlements -->
+      <rect x="37" y="20" width="6" height="16" rx="1" fill="url(#sdcg${c})" stroke="${DARK[c]}" stroke-width="2"/>
+      <rect x="47" y="20" width="6" height="16" rx="1" fill="url(#sdcg${c})" stroke="${DARK[c]}" stroke-width="2"/>
+      <rect x="57" y="20" width="6" height="16" rx="1" fill="url(#sdcg${c})" stroke="${DARK[c]}" stroke-width="2"/>
+      <!-- Flag pole + pennant -->
+      <line x1="53" y1="8" x2="53" y2="22" stroke="${DARK[c]}" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M53 8L65 13L53 18z" fill="${LIGHT[c]}" stroke="${DARK[c]}" stroke-width="1.5" stroke-linejoin="round"/>
+      <!-- Right tower body -->
+      <rect x="65" y="56" width="22" height="20" fill="url(#sdcg${c})" stroke="${DARK[c]}" stroke-width="2.5"/>
+      <!-- Right battlements -->
+      <rect x="65" y="44" width="5" height="14" rx="1" fill="url(#sdcg${c})" stroke="${DARK[c]}" stroke-width="2"/>
+      <rect x="73" y="44" width="5" height="14" rx="1" fill="url(#sdcg${c})" stroke="${DARK[c]}" stroke-width="2"/>
+      <rect x="81" y="44" width="6" height="14" rx="1" fill="url(#sdcg${c})" stroke="${DARK[c]}" stroke-width="2"/>
+      <!-- Gloss highlights on left faces -->
+      <ellipse cx="25" cy="63" rx="4" ry="9" fill="white" opacity="0.2"/>
+      <ellipse cx="50" cy="52" rx="6" ry="14" fill="white" opacity="0.18"/>
+    </svg>`,
+
+  scallop: c => `
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- Gradient radiates outward from the hinge point at the base -->
+        <radialGradient id="sclg${c}" cx="50" cy="82" r="74" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="${LIGHT[c]}"/>
+          <stop offset="60%" stop-color="${COLOR_HEX[c]}"/>
+          <stop offset="100%" stop-color="${DARK[c]}"/>
+        </radialGradient>
+      </defs>
+      <!-- Fan-shell body.  The top edge is 5 scalloped semicircle bumps,
+           each 14 px wide (radius 7), sweeping counterclockwise (upward).
+           Bezier curves connect the edges to create the fan silhouette. -->
+      <path d="M50 82C40 82,18 74,8 58C2 44,6 26,16 16
+               a7,7 0 0,0 14,0 a7,7 0 0,0 14,0 a7,7 0 0,0 14,0
+               a7,7 0 0,0 14,0 a7,7 0 0,0 14,0
+               C84 26,94 44,88 58C78 74,60 82,50 82z"
+            fill="url(#sclg${c})" stroke="${DARK[c]}" stroke-width="2.5" stroke-linejoin="round"/>
+      <!-- Radiating ribs from hinge to the six inter-scallop notch points -->
+      <line x1="50" y1="82" x2="16" y2="16" stroke="${DARK[c]}" stroke-width="1.8" opacity="0.35" stroke-linecap="round"/>
+      <line x1="50" y1="82" x2="30" y2="16" stroke="${DARK[c]}" stroke-width="1.8" opacity="0.35" stroke-linecap="round"/>
+      <line x1="50" y1="82" x2="44" y2="16" stroke="${DARK[c]}" stroke-width="1.8" opacity="0.35" stroke-linecap="round"/>
+      <line x1="50" y1="82" x2="58" y2="16" stroke="${DARK[c]}" stroke-width="1.8" opacity="0.35" stroke-linecap="round"/>
+      <line x1="50" y1="82" x2="72" y2="16" stroke="${DARK[c]}" stroke-width="1.8" opacity="0.35" stroke-linecap="round"/>
+      <line x1="50" y1="82" x2="86" y2="16" stroke="${DARK[c]}" stroke-width="1.8" opacity="0.35" stroke-linecap="round"/>
+      <!-- Hinge bumps at the base -->
+      <ellipse cx="38" cy="84" rx="5" ry="3.5" fill="url(#sclg${c})" stroke="${DARK[c]}" stroke-width="2"/>
+      <ellipse cx="50" cy="86" rx="5" ry="3.5" fill="url(#sclg${c})" stroke="${DARK[c]}" stroke-width="2"/>
+      <ellipse cx="62" cy="84" rx="5" ry="3.5" fill="url(#sclg${c})" stroke="${DARK[c]}" stroke-width="2"/>
+      <!-- Gloss highlight on left fan face -->
+      <ellipse cx="27" cy="44" rx="7" ry="15" fill="white" opacity="0.28" transform="rotate(-28 27 44)"/>
+    </svg>`,
+
+  hibiscus: c => `
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="hibg${c}" cx="38%" cy="30%" r="65%">
+          <stop offset="0%" stop-color="${LIGHT[c]}"/>
+          <stop offset="100%" stop-color="${DARK[c]}"/>
+        </radialGradient>
+      </defs>
+      <!-- 5 petals: each is the same ellipse (cx=50,cy=28) rotated 72° increments
+           around the flower centre (50,50).  The petal tip reaches y≈12. -->
+      <ellipse cx="50" cy="28" rx="12" ry="16" fill="url(#hibg${c})" stroke="${DARK[c]}" stroke-width="2" transform="rotate(0   50 50)"/>
+      <ellipse cx="50" cy="28" rx="12" ry="16" fill="url(#hibg${c})" stroke="${DARK[c]}" stroke-width="2" transform="rotate(72  50 50)"/>
+      <ellipse cx="50" cy="28" rx="12" ry="16" fill="url(#hibg${c})" stroke="${DARK[c]}" stroke-width="2" transform="rotate(144 50 50)"/>
+      <ellipse cx="50" cy="28" rx="12" ry="16" fill="url(#hibg${c})" stroke="${DARK[c]}" stroke-width="2" transform="rotate(216 50 50)"/>
+      <ellipse cx="50" cy="28" rx="12" ry="16" fill="url(#hibg${c})" stroke="${DARK[c]}" stroke-width="2" transform="rotate(288 50 50)"/>
+      <!-- Stamen tube curving toward upper-right -->
+      <path d="M54 47C60 40,66 32,70 22" stroke="${DARK[c]}" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <!-- Anther dots at stamen tip -->
+      <circle cx="68" cy="18" r="3"   fill="${DARK[c]}"/>
+      <circle cx="74" cy="21" r="2.5" fill="${DARK[c]}"/>
+      <circle cx="72" cy="14" r="2.5" fill="${DARK[c]}"/>
+      <circle cx="78" cy="17" r="2"   fill="${DARK[c]}"/>
+      <!-- Centre disc -->
+      <circle cx="50" cy="50" r="11" fill="${LIGHT[c]}"     stroke="${DARK[c]}" stroke-width="2.5"/>
+      <circle cx="50" cy="50" r="6"  fill="${COLOR_HEX[c]}" opacity="0.7"/>
+      <!-- Petal gloss highlights (same rotation as petals) -->
+      <ellipse cx="50" cy="21" rx="4" ry="7" fill="white" opacity="0.35" transform="rotate(0   50 50)"/>
+      <ellipse cx="50" cy="21" rx="4" ry="7" fill="white" opacity="0.35" transform="rotate(72  50 50)"/>
+      <ellipse cx="50" cy="21" rx="4" ry="7" fill="white" opacity="0.35" transform="rotate(144 50 50)"/>
+      <ellipse cx="50" cy="21" rx="4" ry="7" fill="white" opacity="0.35" transform="rotate(216 50 50)"/>
+      <ellipse cx="50" cy="21" rx="4" ry="7" fill="white" opacity="0.35" transform="rotate(288 50 50)"/>
+    </svg>`,
+
   // CASTLE
   gem: c => `
     <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -373,24 +608,6 @@ const ITEM_GENERATORS = {
       <path d="M22 36l28 56-16-56z" fill="${DARK[c]}" opacity="0.22"/>
       <path d="M44 18l3-2 3 5-4 14-3-2z" fill="white" opacity="0.65"/>
       ${sparkle(74, 20, 4.5)}${sparkle(26, 62, 3.5)}${sparkle(78, 68, 3)}
-    </svg>`,
-
-  squareTile: c => `
-    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="sqtg${c}" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="${LIGHT[c]}"/>
-          <stop offset="55%" stop-color="${COLOR_HEX[c]}"/>
-          <stop offset="100%" stop-color="${DARK[c]}"/>
-        </linearGradient>
-      </defs>
-      <rect x="16" y="16" width="68" height="68" rx="6"
-            fill="url(#sqtg${c})" stroke="${DARK[c]}" stroke-width="3"/>
-      <rect x="24" y="24" width="52" height="52" rx="4"
-            fill="none" stroke="${LIGHT[c]}" stroke-width="4" opacity="0.55"/>
-      <path d="M28 30h26M28 40h18" stroke="white" stroke-width="4" stroke-linecap="round" opacity="0.65"/>
-      <circle cx="68" cy="68" r="5" fill="${DARK[c]}" opacity="0.22"/>
-      ${sparkle(74, 22, 4)}${sparkle(24, 76, 3)}
     </svg>`,
 
   shield: c => `
@@ -423,28 +640,32 @@ const ITEM_GENERATORS = {
   crown: c => `
     <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="crwg${c}" x1="0%" y1="0%" x2="0%" y2="100%">
+        <linearGradient id="crwg" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#ffe87a"/>
+          <stop offset="50%" stop-color="#f0c840"/>
+          <stop offset="100%" stop-color="#c8a000"/>
+        </linearGradient>
+        <linearGradient id="crwvg${c}" x1="0%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%" stop-color="${LIGHT[c]}"/>
-          <stop offset="50%" stop-color="${COLOR_HEX[c]}"/>
           <stop offset="100%" stop-color="${DARK[c]}"/>
         </linearGradient>
       </defs>
       <path d="M12 36l16 30h44l16-30-18 14-14-26-6 22-6-22-14 26z"
-            fill="url(#crwg${c})" stroke="${DARK[c]}" stroke-width="2.5" stroke-linejoin="round"/>
-      <path d="M12 36l16 30v-22z M88 36l-16 30v-22z" fill="${DARK[c]}" opacity="0.25"/>
-      <rect x="20" y="66" width="60" height="15" rx="4" fill="url(#crwg${c})" stroke="${DARK[c]}" stroke-width="2.5"/>
-      <rect x="20" y="66" width="28" height="15" rx="4" fill="${DARK[c]}" opacity="0.18"/>
-      <path d="M20 72h60" stroke="${DARK[c]}" stroke-width="1.8" opacity="0.5"/>
-      <path d="M36 66 q7 8 14 0" fill="${LIGHT[c]}" stroke="${DARK[c]}" stroke-width="1.5"/>
-      <circle cx="12" cy="36" r="6" fill="${COLOR_HEX[c]}" stroke="${DARK[c]}" stroke-width="2"/>
-      <circle cx="11" cy="34" r="2.2" fill="${LIGHT[c]}"/>
-      <circle cx="50" cy="37" r="6" fill="${COLOR_HEX[c]}" stroke="${DARK[c]}" stroke-width="2"/>
-      <circle cx="49" cy="35" r="2.2" fill="${LIGHT[c]}"/>
-      <circle cx="88" cy="36" r="6" fill="${COLOR_HEX[c]}" stroke="${DARK[c]}" stroke-width="2"/>
-      <circle cx="87" cy="34" r="2.2" fill="${LIGHT[c]}"/>
-      <circle cx="32" cy="73" r="3.5" fill="${COLOR_HEX[c]}" stroke="${DARK[c]}" stroke-width="1.5"/>
-      <circle cx="50" cy="73" r="3.5" fill="${COLOR_HEX[c]}" stroke="${DARK[c]}" stroke-width="1.5"/>
-      <circle cx="68" cy="73" r="3.5" fill="${COLOR_HEX[c]}" stroke="${DARK[c]}" stroke-width="1.5"/>
+            fill="url(#crwg)" stroke="#c8a000" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M12 36l16 30v-22z M88 36l-16 30v-22z" fill="#c8a000" opacity="0.25"/>
+      <rect x="20" y="66" width="60" height="15" rx="4" fill="url(#crwg)" stroke="#c8a000" stroke-width="2.5"/>
+      <rect x="20" y="66" width="28" height="15" rx="4" fill="#c8a000" opacity="0.18"/>
+      <path d="M20 72h60" stroke="#c8a000" stroke-width="1.8" opacity="0.5"/>
+      <path d="M36 66 q7 8 14 0" fill="url(#crwvg${c})" stroke="${DARK[c]}" stroke-width="1.5"/>
+      <circle cx="12" cy="36" r="6" fill="#e03030" stroke="#c8a000" stroke-width="2"/>
+      <circle cx="11" cy="34" r="2.2" fill="#ff9eb5"/>
+      <circle cx="50" cy="37" r="6" fill="#2a7fd9" stroke="#c8a000" stroke-width="2"/>
+      <circle cx="49" cy="35" r="2.2" fill="#aaddff"/>
+      <circle cx="88" cy="36" r="6" fill="#4aaf5a" stroke="#c8a000" stroke-width="2"/>
+      <circle cx="87" cy="34" r="2.2" fill="#aaffc0"/>
+      <circle cx="32" cy="73" r="3.5" fill="#f4c83b" stroke="#c8a000" stroke-width="1.5"/>
+      <circle cx="50" cy="73" r="3.5" fill="#9558c4" stroke="#c8a000" stroke-width="1.5"/>
+      <circle cx="68" cy="73" r="3.5" fill="#4aaf5a" stroke="#c8a000" stroke-width="1.5"/>
       <path d="M24 42 q8-2 16 2" stroke="white" stroke-width="2" fill="none" opacity="0.4" stroke-linecap="round"/>
       ${sparkle(50, 24, 4)}${sparkle(88, 28, 3.5)}
     </svg>`,
@@ -546,7 +767,7 @@ const WORLDS = {
   'candy-land': {
     name: 'Candy Land',
     subtitle: 'Sweet treats into the candy basket',
-    items: ['lollipop', 'gummy', 'cupcake']
+    items: ['lollipop', 'cupcake', 'candycane', 'icecream', 'gumdrop', 'cherry']
   },
   'jungle': {
     name: 'Jungle',
@@ -556,7 +777,7 @@ const WORLDS = {
   'beach': {
     name: 'Beach',
     subtitle: 'Treasures from the shore',
-    items: ['starfish', 'shell', 'beachball']
+    items: ['starfish', 'shell', 'beachball', 'surfboard', 'sandcastle', 'scallop', 'hibiscus']
   },
   'castle': {
     name: 'Castle',
@@ -581,6 +802,27 @@ function getItemSVG(itemKey, color) {
     return '';
   }
   return generator(color);
+}
+
+/* ─────────────────────────────────────────────────────────
+   PNG Item Tiles — polished 512×512 transparent images
+   Stored at assets/images/games/items/{item}.png
+   Returns null for SVG-only items (candy-land new items,
+   beach SVG items) so callers can fall back gracefully.
+   ───────────────────────────────────────────────────────── */
+
+const ITEM_PNG_AVAILABLE = new Set([
+  'star', 'planet', 'rocket',
+  'gummy', 'lollipop', 'cupcake',
+  'fruit', 'leaf', 'flower',
+  'starfish', 'shell', 'beachball',
+  'gem', 'shield', 'crown',
+  'paintblob', 'brush', 'note'
+]);
+
+function getItemPNGPath(itemKey) {
+  if (!ITEM_PNG_AVAILABLE.has(itemKey)) return null;
+  return `assets/images/games/items/${itemKey}.png`;
 }
 
 /* ─────────────────────────────────────────────────────────
