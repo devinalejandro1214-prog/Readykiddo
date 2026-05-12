@@ -969,3 +969,39 @@ GitHub/Netlify:
 - No manual production deploy command was run; Netlify should build from Git.
 
 ---
+## 2026-05-12 00:18 - Codex
+
+Prompt:
+> Updates have been made by code. Please review and push.
+
+Actions Taken:
+- Reviewed Code's local mechanic update against the current Git `main` baseline before syncing.
+- Found two unsafe local changes and intentionally did not port them:
+  - `world-reveal.html` removed the feedback widget include.
+  - the local audio-system swap to `assets/js/games/audio-mapping.js` was incomplete and not wired to `window.ReadyKiddoAudio`.
+- Ported the safe round-two mechanic updates into the current working repo instead:
+  - Color Sort: rounds 1-6 show one color at a time, rounds 7-12 show all six.
+  - Shape Recognition: rounds 1-6 show one shape at a time, rounds 7-12 show all six.
+- Fixed a review finding in Code's local Color Sort change:
+  - round-one colors were able to repeat because the batch reset every turn.
+  - the reviewed Git version now keeps round-one colors unique before switching to round two.
+- Added recorded-audio mappings for:
+  - `find all the colors`
+  - `find all the shapes`
+- Limited per-shape round-two callouts to shapes with confirmed recorded clips (`circle`, `square`, `triangle`) so the app does not play the wrong celebration audio for missing shape-name recordings.
+- Synced the reviewed versions of:
+  - `assets/js/audio-voice.js`
+  - `assets/js/games/color-sort-game.js`
+  - `assets/js/games/shape-recognition-game.js`
+  back into Code's local `ReadyKiddo2.0` folder.
+
+Verification:
+- `node --check` passed.
+- `npm test` passed.
+- `npm run build` passed.
+- `git diff --check` passed.
+
+GitHub/Netlify:
+- Pending commit and push at time of entry.
+
+---

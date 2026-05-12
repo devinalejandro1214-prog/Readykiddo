@@ -337,8 +337,21 @@ class ColorSortGame {
     if (this.itemsShown >= this.totalItems) return this.end();
 
     const colors = this.getBranchColors();
-    this.currentBatchColors = [...colors].sort(() => Math.random() - 0.5);
-    this.matchedColors = new Set();
+    const isRound2 = this.itemsShown >= 6;
+
+    if (!isRound2) {
+      if (!this.colorSeen) this.colorSeen = {};
+      const unseen = colors.filter(color => !this.colorSeen[color]);
+      const colorPool = unseen.length > 0 ? unseen : colors;
+      this.currentColor = colorPool[Math.floor(Math.random() * colorPool.length)];
+      this.colorSeen[this.currentColor] = true;
+      this.currentBatchColors = [this.currentColor];
+    } else {
+      this.currentBatchColors = [...colors].sort(() => Math.random() - 0.5);
+      this.matchedColors = new Set();
+      this.currentColor = null;
+    }
+
     this.itemStartTime = Date.now();
     this.busy = false;
 
@@ -352,16 +365,20 @@ class ColorSortGame {
     this.renderZones();
     this.renderItem();
     this.renderProgress();
-    this.context.speak('match the colors');
+    this.context.speak(isRound2 ? 'find all the colors' : 'match the colors');
   }
 
   renderItem() {
     const itemStage = document.getElementById('colorItemStage');
     if (!itemStage) return;
 
+    const isRound2 = this.itemsShown >= 6;
+    const colorsToShow = isRound2
+      ? this.currentBatchColors.filter(color => !this.matchedColors.has(color))
+      : [this.currentColor].filter(Boolean);
+
     itemStage.innerHTML = '';
-    this.currentBatchColors
-      .filter(color => !this.matchedColors.has(color))
+    colorsToShow
       .forEach(color => {
         const item = document.createElement('div');
         item.className = 'color-item';
@@ -512,7 +529,7 @@ class ColorSortGame {
         this.busy = false;
         if (this.itemsShown >= this.totalItems) {
           this.end();
-        } else if (this.matchedColors.size >= this.currentBatchColors.length) {
+        } else if (this.itemsShown >= 6 && this.matchedColors.size >= this.currentBatchColors.length) {
           this.presentNextItem();
         } else {
           this.renderItem();

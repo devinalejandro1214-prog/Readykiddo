@@ -9,9 +9,11 @@
         'let us play': 'em-ready-lets-go.m4a',
         "let's play": 'em-ready-lets-go.m4a',
         'match the colors': 'em-match-colors.m4a',
+        'find all the colors': 'em-match-colors.m4a',
         'sort items by color': 'em-match-colors.m4a',
         'matching color': 'em-match-colors.m4a',
         'match the shapes': 'em-match-shapes.m4a',
+        'find all the shapes': 'em-match-shapes.m4a',
         'find some shapes': 'em-match-shapes.m4a',
         'matching shape': 'em-match-shapes.m4a',
 

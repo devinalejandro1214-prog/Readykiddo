@@ -227,6 +227,7 @@ class ShapeRecognitionGame {
     if (this.ended) return;
     if (this.itemsShown >= this.totalItems) return this.end();
 
+    const isRound2 = this.itemsShown >= 6;
     this.currentBatchShapes = [...SHAPE_KEYS].sort(() => Math.random() - 0.5);
     this.currentAnswers = this.currentBatchShapes;
     this.matchedShapes = new Set();
@@ -245,11 +246,13 @@ class ShapeRecognitionGame {
 
     // Shuffle all 4 choices so correct isn't always first
     this.currentAnswers = this.currentBatchShapes;
-    this.currentShape = null;
+    this.currentShape = isRound2 ? null : this.selectShape();
     this.currentItem = null;
     this.itemStartTime = Date.now();
     this.busy = false;
-    this.shapeSeen = this.shapeSeen || {};
+    if (!isRound2 && this.currentShape) {
+      this.shapeSeen[this.currentShape] = true;
+    }
 
     // Track per-shape performance
     SHAPE_KEYS.forEach(shape => {
@@ -263,7 +266,12 @@ class ShapeRecognitionGame {
     this.renderChoices();
     this.renderProgress();
     this.updateInstruction();
-    this.context.speak('match the shapes');
+    if (isRound2) {
+      this.context.speak('find all the shapes');
+      this.callOutNextShape();
+    } else {
+      this.context.speak('match the shapes');
+    }
   }
 
   /* ── Rendering ──────────────────────────────────────────── */
@@ -286,8 +294,12 @@ class ShapeRecognitionGame {
     if (!choicesEl) return;
     choicesEl.innerHTML = '';
 
-    this.currentAnswers
-      .filter(shapeName => !this.matchedShapes.has(shapeName))
+    const isRound2 = this.itemsShown >= 6;
+    const shapesToShow = isRound2
+      ? this.currentAnswers.filter(shapeName => !this.matchedShapes.has(shapeName))
+      : [this.currentShape].filter(Boolean);
+
+    shapesToShow
       .forEach((shapeName, index) => {
       const choice = document.createElement('div');
       choice.className = 'shape-choice';
@@ -328,6 +340,16 @@ class ShapeRecognitionGame {
     labels.diamond = 'Which one looks like a diamond?';
     const el = document.getElementById('shapeInstruction');
     if (el) el.textContent = 'Drag each shape to its matching outline';
+  }
+
+  callOutNextShape() {
+    const unmatched = this.currentBatchShapes.filter(shape => !this.matchedShapes.has(shape));
+    if (!unmatched.length) return;
+
+    const nextShape = unmatched[0];
+    if (!['circle', 'square', 'triangle'].includes(nextShape)) return;
+
+    setTimeout(() => this.context.speak(`find ${nextShape}`), 500);
   }
 
   /* ── Answer Handling ────────────────────────────────────── */
@@ -428,11 +450,14 @@ class ShapeRecognitionGame {
         this.busy = false;
         if (this.itemsShown >= this.totalItems) {
           this.end();
-        } else if (this.matchedShapes.size >= this.currentBatchShapes.length) {
+        } else if (this.itemsShown >= 6 && this.matchedShapes.size >= this.currentBatchShapes.length) {
           this.presentNextItem();
         } else {
           this.renderChoices();
           this.renderProgress();
+          if (this.itemsShown >= 6) {
+            this.callOutNextShape();
+          }
         }
       }, 550);
     } else {
