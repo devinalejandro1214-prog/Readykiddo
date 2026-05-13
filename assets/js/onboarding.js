@@ -61,7 +61,12 @@ const questionCard = document.getElementById('questionCard');
 const progressFill = document.querySelector('.progress-fill');
 
 // ── Init ──────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => renderStep(currentStep));
+document.addEventListener('DOMContentLoaded', () => {
+    // Attempt autoplay immediately (works in Chrome when user already
+    // interacted on the landing page on the same origin)
+    if (window.RKAudio) RKAudio.startTheme();
+    renderStep(currentStep);
+});
 
 // ── Slugify helper ─────────────────────────────────────────────────
 function slugify(value) {
@@ -217,6 +222,8 @@ function renderOptionButtons(step) {
         `;
 
         btn.addEventListener('click', () => {
+            // Start theme on first user tap (guaranteed gesture = always works)
+            if (window.RKAudio) RKAudio.startTheme();
             group.querySelectorAll('.option-button')
                  .forEach(b => b.classList.remove('selected'));
             btn.classList.add('selected');
@@ -268,7 +275,11 @@ function renderNavButtons(stepIndex) {
         const next = document.createElement('button');
         next.className = 'nav-button next';
         next.textContent = step.nextButtonText;
-        next.addEventListener('click', goToNextStep);
+        next.addEventListener('click', () => {
+            // Start theme on Next button tap (guaranteed gesture)
+            if (window.RKAudio) RKAudio.startTheme();
+            goToNextStep();
+        });
         nav.appendChild(next);
     }
 
