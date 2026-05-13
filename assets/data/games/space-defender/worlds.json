@@ -1,0 +1,27 @@
+﻿{
+  "space": {
+    "ship": "assets/images/games/space-defender/ships/space-ship.png",
+    "background": "assets/images/games/space-defender/backgrounds/space-bg.png",
+    "colors": { "primary": "#4f46e5", "accent": "#818cf8" }
+  },
+  "jungle": {
+    "ship": "assets/images/games/space-defender/ships/space-ship.png",
+    "background": "assets/images/games/space-defender/backgrounds/space-bg.png",
+    "colors": { "primary": "#16a34a", "accent": "#4ade80" }
+  },
+  "ocean": {
+    "ship": "assets/images/games/space-defender/ships/space-ship.png",
+    "background": "assets/images/games/space-defender/backgrounds/space-bg.png",
+    "colors": { "primary": "#0284c7", "accent": "#38bdf8" }
+  },
+  "castle": {
+    "ship": "assets/images/games/space-defender/ships/space-ship.png",
+    "background": "assets/images/games/space-defender/backgrounds/space-bg.png",
+    "colors": { "primary": "#b45309", "accent": "#fcd34d" }
+  },
+  "candyland": {
+    "ship": "assets/images/games/space-defender/ships/space-ship.png",
+    "background": "assets/images/games/space-defender/backgrounds/space-bg.png",
+    "colors": { "primary": "#db2777", "accent": "#f9a8d4" }
+  }
+}

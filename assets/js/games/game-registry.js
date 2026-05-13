@@ -39,6 +39,15 @@ const GAME_REGISTRY = {
     cssPath: null,
     isActive: false,
     order: 4
+  },
+  'space-defender': {
+    name: 'Space Defender',
+    description: 'Defend your world from incoming enemies!',
+    class: 'SpaceDefenderGame',
+    scriptPath: 'assets/js/games/space-defender-game.js',
+    cssPath: 'assets/css/space-defender-game.css',
+    isActive: true,
+    order: 5
   }
 };
 

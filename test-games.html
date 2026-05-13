@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReadyKiddo — Game Test</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Fredoka',sans-serif; background:#0a1428; color:white; }
+    .launcher {
+      display:flex; flex-direction:column; align-items:center;
+      justify-content:center; min-height:100vh; gap:24px; padding:40px;
+    }
+    h1 { font-size:2.4rem; color:#f4c83b; }
+    p  { font-size:1.1rem; opacity:.8; text-align:center; max-width:500px; }
+    .btn-row { display:flex; gap:16px; flex-wrap:wrap; justify-content:center; }
+    .btn {
+      padding:18px 36px; border-radius:16px; font-family:inherit;
+      font-size:1.3rem; font-weight:700; border:none; cursor:pointer;
+      transition:transform .15s, box-shadow .15s;
+    }
+    .btn:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,.4); }
+    .btn-color  { background:linear-gradient(135deg,#e23b3b,#ff9d2f); color:white; }
+    .btn-shape  { background:linear-gradient(135deg,#2a7fd9,#9558c4); color:white; }
+    .world-row { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:8px; }
+    .world-btn {
+      padding:8px 18px; border-radius:10px; border:2px solid rgba(255,255,255,.3);
+      background:rgba(255,255,255,.1); color:white; font-family:inherit;
+      font-size:1rem; cursor:pointer; transition:all .15s;
+    }
+    .world-btn.active { border-color:#f4c83b; background:rgba(244,200,59,.2); color:#f4c83b; }
+    .world-btn:hover  { border-color:rgba(255,255,255,.6); }
+    .note { font-size:.85rem; opacity:.5; }
+  </style>
+</head>
+<body>
+<div class="launcher">
+  <h1>🎮 Game Test Panel</h1>
+  <p>Select a world theme and launch either game to test it directly.</p>
+
+  <div>
+    <p style="text-align:center;margin-bottom:10px;font-size:.95rem;opacity:.7;">Choose a World:</p>
+    <div class="world-row" id="worldRow">
+      <button class="world-btn active" data-world="Studio">🎨 Studio</button>
+      <button class="world-btn" data-world="Jungle">🌿 Jungle</button>
+      <button class="world-btn" data-world="Candy Land">🍭 Candy Land</button>
+      <button class="world-btn" data-world="Castle">🏰 Castle</button>
+      <button class="world-btn" data-world="Space">🚀 Space</button>
+      <button class="world-btn" data-world="Beach">🏖️ Beach</button>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-color" id="launchColor">🎨 Color Sort Game</button>
+    <button class="btn btn-shape" id="launchShape">⬡ Shape Recognition Game</button>
+  </div>
+
+  <p class="note">Games will open in a new tab. No onboarding required — profile is auto-seeded.</p>
+</div>
+
+<script>
+  let selectedWorld = 'Studio';
+
+  document.querySelectorAll('.world-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.world-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedWorld = btn.dataset.world;
+    });
+  });
+
+  function seedProfileAndOpen(gameType) {
+    const profile = {
+      childName: 'Test Kid',
+      parentName: 'Tester',
+      childId: 'test_child_001',
+      character: 'mica',
+      style: 'hero',
+      theme: selectedWorld,
+      vibe: 'Magical'
+    };
+    localStorage.setItem('userProfile', JSON.stringify(profile));
+    window.open(`game-loader.html?game=${gameType}`, '_blank');
+  }
+
+  document.getElementById('launchColor').addEventListener('click', () => seedProfileAndOpen('color-sort'));
+  document.getElementById('launchShape').addEventListener('click', () => seedProfileAndOpen('shape-recognition'));
+</script>
+</body>
+</html>

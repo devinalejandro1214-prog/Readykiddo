@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Space Defender — ReadyKiddo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/space-defender-game.css">
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    html, body {
+      width:100%; height:100%;
+      background: #060c1a;
+      overflow: hidden;
+      font-family: 'Fredoka', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    /* Dot-grid texture on page bg */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+    }
+
+    /* Page centering wrapper */
+    .page-wrapper {
+      position: relative; z-index: 1;
+      width: 100%; height: 100dvh;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* Narrow game panel */
+    #gameArea {
+      position: relative;
+      width: 100%;
+      max-width: 440px;
+      height: 100dvh;
+      max-height: 860px;
+      overflow: hidden;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.07), 0 30px 80px rgba(0,0,0,0.7);
+    }
+
+    @media (min-height: 860px) {
+      #gameArea { border-radius: 36px; max-height: 820px; }
+    }
+    @media (min-width: 500px) {
+      #gameArea { border-radius: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+    <div id="gameArea"></div>
+  </div>
+
+  <!-- Load game-shell so showAlienInvasionPopup is available if needed -->
+  <script src="assets/js/games/game-shell.js"></script>
+  <script src="assets/js/games/space-defender-game.js"></script>
+  <script>
+    const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+
+    const mockContext = {
+      childName:    profile.childName    || 'Explorer',
+      parentName:   profile.parentName   || 'Parent',
+      childId:      profile.childId      || 'preview',
+      world:        profile.theme        || 'space',
+      worldSlug:    (profile.theme       || 'space').toLowerCase().replace(/\s+/g,'-'),
+      character:    profile.character    || 'mica',
+      characterPath: `assets/images/characters/${profile.character||'mica'}/${profile.style||'plain'}.png`,
+      backgroundPath: `assets/images/world-backgrounds/${(profile.theme||'space').toLowerCase()}/vibes/${profile.vibe||'cozy'}/background.webp`,
+      sessionId:    'session_' + Date.now(),
+      startTime:    Date.now(),
+      speak:              (t) => console.log('[speak]', t),
+      playSound:          (k) => console.log('[sound]', k),
+      characterAnimation: (a) => console.log('[anim]',  a),
+      saveSession:        (d) => { try { localStorage.setItem('lastGameSession', JSON.stringify(d)); } catch(e){} },
+      goToNextGame:       (g) => { window.location.href = 'game-loader.html?game=' + g; }
+    };
+
+    const game = new SpaceDefenderGame(mockContext);
+    game.startGame();
+  </script>
+</body>
+</html>
