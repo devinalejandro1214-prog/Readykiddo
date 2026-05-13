@@ -536,7 +536,7 @@ class ColorSortGame {
         this.busy = false;
         if (this.itemsShown >= this.totalItems) {
           this.end();
-        } else if (this.itemsShown >= 6 && this.matchedColors.size >= this.currentBatchColors.length) {
+        } else if (this.matchedColors.size >= this.currentBatchColors.length) {
           this.presentNextItem();
         } else {
           this.renderItem();
