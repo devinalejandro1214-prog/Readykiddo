@@ -1,8 +1,16 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const startButton = document.getElementById('startButton');
     if (startButton) {
-        startButton.addEventListener('click', function() {
-            window.location.href = 'onboarding.html';
+        startButton.addEventListener('click', function () {
+            // Start theme song immediately on first user tap — browser always
+            // allows audio that's triggered directly inside a click handler
+            if (window.RKAudio) {
+                RKAudio.startTheme();
+            }
+            // Small delay so the music actually starts before the page navigates
+            setTimeout(() => {
+                window.location.href = 'onboarding.html';
+            }, 150);
         });
     }
 
@@ -11,8 +19,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if (resumeWorldButton && savedProfile) {
         resumeWorldButton.hidden = false;
         resumeWorldButton.querySelector('span').textContent = `Resume ${savedProfile.theme || 'World'}`;
-        resumeWorldButton.addEventListener('click', function() {
-            window.location.href = 'world-reveal.html';
+        resumeWorldButton.addEventListener('click', function () {
+            if (window.RKAudio) RKAudio.startTheme();
+            setTimeout(() => {
+                window.location.href = 'world-reveal.html';
+            }, 150);
         });
     }
 });
