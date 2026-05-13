@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Personalized Learning World</title>
@@ -8,6 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/audio.css">
     <link rel="stylesheet" href="assets/css/feedback.css">
 </head>
 <body>
@@ -32,7 +36,17 @@
         </div>
     </div>
 
+    <script src="assets/js/audio-manager.js"></script>
     <script src="assets/js/main.js"></script>
     <script src="assets/js/feedback-widget.js"></script>
+    <script>
+      // Start theme song — will auto-play or wait for first tap
+      document.addEventListener('DOMContentLoaded', function () {
+        RKAudio.startTheme();
+        RKAudio.injectMuteButton('body');
+        // Unlock audio context on first interaction
+        document.addEventListener('pointerdown', RKAudio.unlock, { once: true });
+      });
+    </script>
 </body>
 </html>

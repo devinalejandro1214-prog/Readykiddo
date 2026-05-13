@@ -66,14 +66,14 @@ class GameShell {
      ───────────────────────────────────────────────────────── */
 
   async speak(text) {
-    if (!this.audioEnabled) return;
-
+    if (window.RKAudio) {
+      return RKAudio.speak(text);
+    }
     if (window.ReadyKiddoAudio) {
       await window.ReadyKiddoAudio.speak(text);
       return;
     }
-
-    console.log(`[Recorded audio unavailable] ${text}`);
+    console.log(`[Audio] ${text}`);
   }
 
   playSound(soundKey) {

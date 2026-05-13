@@ -168,7 +168,10 @@ class ColorSortGame {
     }
 
     if (isRound2) {
-      this.callOutNextColor();
+      this.context.speak('match the colors');
+      setTimeout(() => this.callOutNextColor(), 1200);
+    } else {
+      this.context.speak('match the colors');
     }
   }
 
@@ -184,6 +187,7 @@ class ColorSortGame {
 
     const instruction = document.getElementById('colorInstruction');
     if (instruction) instruction.textContent = `Find ${this.targetColor}!`;
+    this.context.speak(`find ${this.targetColor}`);
   }
 
   /* ── Rendering ──────────────────────────────────────────── */
@@ -377,6 +381,9 @@ class ColorSortGame {
 
       zoneEl.classList.add('matched');
       if (itemEl) itemEl.classList.add('correct');
+      const correctPhrases = ['you got it', 'you found it', 'great job', 'yay'];
+      const pick = correctPhrases[Math.floor(Math.random() * correctPhrases.length)];
+      this.context.speak(pick);
       this.renderScore();
       this.renderProgress();
 
@@ -403,6 +410,8 @@ class ColorSortGame {
         itemEl.classList.add('wrong');
         setTimeout(() => itemEl.classList.remove('wrong'), 450);
       }
+      const wrongPhrases = ['try again', 'aww man'];
+      this.context.speak(wrongPhrases[Math.floor(Math.random() * wrongPhrases.length)]);
       // If in Round 2 and they dragged the right tile to the wrong zone, remind them
       if (isRound2 && isColorMatch && !isCallout) {
         const instruction = document.getElementById('colorInstruction');

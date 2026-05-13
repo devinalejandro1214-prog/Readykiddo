@@ -219,6 +219,7 @@
     }
   </style>
   <link rel="stylesheet" href="assets/css/feedback.css">
+  <link rel="stylesheet" href="assets/css/audio.css">
 </head>
 <body>
   <div class="loading-spinner" id="loadingSpinner">
@@ -229,6 +230,7 @@
   </div>
 
   <!-- Scripts in order -->
+  <script src="assets/js/audio-manager.js"></script>
   <script src="assets/js/audio-voice.js"></script>
   <script src="assets/js/games/item-data.js"></script>
   <script src="assets/js/games/shape-definitions.js"></script>
@@ -249,11 +251,17 @@
         console.log(`[Game Loader] Initializing game: ${gameType}`);
 
         // Check if user profile exists (from onboarding)
-        const profile = localStorage.getItem('userProfile');
+        let profile = localStorage.getItem('userProfile');
         if (!profile) {
-          console.warn('No user profile found, redirecting to onboarding...');
-          window.location.href = 'onboarding.html';
-          return;
+          console.warn('No user profile found, setting default test profile...');
+          profile = JSON.stringify({
+            childName: "TestPilot",
+            theme: "space",
+            character: "mica",
+            style: "plain",
+            vibe: "cozy"
+          });
+          localStorage.setItem('userProfile', profile);
         }
 
         // Load and start the game

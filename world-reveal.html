@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/world-reveal.css">
+    <link rel="stylesheet" href="assets/css/audio.css">
     <link rel="stylesheet" href="assets/css/feedback.css">
 </head>
 <body>
@@ -48,8 +49,18 @@
         </div>
     </div>
 
+    <script src="assets/js/audio-manager.js"></script>
     <script src="assets/js/audio-voice.js"></script>
     <script src="assets/js/world-reveal.js"></script>
     <script src="assets/js/feedback-widget.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        // Stop theme song when reaching world reveal
+        RKAudio.stopTheme();
+        RKAudio.injectMuteButton('body');
+        // Play welcome voice clip after a short delay
+        setTimeout(() => RKAudio.speak('welcome'), 800);
+      });
+    </script>
 </body>
 </html>

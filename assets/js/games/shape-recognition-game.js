@@ -104,7 +104,10 @@ class ShapeRecognitionGame {
     this.updateInstruction(isRound2 ? 'Listen for the shape to match!' : 'Drag each shape to its matching outline!');
 
     if (isRound2) {
-      this.callOutNextShape();
+      this.context.speak('match the shapes');
+      setTimeout(() => this.callOutNextShape(), 1200);
+    } else {
+      this.context.speak('match the shapes');
     }
   }
 
@@ -119,6 +122,7 @@ class ShapeRecognitionGame {
     });
 
     this.updateInstruction(`Find the ${this.targetShape}!`);
+    this.context.speak(`find ${this.targetShape}`);
   }
 
   /* ── Rendering ──────────────────────────────────────────── */
@@ -307,6 +311,11 @@ class ShapeRecognitionGame {
     if (isCorrect) {
       this.busy = true;
 
+      const correctPhrases = ['you got it', 'you found it', 'great job', 'yay'];
+      const pick = correctPhrases[Math.floor(Math.random() * correctPhrases.length)];
+      this.context.speak(pick);
+      this.context.characterAnimation('cheer');
+
       this.correctCount++;
       this.performance.correctItems++;
       this.performance.shapesCorrect[itemShape]++;
@@ -341,6 +350,8 @@ class ShapeRecognitionGame {
         choiceEl.classList.add('wrong');
         setTimeout(() => choiceEl.classList.remove('wrong'), 450);
       }
+      const wrongPhrases = ['try again', 'aww man'];
+      this.context.speak(wrongPhrases[Math.floor(Math.random() * wrongPhrases.length)]);
       // Remind them of the target in Round 2
       if (isRound2 && !isCallout) {
         this.updateInstruction(`Find the ${this.targetShape}!`);

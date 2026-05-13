@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/onboarding.css">
+    <link rel="stylesheet" href="assets/css/audio.css">
     <link rel="stylesheet" href="assets/css/feedback.css">
 </head>
 <body>
@@ -30,7 +31,16 @@
         </div>
     </div>
 
+    <script src="assets/js/audio-manager.js"></script>
     <script src="assets/js/onboarding.js"></script>
     <script src="assets/js/feedback-widget.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        // Continue theme song from where it left off
+        RKAudio.startTheme();
+        RKAudio.injectMuteButton('body');
+        document.addEventListener('pointerdown', RKAudio.unlock, { once: true });
+      });
+    </script>
 </body>
 </html>
