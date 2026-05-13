@@ -368,7 +368,12 @@ class ColorSortGame {
       this.context.speak('find all the colors');
       this.callOutNextColor();
     } else {
+      // In round 1, call out the first color in the batch
+      this.currentColor = this.currentBatchColors[0] || null;
       this.context.speak('match the colors');
+      if (this.currentColor) {
+        setTimeout(() => this.context.speak(`find ${this.currentColor}`), 800);
+      }
     }
   }
 
@@ -385,9 +390,7 @@ class ColorSortGame {
     if (!itemStage) return;
 
     const isRound2 = this.itemsShown >= 6;
-    const colorsToShow = isRound2
-      ? this.currentBatchColors.filter(color => !this.matchedColors.has(color))
-      : [this.currentColor].filter(Boolean);
+    const colorsToShow = this.currentBatchColors.filter(color => !this.matchedColors.has(color));
 
     itemStage.innerHTML = '';
     colorsToShow
