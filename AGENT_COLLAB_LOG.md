@@ -1006,3 +1006,91 @@ GitHub/Netlify:
 - No manual production deploy command was run; Netlify should build from Git.
 
 ---
+## 2026-05-12 21:14 - Antigravity
+
+Prompt:
+> Fix the Color Sort and Shape Recognition games so rounds 1 and 2 function correctly, tiles render, drag-and-drop works, tiles are shuffled, audio is fully wired, theme song plays from landing through onboarding, mute button added, character-aware voice routing, and all audio files committed to repo.
+
+Actions Taken:
+
+**Game Logic Rewrites:**
+- Completely rewrote `color-sort-game.js` from scratch:
+  - `totalItems = 12` (6 Round-1 + 6 Round-2 matches)
+  - All 6 color tiles + all 6 containers shown simultaneously from the start
+  - Round 1: free matching — drag any tile to its correct container
+  - Round 2: callout enforced — game announces a specific color, only that one scores
+  - Tiles shuffled randomly on every render so they never align with containers
+  - Correct/wrong feedback with visual flash + voice clips
+  - No audio blocking — all `context.speak()` calls use preloaded clips
+- Completely rewrote `shape-recognition-game.js` from scratch with identical round structure:
+  - All 6 shape tiles + all 6 outline targets shown simultaneously
+  - Round 1: free match; Round 2: callout enforced
+  - Tiles shuffled on every render
+
+**Audio System (`assets/js/audio-manager.js` — new file):**
+- Built centralized `RKAudio` audio manager replacing the old `ReadyKiddoAudio`:
+  - **Theme song**: `readykiddo-theme.mp3` — plays once from start, no loop, no stutter
+  - **Voice clips**: All clips preloaded into memory on page load for zero-lag playback
+  - **Mute button**: Fixed-position 🔊/🔇 toggle, state persisted in `localStorage`, injected on all pages
+  - **Character-aware routing**: Aria, Trish, Amelia → Amara voice clips; Mica, Steven, Emmett → Em voice clips
+  - Backward-compatible with old `ReadyKiddoAudio.speak()` interface
+
+**Voice Clip Mapping:**
+- Game intros: `em-match-colors`, `em-match-shapes`
+- Color Round 2 callouts: `em-find-{color}` for all 6 colors ✅
+- Shape Round 2 callouts: `em-circle/square/triangle` + Amara fallbacks for star/rectangle/diamond
+- Correct feedback (random): `you got it`, `you found it`, `great job`, `yay` (+ Amara equivalents for female chars)
+- Wrong feedback (random): `try again`, `aww man` (+ Amara equivalents)
+
+**Theme Song Flow:**
+- `index.html`: starts on "Start your journey" button click (guaranteed user gesture — always works cross-browser)
+- `onboarding.html`: resumes on first button tap; also tries autoplay on page load for Chrome
+- `world-reveal.html`: stops theme, plays `em-welcome-world.m4a`
+- Removed position-tracking (was causing 1-second stutter on onboarding page nav)
+
+**Audio Files Committed to Repo:**
+- `assets/audio/readykiddo-theme.mp3` — ReadyKiddo theme song ✅
+- `assets/audio/voice/Amara-*.m4a` — 15 Amara voice clips ✅
+- `assets/audio/voice/Em-Good job.m4a`, `Em-impressive.m4a`, `Em-Laugh.m4a`, `Em-I can't believe it.m4a` ✅
+- All 43 audio files now live in the GitHub repo and on Netlify
+
+**Pages Updated:**
+- `index.html` — audio.css + audio-manager.js + theme start on CTA click
+- `onboarding.html` — audio.css + audio-manager.js + theme start on first interaction
+- `world-reveal.html` — audio-manager.js + stopTheme + welcome clip on load
+- `game-loader.html` — audio-manager.js + audio.css for game voice clips
+- `assets/css/audio.css` — new mute button styles (frosted glass, fixed top-right)
+
+Files/Folders Changed:
+- `assets/js/audio-manager.js` (new)
+- `assets/css/audio.css` (new)
+- `assets/js/games/color-sort-game.js` (full rewrite)
+- `assets/js/games/shape-recognition-game.js` (full rewrite)
+- `assets/js/games/game-shell.js`
+- `assets/js/main.js`
+- `assets/js/onboarding.js`
+- `index.html`
+- `onboarding.html`
+- `world-reveal.html`
+- `game-loader.html`
+- `assets/audio/readykiddo-theme.mp3` (new)
+- `assets/audio/voice/Amara-*.m4a` (15 new files)
+- `assets/audio/voice/Em-*.m4a` (4 new files)
+
+Verification:
+- `node --check` passed for all modified JS files
+- `git push` confirmed for all commits
+
+GitHub/Netlify:
+- Commits pushed to `main`:
+  - `6cbcf87` — Game rewrites (12 rounds, all 6 shown, R2 callout)
+  - `ec81ad9` — Shuffle tiles
+  - `1eadea8` — Full audio system + mute button
+  - `0c8b1ac` — Theme song on landing CTA click
+  - `38987a4` — Theme song on onboarding first tap
+  - `214a90c` — Audio files committed to repo
+  - `44550af` — Character-aware voice routing
+  - `latest`  — Remove theme song position tracking (fix stutter)
+- Netlify auto-deploys from `main` on each push.
+
+---

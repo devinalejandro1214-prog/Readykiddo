@@ -9,7 +9,6 @@
   const VOICE_BASE  = 'assets/audio/voice/';
   const THEME_PATH  = 'assets/audio/readykiddo-theme.mp3';
   const MUTE_KEY    = 'rk_muted';
-  const THEME_T_KEY = 'rk_theme_t'; // persist playback position
 
   /* ── Female characters use Amara's voice ────────────────── */
   // Aria, Trish, Amelia → Amara clips
@@ -170,21 +169,10 @@
   function initTheme() {
     if (themeAudio) return;
     themeAudio = new Audio(THEME_PATH);
-    themeAudio.loop = true;
+    themeAudio.loop = false;   // play once, stop naturally at end
     themeAudio.volume = 0.35;
     themeAudio.preload = 'auto';
     themeAudio.muted = isMuted();
-
-    // Restore playback position across page navigations
-    const savedT = parseFloat(sessionStorage.getItem(THEME_T_KEY) || '0');
-    if (savedT > 0) themeAudio.currentTime = savedT;
-
-    // Periodically save current position
-    setInterval(() => {
-      if (themeAudio && !themeAudio.paused) {
-        sessionStorage.setItem(THEME_T_KEY, String(themeAudio.currentTime));
-      }
-    }, 1000);
   }
 
   function startTheme() {
@@ -208,7 +196,6 @@
     if (!themeAudio) return;
     themeAudio.pause();
     themeAudio.currentTime = 0;
-    sessionStorage.removeItem(THEME_T_KEY);
   }
 
   /* ── Voice playback ──────────────────────────────────────── */
