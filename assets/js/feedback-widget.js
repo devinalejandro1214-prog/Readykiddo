@@ -9,7 +9,7 @@
         const launcher = document.createElement('button');
         launcher.type = 'button';
         launcher.className = 'feedback-launcher';
-        launcher.textContent = 'Feedback';
+        launcher.innerHTML = '<span aria-hidden="true" class="feedback-icon">💬</span><span class="feedback-text">Feedback</span>';
         launcher.setAttribute('aria-haspopup', 'dialog');
         launcher.setAttribute('aria-controls', 'feedbackDialog');
 
