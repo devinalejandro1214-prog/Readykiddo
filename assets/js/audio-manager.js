@@ -11,13 +11,29 @@
   const MUTE_KEY    = 'rk_muted';
   const THEME_T_KEY = 'rk_theme_t'; // persist playback position
 
-  /* ── Voice clip map ──────────────────────────────────────── */
-  const VOICE_MAP = {
+  /* ── Female characters use Amara's voice ────────────────── */
+  // Aria, Trish, Amelia → Amara clips
+  // Mica, Steven, Emmett → Em clips
+  const FEMALE_CHARS = ['aria', 'trish', 'amelia'];
+
+  function getCharacter() {
+    try {
+      const p = JSON.parse(localStorage.getItem('userProfile') || '{}');
+      return (p.character || '').toLowerCase().trim();
+    } catch(e) { return ''; }
+  }
+
+  function isFemaleChar() {
+    return FEMALE_CHARS.includes(getCharacter());
+  }
+
+  /* ── Em voice map (Mica, Steven, Emmett + all game clips) ── */
+  const EM_MAP = {
     // Game intros
     'match the colors': 'em-match-colors.m4a',
     'match the shapes': 'em-match-shapes.m4a',
 
-    // Color callouts (Round 2)
+    // Color callouts — only Em has these recordings
     'find red':    'em-find-red.m4a',
     'find blue':   'em-find-blue.m4a',
     'find yellow': 'em-find-yellow.m4a',
@@ -25,22 +41,23 @@
     'find orange': 'em-find-orange.m4a',
     'find purple': 'em-find-purple.m4a',
 
-    // Shape callouts (Round 2 — only 3 have recordings)
+    // Shape callouts — only Em has these recordings
     'find circle':    'em-circle.m4a',
     'find square':    'em-square.m4a',
     'find triangle':  'em-triangle.m4a',
-    // star / rectangle / diamond fall back to praise clips
     'find star':      'em-yay.m4a',
     'find rectangle': 'em-great-job.m4a',
     'find diamond':   'em-you-found-it.m4a',
 
-    // Correct feedback (will be picked randomly)
+    // Correct feedback
     'you got it':   'em-you-got-it.m4a',
     'you found it': 'em-you-found-it.m4a',
     'great job':    'em-great-job.m4a',
     'good job':     'Em-Good job.m4a',
     'yay':          'em-yay.m4a',
     'impressive':   'Em-impressive.m4a',
+    'i cant believe it': 'Em-I can\u2019t believe it.m4a',
+    'laugh':        'Em-Laugh.m4a',
 
     // Wrong feedback
     'try again': 'em-try-again.m4a',
@@ -54,12 +71,71 @@
     'wow':          'gray-wow.m4a',
   };
 
+  /* ── Amara map (Aria, Trish, Amelia) ─────────────────────── */
+  // Game-specific clips (color/shape callouts) fall through to Em
+  // since only Em has those recordings
+  const AMARA_MAP = {
+    // Game intros — use Em's since Amara has no game-specific clips
+    'match the colors': 'em-match-colors.m4a',
+    'match the shapes': 'em-match-shapes.m4a',
+
+    // Color/shape callouts — always Em (only Em has these)
+    'find red':       'em-find-red.m4a',
+    'find blue':      'em-find-blue.m4a',
+    'find yellow':    'em-find-yellow.m4a',
+    'find green':     'em-find-green.m4a',
+    'find orange':    'em-find-orange.m4a',
+    'find purple':    'em-find-purple.m4a',
+    'find circle':    'em-circle.m4a',
+    'find square':    'em-square.m4a',
+    'find triangle':  'em-triangle.m4a',
+    'find star':      'Amara-Yay.m4a',
+    'find rectangle': 'Amara-You so smart .m4a',
+    'find diamond':   'Amara-Wow.m4a',
+
+    // Correct feedback — Amara's voice
+    'you got it':   'Amara-Yay.m4a',
+    'you found it': 'Amara-Yay we did it!.m4a',
+    'great job':    'Amara-You so smart .m4a',
+    'good job':     'Amara-You so smart .m4a',
+    'yay':          'Amara-Yay.m4a',
+    'impressive':   'Amara-You look so cool.m4a',
+    'wow':          'Amara-Wow.m4a',
+
+    // Wrong feedback — Amara's voice
+    'try again':    'Amara-It\u2019s okay, try again!.m4a',
+    'aww man':      'Amara-Oh man.m4a',
+    'oh no':        'Amara-Oh no!.m4a',
+
+    // General — Amara's voice
+    'keep it up':   'Amara-Keep going.m4a',
+    'almost there': 'Amara-Almost there .m4a',
+    'welcome':      'Amara-Welcome to your world .m4a',
+    'hello':        'Amara-Hello, hello there .m4a',
+    'hi':           'Amara-Hi.m4a',
+    'nice to meet': 'Amara-Hi nice to meet you .m4a',
+    'you look cool':'Amara-You look so cool.m4a',
+    'you so smart': 'Amara-You so smart .m4a',
+
+    // Fall through to Em for anything else
+    'ready':        'em-ready-lets-go.m4a',
+  };
+
+  function getVoiceMap() {
+    return isFemaleChar() ? AMARA_MAP : EM_MAP;
+  }
+
+
   /* ── Preload cache ───────────────────────────────────────── */
   const cache = {}; // path → HTMLAudioElement (preloaded)
 
   function preloadAll() {
-    const paths = Object.values(VOICE_MAP).map(f => VOICE_BASE + f);
-    [...new Set(paths)].forEach(path => {
+    // Preload both maps so clips are ready regardless of character selection timing
+    const allFiles = [
+      ...Object.values(EM_MAP),
+      ...Object.values(AMARA_MAP)
+    ];
+    [...new Set(allFiles)].map(f => VOICE_BASE + f).forEach(path => {
       if (cache[path]) return;
       const a = new Audio();
       a.preload = 'auto';
@@ -139,7 +215,8 @@
   let currentVoice = null;
 
   function getPath(key) {
-    const file = VOICE_MAP[key.toLowerCase().trim()];
+    const map = getVoiceMap();
+    const file = map[key.toLowerCase().trim()];
     return file ? VOICE_BASE + file : null;
   }
 
