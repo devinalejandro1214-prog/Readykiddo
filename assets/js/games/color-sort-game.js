@@ -80,7 +80,7 @@ class ColorSortGame {
   constructor(context) {
     this.context = context;
     this.worldSlug = context.worldSlug;
-    this.totalItems = 12;
+    this.totalItems = 13;
     this.itemsShown = 0;
     this.correctCount = 0;
     this.correctStreak = 0;
