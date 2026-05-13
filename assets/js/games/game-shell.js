@@ -232,7 +232,7 @@ class GameShell {
       });
 
       const style = document.createElement('style');
-      style.textContent = \`
+      style.textContent = `
         .interaction-panel { text-align: center; color: white; font-family: "Fredoka", sans-serif; animation: panelSlide 0.5s ease-out; }
         .interaction-panel h2 { font-size: 32px; margin-bottom: 24px; text-shadow: 0 4px 12px rgba(0,0,0,0.5); }
         .start-btn { 
@@ -243,7 +243,7 @@ class GameShell {
           transition: transform 0.2s, box-shadow 0.2s;
         }
         .start-btn:active { transform: scale(0.95); }
-      \`;
+      `;
       document.head.appendChild(style);
       document.body.appendChild(overlay);
 
