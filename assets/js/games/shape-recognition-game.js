@@ -99,6 +99,8 @@ class ShapeRecognitionGame {
 
     // Render all 6 shape outlines (targets) and all 6 shape tiles (draggables)
     this.renderTargets();
+    const stageEl = document.getElementById('shapeStage');
+    if (stageEl) stageEl.style.display = isRound2 ? 'none' : '';
     this.renderChoices();
     this.renderProgress();
     this.updateInstruction(isRound2 ? 'Listen for the shape to match!' : 'Drag each shape to its matching outline!');
@@ -196,8 +198,12 @@ class ShapeRecognitionGame {
         choice.innerHTML = getShapeSVG(shapeName, 'medium') || `<span>${shapeName}</span>`;
       };
       choice.appendChild(img);
-
-      choice.addEventListener('pointerdown', e => this.startPointerDrag(e, choice));
+      const isRound2 = this.itemsShown >= 6;
+      if (!isRound2) {
+        choice.addEventListener('pointerdown', e => this.startPointerDrag(e, choice));
+      } else {
+        choice.addEventListener('pointerdown', e => this.handleTapSelect(e, choice));
+      }
       choicesEl.appendChild(choice);
     });
 
@@ -295,6 +301,11 @@ class ShapeRecognitionGame {
     document.addEventListener('pointercancel', cancelDrag);
   }
 
+  handleTapSelect(event, choice) {
+    if (this.busy) return;
+    this.handleShapeDrop(choice.dataset.item, choice.dataset.item, null, choice);
+  }
+
   /* ── Answer Handling ────────────────────────────────────── */
 
   handleShapeDrop(itemShape, targetShape, targetEl, choiceEl) {
@@ -324,7 +335,7 @@ class ShapeRecognitionGame {
       this.matchedShapes.add(itemShape);
 
       if (choiceEl) choiceEl.classList.add('correct');
-      targetEl.classList.add('matched');
+      if (targetEl) targetEl.classList.add('matched');
       this.renderProgress();
 
       setTimeout(() => {
@@ -403,12 +414,12 @@ class ShapeRecognitionGame {
             </svg>`).join('')}
           </div>
           <p class="shape-accuracy">${Math.round(accuracy*100)}% Correct</p>
-          <button class="shape-next-btn" id="nextGameBtn">Play Again</button>
+          <button class="shape-next-btn" id="nextGameBtn">Next Game</button>
         </div>
       </div>
     `;
     document.getElementById('nextGameBtn').addEventListener('click', () => {
-      window.location.href = 'game-loader.html?game=color-sort';
+      this.context.goToNextGame('space-defender');
     });
   }
 

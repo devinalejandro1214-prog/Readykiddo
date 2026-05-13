@@ -156,8 +156,11 @@ class GameShell {
 
   goToNextGame(nextGameType) {
     console.log(`Navigating to: ${nextGameType}`);
-    // This will be implemented in the routing layer
-    // For now, just log it
+    if (nextGameType === 'world-reveal') {
+      window.location.href = 'world-reveal.html';
+    } else {
+      window.location.href = `game-loader.html?game=${nextGameType}`;
+    }
   }
 
   /* ─────────────────────────────────────────────────────────
@@ -172,6 +175,9 @@ class GameShell {
 
     // Load background and character
     await this.loadAssets();
+
+    // Require interaction to unlock mobile audio context
+    await this.requireInteraction();
 
     return this.context;
   }
@@ -206,6 +212,55 @@ class GameShell {
     if (charEl && this.context.characterPath) {
       charEl.src = this.context.characterPath;
     }
+  }
+
+  requireInteraction() {
+    return new Promise(resolve => {
+      const overlay = document.createElement('div');
+      overlay.className = 'interaction-overlay';
+      overlay.innerHTML = `
+        <div class="interaction-panel">
+          <h2>Ready to Play?</h2>
+          <button class="start-btn" id="tapToStartBtn">Start Game</button>
+        </div>
+      `;
+      Object.assign(overlay.style, {
+        position: 'fixed', inset: 0, zIndex: 9999,
+        background: 'rgba(6, 12, 26, 0.85)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        backdropFilter: 'blur(4px)'
+      });
+
+      const style = document.createElement('style');
+      style.textContent = \`
+        .interaction-panel { text-align: center; color: white; font-family: "Fredoka", sans-serif; animation: panelSlide 0.5s ease-out; }
+        .interaction-panel h2 { font-size: 32px; margin-bottom: 24px; text-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+        .start-btn { 
+          padding: 16px 36px; font-size: 24px; font-weight: 700; font-family: inherit;
+          color: white; background: linear-gradient(135deg, #09395f 0%, #0b5f95 100%); 
+          border: 3px solid rgba(255,255,255,0.2); border-radius: 999px;
+          box-shadow: 0 8px 24px rgba(11, 95, 149, 0.4); cursor: pointer;
+          transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .start-btn:active { transform: scale(0.95); }
+      \`;
+      document.head.appendChild(style);
+      document.body.appendChild(overlay);
+
+      const btn = document.getElementById('tapToStartBtn');
+      btn.addEventListener('click', () => {
+        if (window.RKAudio) window.RKAudio.unlock();
+        if (window.ReadyKiddoAudio && window.ReadyKiddoAudio.unlock) window.ReadyKiddoAudio.unlock();
+        overlay.remove();
+        style.remove();
+        
+        // Ensure loading spinner is gone so game is instantly visible
+        const spinner = document.getElementById('loadingSpinner');
+        if (spinner) spinner.style.display = 'none';
+        
+        resolve();
+      }, { once: true });
+    });
   }
 
   /* ─────────────────────────────────────────────────────────

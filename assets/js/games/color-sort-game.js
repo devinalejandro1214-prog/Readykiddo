@@ -157,6 +157,9 @@ class ColorSortGame {
 
     // Render all 6 tiles and all 6 zones
     this.renderZones();
+    const zonesEl = document.getElementById('colorZones');
+    if (zonesEl) zonesEl.style.display = isRound2 ? 'none' : '';
+    
     this.renderItems();
     this.renderProgress();
 
@@ -265,7 +268,12 @@ class ColorSortGame {
         item.style.background = getColorHex(color);
       }
 
-      item.addEventListener('pointerdown', e => this.startPointerDrag(e, item));
+      const isRound2 = this.itemsShown >= 6;
+      if (!isRound2) {
+        item.addEventListener('pointerdown', e => this.startPointerDrag(e, item));
+      } else {
+        item.addEventListener('pointerdown', e => this.handleTapSelect(e, item));
+      }
       stage.appendChild(item);
     });
   }
@@ -356,6 +364,11 @@ class ColorSortGame {
     document.addEventListener('pointercancel', cancelDrag);
   }
 
+  handleTapSelect(event, item) {
+    if (this.busy) return;
+    this.handleDrop(item.dataset.color, item.dataset.color, null, item);
+  }
+
   /* ── Answer Handling ────────────────────────────────────── */
 
   handleDrop(itemColor, zoneColor, zoneEl, itemEl) {
@@ -379,7 +392,7 @@ class ColorSortGame {
       this.itemsShown++;
       this.matchedColors.add(itemColor);
 
-      zoneEl.classList.add('matched');
+      if (zoneEl) zoneEl.classList.add('matched');
       if (itemEl) itemEl.classList.add('correct');
       const correctPhrases = ['you got it', 'you found it', 'great job', 'yay'];
       const pick = correctPhrases[Math.floor(Math.random() * correctPhrases.length)];

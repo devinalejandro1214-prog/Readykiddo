@@ -221,7 +221,7 @@ class SpaceDefenderGame {
     if (btnSummary) btnSummary.onclick = () => this.showScreen('summary');
 
     const btnFinish = document.getElementById('sdBtnFinish');
-    if (btnFinish) btnFinish.onclick = () => { this.context.goToNextGame('color-sort'); };
+    if (btnFinish) btnFinish.onclick = () => { this.context.goToNextGame('world-reveal'); };
   }
 
   generateSummaryHTML() {
