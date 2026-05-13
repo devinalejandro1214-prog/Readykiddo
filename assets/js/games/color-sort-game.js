@@ -228,7 +228,7 @@ class ColorSortGame {
       zone.className = 'color-zone';
       zone.dataset.color = color;
       zone.style.setProperty('--zone-color', getColorHex(color));
-      zone.innerHTML = `<div class="zone-label">${color}</div>`;
+      zone.innerHTML = `<div class="zone-target" aria-hidden="true"></div>`;
       zonesEl.appendChild(zone);
     });
   }

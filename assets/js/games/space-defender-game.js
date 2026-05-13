@@ -39,6 +39,10 @@ class SpaceDefenderGame {
 
     // Ship element
     this.shipX = 50; // percentage
+    this.enemyDirection = 1;
+    this.enemyHorizontalSpeed = 8;
+    this.enemyDropStep = 6;
+    this.enemyLowerBound = 84;
 
     // ── FIX: keyboard & on-screen arrow state ──
     this.keysDown = new Set();
@@ -276,6 +280,11 @@ class SpaceDefenderGame {
     this.lasers.forEach(l => l.el.remove());
     this.enemies = [];
     this.lasers  = [];
+    this.spawnTimer = 0;
+    this.enemyDirection = 1;
+    this.enemyHorizontalSpeed = this.getFormationSpeed();
+    this.enemyDropStep = this.getFormationDropStep();
+    this.createEnemyFormation();
 
     this.gameLoop(this.lastTime);
   }
@@ -308,14 +317,6 @@ class SpaceDefenderGame {
       this.shootTimer = 0;
     }
 
-    // Spawning
-    this.spawnTimer += dt;
-    if (this.spawnTimer >= this.config.currentLevelData.spawnIntervalMs && this.enemiesSpawnedThisLevel < this.config.currentLevelData.enemyCount) {
-      this.spawnEnemy();
-      this.spawnTimer = 0;
-      this.enemiesSpawnedThisLevel++;
-    }
-
     // Move Lasers
     for (let i = this.lasers.length - 1; i >= 0; i--) {
       const laser = this.lasers[i];
@@ -324,13 +325,31 @@ class SpaceDefenderGame {
       if (laser.y < -5) { laser.el.remove(); this.lasers.splice(i, 1); }
     }
 
-    // Move Enemies
+    // Move Enemies in a classic Space-Invaders sweep: side to side, then step down.
+    const horizontalStep = this.enemyHorizontalSpeed * (dt / 1000) * this.enemyDirection;
+    const shouldDrop = this.enemies.some(enemy => {
+      const nextX = enemy.x + horizontalStep;
+      const halfWidth = enemy.widthPct / 2;
+      return nextX - halfWidth <= 4 || nextX + halfWidth >= 96;
+    });
+
+    if (shouldDrop) {
+      this.enemyDirection *= -1;
+      this.enemies.forEach(enemy => {
+        enemy.y += this.enemyDropStep;
+        enemy.el.style.top = `${enemy.y}%`;
+      });
+    } else {
+      this.enemies.forEach(enemy => {
+        enemy.x += horizontalStep;
+        enemy.el.style.left = `${enemy.x}%`;
+      });
+    }
+
     for (let i = this.enemies.length - 1; i >= 0; i--) {
       const enemy = this.enemies[i];
-      enemy.y += (dt / this.config.currentLevelData.speedMs) * 100;
-      enemy.el.style.top = `${enemy.y}%`;
 
-      if (enemy.y > 90) {
+      if (enemy.y + enemy.heightPct >= this.enemyLowerBound) {
         this.loseLife();
         enemy.el.remove();
         this.enemies.splice(i, 1);
@@ -373,33 +392,76 @@ class SpaceDefenderGame {
     }
   }
 
-  spawnEnemy() {
-    this.metrics.enemiesSpawned++;
-    const enemyX  = 10 + Math.random() * 80;
-    const enemyEl = document.createElement('div');
-    enemyEl.className   = 'enemy';
-    enemyEl.style.left  = `${enemyX}%`;
-    enemyEl.style.top   = '-10%';
+  getFormationSpeed() {
+    const levelIndex = Math.max(0, this.level - 1);
+    return Math.min(16, 7 + levelIndex * 1.5);
+  }
 
-    const img = document.createElement('img');
-    img.className = 'enemy-sprite';
-    img.src = 'assets/images/games/space-defender/enemies/space-aliens/alien1.png';
-    img.onerror = () => { img.src = ''; img.style.backgroundColor = '#ef4444'; img.style.borderRadius = '50%'; };
-    enemyEl.appendChild(img);
-    this.playArea.appendChild(enemyEl);
+  getFormationDropStep() {
+    return this.level >= 4 ? 7 : 6;
+  }
 
-    const enemyId = `enemy_${Date.now()}_${Math.random()}`;
-    this.metrics.enemySpawnTimes[enemyId] = Date.now();
-    this.enemies.push({ id: enemyId, el: enemyEl, x: enemyX, y: -10, width: 60, height: 60 });
+  createEnemyFormation() {
+    const enemyCount = this.config.currentLevelData.enemyCount;
+    const columns = enemyCount >= 15 ? 5 : enemyCount >= 10 ? 4 : enemyCount >= 6 ? 4 : enemyCount;
+    const rows = Math.ceil(enemyCount / columns);
+    const widthPct = 9;
+    const heightPct = 9;
+    const gapX = 5;
+    const gapY = 6;
+    const formationWidth = columns * widthPct + (columns - 1) * gapX;
+    const startX = 50 - formationWidth / 2 + widthPct / 2;
+    const startY = 10;
+
+    this.metrics.enemiesSpawned += enemyCount;
+    this.enemiesSpawnedThisLevel = enemyCount;
+
+    for (let index = 0; index < enemyCount; index++) {
+      const row = Math.floor(index / columns);
+      const column = index % columns;
+      const enemyX = startX + column * (widthPct + gapX);
+      const enemyY = startY + row * (heightPct + gapY);
+      const enemyEl = document.createElement('div');
+      enemyEl.className = 'enemy';
+      enemyEl.style.left = `${enemyX}%`;
+      enemyEl.style.top = `${enemyY}%`;
+
+      const img = document.createElement('img');
+      img.className = 'enemy-sprite';
+      img.src = 'assets/images/games/space-defender/enemies/space-aliens/alien1.png';
+      img.onerror = () => { img.src = ''; img.style.backgroundColor = '#ef4444'; img.style.borderRadius = '12px'; };
+      enemyEl.appendChild(img);
+      this.playArea.appendChild(enemyEl);
+
+      const enemyId = `enemy_${Date.now()}_${index}_${Math.random()}`;
+      this.metrics.enemySpawnTimes[enemyId] = Date.now();
+      this.enemies.push({
+        id: enemyId,
+        el: enemyEl,
+        x: enemyX,
+        y: enemyY,
+        widthPct,
+        heightPct
+      });
+    }
   }
 
   checkCollision(laser, enemy) {
-    // Generous hitbox — enemy ±10% wide, 18% tall; laser ±4% wide
-    const eLeft   = enemy.x - 10, eRight  = enemy.x + 10;
-    const eTop    = enemy.y,       eBottom = enemy.y + 18;
-    const lLeft   = laser.x - 4,  lRight  = laser.x + 4;
-    const lTop    = laser.y,       lBottom = laser.y + 8;
-    return (lLeft < eRight && lRight > eLeft && lTop < eBottom && lBottom > eTop);
+    const laserRect = laser.el.getBoundingClientRect();
+    const enemyRect = enemy.el.getBoundingClientRect();
+    const enemyInset = 6;
+
+    const eLeft = enemyRect.left + enemyInset;
+    const eRight = enemyRect.right - enemyInset;
+    const eTop = enemyRect.top + enemyInset;
+    const eBottom = enemyRect.bottom - enemyInset;
+
+    return (
+      laserRect.left < eRight &&
+      laserRect.right > eLeft &&
+      laserRect.top < eBottom &&
+      laserRect.bottom > eTop
+    );
   }
 
   hitEnemy(enemy, index) {

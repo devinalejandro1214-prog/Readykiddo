@@ -202,24 +202,45 @@
   margin-bottom: 20px;
 }
 
+/* ── Web/Desktop Responsive ────────────────────────────── */
+@media (min-width: 769px) {
+  .color-game {
+    align-items: center;
+    justify-content: center;
+  }
+
+  .color-item-stage {
+    max-width: 1180px;
+    width: 100%;
+  }
+
+  .color-instruction {
+    font-size: 32px;
+    margin-bottom: 28px;
+    max-width: 600px;
+  }
+
+  .color-zones {
+    max-width: 1180px;
+  }
+}
+
 /* ── Drop Zones ─────────────────────────────────────────── */
 .color-zones {
   position: absolute;
-  left: 0;
-  right: 0;
+  left: 50%;
   bottom: clamp(18px, 5vh, 58px);
-  display: flex;
-  justify-content: center;
+  transform: translateX(-50%);
+  display: grid;
+  grid-template-columns: repeat(6, minmax(110px, 1fr));
   gap: clamp(12px, 1.6vw, 26px);
-  padding: 0 clamp(16px, 4vw, 54px);
+  width: min(calc(100% - clamp(32px, 8vw, 108px)), 1180px);
   z-index: 20;
-  width: 100%;
 }
 
 .color-zone {
   --zone-color: #999;
-  flex: 1;
-  max-width: 178px;
+  width: 100%;
   aspect-ratio: 1.05;
   border-radius: 28px;
   background: var(--zone-color);
@@ -472,10 +493,11 @@
   .color-zones {
     bottom: 3%;
     gap: 8px;
+    grid-template-columns: repeat(3, minmax(82px, 1fr));
+    width: min(calc(100% - 24px), 420px);
   }
 
   .color-zone {
-    max-width: none;
     aspect-ratio: 1;
     border-radius: 22px;
     border-width: 3px;
