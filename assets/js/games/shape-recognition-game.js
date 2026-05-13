@@ -170,7 +170,11 @@ class ShapeRecognitionGame {
     if (!choicesEl) return;
     choicesEl.innerHTML = '';
 
-    SHAPE_KEYS.filter(s => !this.matchedShapes.has(s)).forEach((shapeName, index) => {
+    // Shuffle tiles so they never start aligned with the outline targets
+    const shuffled = [...SHAPE_KEYS].filter(s => !this.matchedShapes.has(s))
+      .sort(() => Math.random() - 0.5);
+
+    shuffled.forEach((shapeName, index) => {
       const choice = document.createElement('div');
       choice.className = 'shape-choice';
       choice.dataset.index = String(index);

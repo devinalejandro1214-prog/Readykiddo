@@ -231,7 +231,11 @@ class ColorSortGame {
     if (!stage) return;
     stage.innerHTML = '';
 
-    ALL_COLORS.filter(c => !this.matchedColors.has(c)).forEach(color => {
+    // Shuffle tiles so they never start aligned with the containers
+    const shuffled = [...ALL_COLORS].filter(c => !this.matchedColors.has(c))
+      .sort(() => Math.random() - 0.5);
+
+    shuffled.forEach(color => {
       const item = document.createElement('div');
       item.className = 'color-item';
       item.dataset.color = color;
