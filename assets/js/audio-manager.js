@@ -55,7 +55,7 @@
     'good job':     'Em-Good job.m4a',
     'yay':          'em-yay.m4a',
     'impressive':   'Em-impressive.m4a',
-    'i cant believe it': 'Em-I can\u2019t believe it.m4a',
+    'i cant believe it': 'Em-I canâ€™t believe it.m4a',
     'laugh':        'Em-Laugh.m4a',
 
     // Wrong feedback
@@ -102,7 +102,7 @@
     'wow':          'Amara-Wow.m4a',
 
     // Wrong feedback — Amara's voice
-    'try again':    'Amara-It\u2019s okay, try again!.m4a',
+    'try again':    'Amara-Itâ€™s okay, try again!.m4a',
     'aww man':      'Amara-Oh man.m4a',
     'oh no':        'Amara-Oh no!.m4a',
 

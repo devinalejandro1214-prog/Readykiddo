@@ -48,6 +48,15 @@ const GAME_REGISTRY = {
     cssPath: 'assets/css/space-defender-game.css',
     isActive: true,
     order: 5
+  },
+  'feed-alien': {
+    name: 'Feed the Alien',
+    description: 'Count and feed your new alien friend!',
+    class: 'FeedAlienGame',
+    scriptPath: 'assets/js/games/feed-alien-game.js',
+    cssPath: 'assets/css/feed-alien-game.css',
+    isActive: true,
+    order: 6
   }
 };
 
@@ -210,6 +219,14 @@ function getNextGameRecommendation(currentGameType, finalBranch, accuracy) {
       return 'coming-soon-1'; // User is advanced
     }
     return 'color-sort'; // Review colors or try again
+  }
+
+  if (currentGameType === 'space-defender') {
+    return 'feed-alien'; // Befriend the alien after defense
+  }
+
+  if (currentGameType === 'feed-alien') {
+    return 'world-reveal'; // Finish the loop and head back to the world
   }
 
   return 'color-sort'; // Default fallback

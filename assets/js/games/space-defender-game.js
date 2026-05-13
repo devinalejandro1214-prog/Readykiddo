@@ -225,7 +225,14 @@ class SpaceDefenderGame {
     if (btnSummary) btnSummary.onclick = () => this.showScreen('summary');
 
     const btnFinish = document.getElementById('sdBtnFinish');
-    if (btnFinish) btnFinish.onclick = () => { this.context.goToNextGame('world-reveal'); };
+    if (btnFinish) {
+      btnFinish.onclick = () => {
+        const nextGameType = typeof window.getNextGameRecommendation === 'function'
+          ? window.getNextGameRecommendation('space-defender', 'hard', 1)
+          : 'feed-alien';
+        this.context.goToNextGame(nextGameType);
+      };
+    }
   }
 
   generateSummaryHTML() {

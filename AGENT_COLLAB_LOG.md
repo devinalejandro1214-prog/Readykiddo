@@ -127,7 +127,97 @@ Notes / Next Steps:
   - Do not log a feature as pushed unless the commit exists in the audited repo history.
   - Do not log assets/files as shipped unless they exist in the repo being reviewed.
   - When local work and Git diverge, call it out as local-only instead of describing it as deployed.
-  - If a later agent changes architecture (for example `ReadyKiddoAudio` -> `RKAudio`), the migration must be verified end-to-end before being logged as complete.
+- If a later agent changes architecture (for example `ReadyKiddoAudio` -> `RKAudio`), the migration must be verified end-to-end before being logged as complete.
+
+---
+
+## 2026-05-13 09:42 - Codex
+
+Prompt:
+> code just made updates. I just need you to in the color game center the bottom container tiles and then take out the text in each box that says the colors.
+
+Actions Taken:
+- Updated Code's local Color Sort target-row layout so the bottom container tiles are centered instead of stretching edge-to-edge.
+- Switched the bottom row to a centered grid layout:
+  - desktop uses 6 centered columns
+  - mobile uses 3 centered columns
+- Removed the visible color-name text from each bottom target box.
+- Kept the target-box inner marker element so the drop target still has a visual center without color text.
+
+Files/Folders Changed:
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\css\color-sort-game.css`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\js\games\color-sort-game.js`
+
+GitHub/Netlify:
+- Local-only manager UI adjustment. Not pushed from this prompt.
+
+Verification:
+- `node --check` passed for `assets/js/games/color-sort-game.js`.
+- Browser render check not run in this prompt.
+- Audio flow not changed in this prompt.
+
+Notes / Next Steps:
+- This was intentionally scoped to the target-row alignment and label removal only.
+- Because Code's local `color-sort-game.js` already diverges substantially from the currently audited Git checkout, this change should be treated as local until the next sync/audit pass.
+
+---
+
+## 2026-05-13 10:02 - Codex
+
+Prompt:
+> In the alien invasion game dont make the aliens move so fast. Also lets do the same style as space invaders. Where the aliens move right to left and then lower down. With that ensure the only area of the alien that destorys is the actual box If i shoot just beside I miss but If I shoot the corner it should work.
+
+Actions Taken:
+- Updated Code's local Space Defender / alien invasion game to slow enemy movement down.
+- Replaced the old falling-enemy movement with a classic Space Invaders sweep:
+  - formation moves side to side
+  - reverses at the edge
+  - steps downward before sweeping back
+- Spawn flow now creates a formation at level start instead of dropping single aliens from the top.
+- Tightened collision so hits are based on the rendered alien box instead of the old generous percentage hit zone.
+- Removed the floating hover animation from enemy sprites so the movement reads more like classic invaders.
+
+Files/Folders Changed:
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\js\games\space-defender-game.js`
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\css\space-defender-game.css`
+
+GitHub/Netlify:
+- Local-only gameplay adjustment. Not pushed from this prompt.
+
+Verification:
+- `node --check` passed for `assets/js/games/space-defender-game.js`.
+- `npm test` passed in the local `ReadyKiddo2.0` folder.
+- `git diff --check` on the touched files only showed line-ending warnings, no whitespace/code diff errors.
+
+Notes / Next Steps:
+- Manual desktop/mobile gameplay verification was not run in this prompt.
+- Audio flow was not changed in this prompt.
+- Collision is now based on the actual rendered enemy box with a small inset so edge/corner hits still count, while near-misses just outside the sprite miss.
+
+---
+
+## 2026-05-13 10:09 - Codex
+
+Prompt:
+> In the web verison the alien invasion game shouldnt be the whole screen. It should be hald the width it is now. Mobile version is fine staying the larger verion
+
+Actions Taken:
+- Updated Code's local Space Defender desktop layout so the game container is centered and constrained to about half width on web/desktop.
+- Left the mobile layout untouched so it stays at the larger full-width presentation.
+
+Files/Folders Changed:
+- `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\css\space-defender-game.css`
+
+GitHub/Netlify:
+- Local-only layout adjustment. Not pushed from this prompt.
+
+Verification:
+- `npm test` passed in the local `ReadyKiddo2.0` folder.
+- `git diff --check` on the touched CSS file only showed a line-ending warning.
+
+Notes / Next Steps:
+- Manual desktop/mobile render verification was not run in this prompt.
+- Gameplay and audio logic were not changed in this prompt.
 
 ---
 
@@ -1243,6 +1333,229 @@ GitHub/Netlify:
 
 ---
 
+### Codex Update - Feed the Alien Character Extraction
+**Timestamp:** 2026-05-13T05:25:00-07:00
+**Agent:** Codex
+
+Task:
+- Isolate the alien figure from `C:\Users\Devin\Downloads\Feed the Alien.html` into a standalone file.
+
+Actions Taken:
+- Extracted the alien-only structure, styling, and pupil-follow interaction from the source HTML.
+- Created standalone file: `C:\Users\Devin\Documents\Codex\2026-05-09\are-you-able-to-build-a\isolated-gumblop-alien.html`
+- Copied user-facing version beside the source file: `C:\Users\Devin\Downloads\Feed the Alien - alien only.html`
+
+Verification:
+- Desktop render check via headless Edge screenshot at 900x1000 passed.
+- Mobile-width render check via headless Edge screenshot at 390x844 passed.
+- No audio involved in this task.
+
+Notes:
+- This was an extraction task only, not a repo/game integration change.
+
+---
+
+### Manager Direction for Code - Alien Character Enhancement
+**Timestamp:** 2026-05-13T05:33:00-07:00
+**Agent:** Codex
+
+Reference Asset Location:
+- Standalone source: `C:\Users\Devin\Documents\Codex\2026-05-09\are-you-able-to-build-a\isolated-gumblop-alien.html`
+- User-facing copy: `C:\Users\Devin\Downloads\Feed the Alien - alien only.html`
+
+Preserved Character Detail in Isolated File:
+- Full alien body styling and proportions
+- Antenna and glow bead detail
+- Eye / pupil tracking behavior on pointer move
+- Mouth open behavior tied to proximity / hover
+- Mouth chomp animation on click / tap
+- Belly, cheeks, arms, feet, shadow, bobbing motion
+
+Direction for Code:
+- Keep the current game intact.
+- Enhance the in-game alien by incorporating the isolated character behaviors and detail from the standalone file above.
+- Specifically bring in:
+  - pupil tracking
+  - mouth open/chomp animation
+  - richer character detail/styling from the isolated version
+- Integrate these behaviors without removing existing game flow or mechanics.
+- Preserve mobile and web layout stability while adding the character polish.
+
+---
+
+### Codex Audit - Code Local Game Batch Review
+**Timestamp:** 2026-05-13T06:05:00-07:00
+**Agent:** Codex
+
+Scope Audited:
+- `assets/js/games/feed-alien-game.js`
+- `assets/css/feed-alien-game.css`
+- `assets/js/games/game-registry.js`
+- `assets/js/games/color-sort-game.js`
+- `assets/css/color-sort-game.css`
+- `assets/js/games/space-defender-game.js`
+- `assets/css/space-defender-game.css`
+- `AGENT_COLLAB_LOG.md`
+
+Checks Run:
+- `node --check assets/js/games/feed-alien-game.js`
+- `node --check assets/js/games/color-sort-game.js`
+- `node --check assets/js/games/space-defender-game.js`
+- `npm test`
+- `npm run build`
+- `git diff --check`
+- Local browser audit via Playwright-style scripted pass over:
+  - `game-loader.html?game=feed-alien` desktop + mobile
+  - `game-loader.html?game=color-sort` desktop + mobile
+  - `game-loader.html?game=space-defender` desktop + mobile
+
+Audit Result:
+- Syntax/build checks passed.
+- Runtime/UI audit found blocking issues before push.
+
+Key Findings:
+1. **Feed the Alien allows repeated taps on the same tile to count as multiple foods.**
+   - `selectFoodItem()` increments only a round counter and does not bind selection to a unique tile.
+   - Every tile click calls the same increment path with no per-tile state.
+   - Runtime audit confirmed the same first food tile can be clicked twice to move from `1 / 3` to `2 / 3`.
+   - References:
+     - `assets/js/games/feed-alien-game.js:135-149`
+     - `assets/js/games/feed-alien-game.js:307-337`
+
+2. **Feed the Alien does not save session results and bypasses the shell navigation flow.**
+   - `end()` computes performance but never calls `this.context.saveSession(...)`.
+   - End-screen CTA uses raw `location.href='world-reveal.html'` instead of `this.context.goToNextGame(...)`.
+   - This means the new game is not participating in the same session/reporting flow as Color Sort, Shape Recognition, and Space Defender.
+   - References:
+     - `assets/js/games/feed-alien-game.js:403-430`
+     - Compare with `assets/js/games/space-defender-game.js:237`
+
+3. **The new Feed the Alien route is not actually reachable from the current Space Defender finish flow.**
+   - `game-registry.js` now recommends `feed-alien` after `space-defender`, but Space Defender still sends the finish button directly to `world-reveal`.
+   - So the newly registered game exists, but the intended in-flow handoff is not wired.
+   - References:
+     - `assets/js/games/game-registry.js:224-229`
+     - `assets/js/games/space-defender-game.js:227-228`
+
+4. **Color Sort still references missing space-world PNG assets, so the fallback path is still being exercised in runtime.**
+   - Browser audit logged 404s for:
+     - `assets/images/games/color-sort/items/space-blue-star.png`
+     - `assets/images/games/color-sort/items/space-yellow-star.png`
+   - Those files are referenced directly in the current item map.
+   - Reference:
+     - `assets/js/games/color-sort-game.js:41-47`
+
+5. **Audio still has missing-file 404s during gameplay startup.**
+   - Browser audit logged:
+     - `assets/audio/voice/Em-I can’t believe it.m4a`
+     - `assets/audio/voice/Amara-It’s okay, try again!.m4a`
+   - These filenames are still present in the audio map and do not resolve in the local runtime audit.
+   - References:
+     - `assets/js/audio-manager.js:58`
+     - `assets/js/audio-manager.js:105`
+
+6. **Mobile Feed the Alien layout is not fully clean yet.**
+   - In the mobile runtime audit, the bottom-left character remains visibly tucked behind the food grid, which makes the board feel crowded and slightly broken even though the game remains playable.
+   - Relevant mobile sizing lives in:
+     - `assets/css/feed-alien-game.css:650-687`
+
+Notes:
+- Desktop Color Sort layout looked materially improved and centered as intended.
+- Desktop Space Defender intro modal respected the new half-width treatment.
+- Mobile Space Defender intro still reads cleanly at full width.
+- No code changes made during this audit.
+
+---
+
+### Codex Fix + Release Review - Game Flow Stabilization
+**Timestamp:** 2026-05-13T06:35:00-07:00
+**Agent:** Codex
+
+Actions Taken:
+- Fixed `feed-alien-game.js` so food selection is tied to actual tiles instead of a free-running counter.
+- Scaled Feed the Alien's grid to the requested round count so higher-number rounds stay playable without repeat-tap exploits.
+- Hid the shell-side guide character in Feed the Alien so the board has room on mobile.
+- Fixed Feed the Alien counter initialization so the denominator matches the prompted count from the first frame.
+- Wired Feed the Alien into the standard shell flow:
+  - saves `lastGameSession`
+  - records a `nextGameRecommendation`
+  - uses `context.goToNextGame(...)` instead of raw `location.href`
+- Updated game routing so Space Defender summary continues to `feed-alien`, and Feed the Alien returns to `world-reveal`.
+- Removed bad Color Sort PNG references for missing Space/Beach color variants so runtime no longer requests missing files.
+- Corrected audio-manager filename mappings to the actual local voice filenames for the previously missing clips.
+- Expanded static validation coverage to include `audio-manager.js` and `feed-alien-game.js`.
+
+Files/Folders Changed:
+- `assets/js/games/feed-alien-game.js`
+- `assets/css/feed-alien-game.css`
+- `assets/js/games/game-registry.js`
+- `assets/js/games/space-defender-game.js`
+- `assets/js/games/color-sort-game.js`
+- `assets/js/audio-manager.js`
+- `scripts/validate-static.js`
+- Existing reviewed game CSS/JS batch remains included for direct push:
+  - `assets/css/color-sort-game.css`
+  - `assets/css/shape-recognition-game.css`
+  - `assets/css/space-defender-game.css`
+
+Verification:
+- `node --check assets/js/games/feed-alien-game.js`
+- `node --check assets/js/games/color-sort-game.js`
+- `node --check assets/js/games/space-defender-game.js`
+- `node --check assets/js/audio-manager.js`
+- `npm test`
+- `npm run build`
+- `git diff --check`
+- Browser regression via local HTTP server + Playwright-style scripted checks:
+  - `game-loader.html?game=feed-alien` full desktop playthrough to end screen
+  - `game-loader.html?game=feed-alien` mobile layout pass
+  - `game-loader.html?game=color-sort` desktop + mobile startup pass
+  - `game-loader.html?game=shape-recognition` desktop + mobile startup pass
+  - `game-loader.html?game=space-defender` desktop + mobile startup pass
+
+Observed Results:
+- Feed the Alien no longer counts the same tile twice.
+- Feed the Alien completes all 6 rounds, saves session data, and returns to `world-reveal.html`.
+- No browser console errors or 404 asset/audio errors remained in the audited routes.
+- Mobile Feed the Alien layout now clears the shell character and keeps the board readable.
+
+Status:
+- Ready for direct commit/push to `main`.
+
+---
+
+## 2026-05-13 - Claude Code
+
+Prompt:
+> Please just add the character detail for the alien into the existing game you created.
+
+Actions Taken:
+- Replaced the simple 3-element alien (head, torso, eyes) with the full Gumblop character from Codex's isolated standalone file.
+- New character includes: gumdrop body with specular highlights, belly, cheeks, antenna (with pulsing pink bead), arms (wiggle animation), feet, shadow (synchronized pulse), white eyes with dark pupils.
+- Added `setupAlienInteraction()` method — wires up pointer-move pupil tracking and mouth open/close based on cursor proximity.
+- Added `triggerChomp()` method — fires squash-stretch chomp animation on every food item click.
+- Updated `renderAlienHappy()` to target the new `#alienChar` element instead of the removed `#alienBody`.
+- Added `_pupilHandler` property to constructor for proper listener cleanup between rounds and on game end.
+- Updated `end()` to remove the pointermove listener when the game ends.
+- Resized alien container: mobile 160×195px, desktop 260×317px (both preserve the 23:28 aspect ratio from the reference).
+- All alien internals use percentage-based positioning so the character scales cleanly at any size.
+- All existing game mechanics (6 rounds, difficulty progression, accuracy tracking, food grid, end screen) are unchanged.
+
+Files/Folders Changed:
+- `assets/js/games/feed-alien-game.js`
+- `assets/css/feed-alien-game.css`
+- `AGENT_COLLAB_LOG.md`
+
+GitHub/Netlify:
+- Local only. Ready for Codex to audit and push.
+
+Notes / Next Steps:
+- Character now bobs continuously, arms wiggle, antenna blinks, pupils follow cursor.
+- Mouth opens when cursor is near the alien and chomps on each food item click.
+- `alien-happy` animation fires on round completion, then removes itself after 700ms.
+
+---
+
 ## 2026-05-13 10:18 - Codex
 
 Prompt:
@@ -1258,10 +1571,10 @@ Actions Taken:
   - Space Defender desktop container constrained to half-width while mobile remains full-width
 
 Files/Folders Changed:
-- `assets/js/games/color-sort-game.js`
 - `assets/css/color-sort-game.css`
-- `assets/js/games/space-defender-game.js`
+- `assets/js/games/color-sort-game.js`
 - `assets/css/space-defender-game.css`
+- `assets/js/games/space-defender-game.js`
 - `AGENT_COLLAB_LOG.md`
 
 GitHub/Netlify:
