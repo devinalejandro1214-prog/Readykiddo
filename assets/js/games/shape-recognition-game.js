@@ -207,18 +207,129 @@ class ShapeRecognitionGame {
     }
   }
 
+  saveProgress() {
+    const state = {
+      itemsShown: this.itemsShown,
+      correctCount: this.correctCount,
+      incorrectStreak: this.incorrectStreak,
+      currentBranch: this.currentBranch,
+      branchHistory: this.branchHistory,
+      performance: this.performance,
+      answerHistory: this.answerHistory,
+      shapeSeen: this.shapeSeen,
+      savedAt: Date.now()
+    };
+    localStorage.setItem(this.getProgressKey(), JSON.stringify(state));
+  }
+
+  loadProgress() {
+    const raw = localStorage.getItem(this.getProgressKey());
+    if (!raw) return null;
+    try {
+      const saved = JSON.parse(raw);
+      if (!saved || typeof saved.itemsShown !== 'number') return null;
+      return saved;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  clearProgress() {
+    localStorage.removeItem(this.getProgressKey());
+  }
+
+  getProgressKey() {
+    return `shapeRecognitionProgress_${this.context.childId}`;
+  }
+
+  restoreProgress(state) {
+    this.itemsShown = Math.min(state.itemsShown || 0, this.totalItems);
+    this.correctCount = state.correctCount || 0;
+    this.incorrectStreak = state.incorrectStreak || 0;
+    this.currentBranch = state.currentBranch || 'neutral';
+    this.branchHistory = Array.isArray(state.branchHistory) ? state.branchHistory : [this.currentBranch];
+    this.performance = state.performance || this.performance;
+    this.answerHistory = Array.isArray(state.answerHistory) ? state.answerHistory : [];
+    this.shapeSeen = state.shapeSeen || {};
+  }
+
+  showResumePrompt(saved) {
+    return new Promise(resolve => {
+      const overlay = document.createElement('div');
+      overlay.className = 'pause-overlay';
+      overlay.innerHTML = `
+        <div class="pause-panel">
+          <h2>Welcome back!</h2>
+          <p>You found ${saved.itemsShown} of ${this.totalItems} shapes. Continue where you left off?</p>
+          <button class="pause-btn pause-btn-primary" id="resumeSavedShapeBtn">Continue</button>
+          <button class="pause-btn pause-btn-secondary" id="startFreshShapeBtn">Start Fresh</button>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+
+      document.getElementById('resumeSavedShapeBtn').addEventListener('click', () => {
+        overlay.remove();
+        resolve(true);
+      });
+      document.getElementById('startFreshShapeBtn').addEventListener('click', () => {
+        overlay.remove();
+        resolve(false);
+      });
+    });
+  }
+
+  /* ── DOM Setup ──────────────────────────────────────────── */
+
+  render() {
+    const gameArea = document.getElementById('gameArea');
+    gameArea.innerHTML = `
+      <div class="shape-game">
+        <div class="shape-hud">
+          <button class="hud-btn" id="shapePauseBtn" aria-label="Pause">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <rect x="6" y="5" width="4" height="14" rx="1.5"/>
+              <rect x="14" y="5" width="4" height="14" rx="1.5"/>
+            </svg>
+          </button>
+          <div class="shape-progress" id="shapeProgress"></div>
+        </div>
+
+        <div class="shape-stage" id="shapeStage"></div>
+
+        <div class="shape-instruction" id="shapeInstruction">
+          Find the matching shape!
+        </div>
+
+        <div class="shape-choices" id="shapeChoices"></div>
+        <div class="shape-feedback" id="shapeFeedback" style="display:none;"></div>
+      </div>
+    `;
+
+    document.getElementById('shapePauseBtn').addEventListener('click', () => this.togglePause());
+  }
+
+  renderProgress() {
+    const progressEl = document.getElementById('shapeProgress');
+    if (!progressEl) return;
+    progressEl.innerHTML = '';
+    for (let i = 0; i < this.totalItems; i++) {
+      const pip = document.createElement('div');
+      pip.className = 'shape-pip';
+      if (i < this.itemsShown) pip.classList.add(this.answerHistory[i] ? 'correct' : 'incorrect');
+      else if (i === this.itemsShown) pip.classList.add('current');
+      progressEl.appendChild(pip);
+    }
+  }
+
   /* ── Shape Selection ────────────────────────────────────── */
 
-  selectShape() {
+  getAvailableShapes() {
     let available = SHAPE_KEYS;
     if (this.currentBranch === 'neutral') available = SHAPE_KEYS.slice(0, 2);
     else if (this.currentBranch === 'easy-medium') available = SHAPE_KEYS.slice(0, 3);
     else if (this.currentBranch === 'medium') available = SHAPE_KEYS.slice(0, 4);
     else if (this.currentBranch === 'medium-hard') available = SHAPE_KEYS.slice(0, 5);
-
-    const unseen = available.filter(shape => !this.shapeSeen[shape]);
-    const pool = unseen.length > 0 ? unseen : available;
-    return pool[Math.floor(Math.random() * pool.length)];
+    return available;
   }
 
   /* ── Core Round Logic ───────────────────────────────────── */
@@ -228,34 +339,16 @@ class ShapeRecognitionGame {
     if (this.itemsShown >= this.totalItems) return this.end();
 
     const isRound2 = this.itemsShown >= 6;
-    this.currentBatchShapes = [...SHAPE_KEYS].sort(() => Math.random() - 0.5);
+    const available = this.getAvailableShapes();
+    this.currentBatchShapes = [...available].sort(() => Math.random() - 0.5);
     this.currentAnswers = this.currentBatchShapes;
     this.matchedShapes = new Set();
-
-    /* ── Pick answer choices ──────────────────────────────
-       All choices show the same shape, so we need 4 different shapes.
-       The correct answer is the current shape.
-       Wrong answers are 3 random shapes from available shapes.
-       ───────────────────────────────────────────────────── */
-    const allShapes = SHAPE_KEYS;
-    const otherShapes = [];
-
-    // Shuffle and pick 3 wrong answers
-    otherShapes.sort(() => Math.random() - 0.5);
-    const wrongShapes = [];
-
-    // Shuffle all 4 choices so correct isn't always first
-    this.currentAnswers = this.currentBatchShapes;
-    this.currentShape = isRound2 ? null : this.selectShape();
     this.currentItem = null;
     this.itemStartTime = Date.now();
     this.busy = false;
-    if (!isRound2 && this.currentShape) {
-      this.shapeSeen[this.currentShape] = true;
-    }
 
     // Track per-shape performance
-    SHAPE_KEYS.forEach(shape => {
+    available.forEach(shape => {
       if (!this.performance.shapesAttempted[shape]) {
         this.performance.shapesAttempted[shape] = 0;
         this.performance.shapesCorrect[shape] = 0;
@@ -266,6 +359,7 @@ class ShapeRecognitionGame {
     this.renderChoices();
     this.renderProgress();
     this.updateInstruction();
+    
     if (isRound2) {
       this.context.speak('find all the shapes');
       this.callOutNextShape();
@@ -280,7 +374,7 @@ class ShapeRecognitionGame {
     const shapeStage = document.getElementById('shapeStage');
     if (!shapeStage) return;
     shapeStage.innerHTML = '';
-    SHAPE_KEYS.forEach(shapeName => {
+    this.currentBatchShapes.forEach(shapeName => {
       const target = document.createElement('div');
       target.className = 'shape-target-zone';
       target.dataset.shape = shapeName;
@@ -294,15 +388,11 @@ class ShapeRecognitionGame {
     if (!choicesEl) return;
     choicesEl.innerHTML = '';
 
-    const isRound2 = this.itemsShown >= 6;
-    const shapesToShow = isRound2
-      ? this.currentAnswers.filter(shapeName => !this.matchedShapes.has(shapeName))
-      : [this.currentShape].filter(Boolean);
+    const shapesToShow = this.currentAnswers.filter(shapeName => !this.matchedShapes.has(shapeName));
 
     shapesToShow
       .forEach((shapeName, index) => {
       const choice = document.createElement('div');
-      choice.className = 'shape-choice';
       choice.dataset.index = String(index);
       choice.dataset.item = shapeName;
 
@@ -346,10 +436,9 @@ class ShapeRecognitionGame {
     const unmatched = this.currentBatchShapes.filter(shape => !this.matchedShapes.has(shape));
     if (!unmatched.length) return;
 
-    const nextShape = unmatched[0];
-    if (!['circle', 'square', 'triangle'].includes(nextShape)) return;
+    this.targetShape = unmatched[Math.floor(Math.random() * unmatched.length)];
 
-    setTimeout(() => this.context.speak(`find ${nextShape}`), 500);
+    setTimeout(() => this.context.speak(`find ${this.targetShape}`), 500);
   }
 
   /* ── Answer Handling ────────────────────────────────────── */
@@ -427,7 +516,11 @@ class ShapeRecognitionGame {
     this.performance.totalItems++;
     this.performance.shapesAttempted[itemShape]++;
 
-    const isCorrect = itemShape === targetShape;
+    const isRound2 = this.itemsShown >= 6;
+    const isTargetMatch = itemShape === targetShape;
+    const isRound2Correct = !isRound2 || itemShape === this.targetShape;
+    const isCorrect = isTargetMatch && isRound2Correct;
+
     if (isCorrect) {
       this.busy = true;
       this.correctCount++;
@@ -450,12 +543,12 @@ class ShapeRecognitionGame {
         this.busy = false;
         if (this.itemsShown >= this.totalItems) {
           this.end();
-        } else if (this.itemsShown >= 6 && this.matchedShapes.size >= this.currentBatchShapes.length) {
+        } else if (this.matchedShapes.size >= this.currentBatchShapes.length) {
           this.presentNextItem();
         } else {
           this.renderChoices();
           this.renderProgress();
-          if (this.itemsShown >= 6) {
+          if (isRound2) {
             this.callOutNextShape();
           }
         }
@@ -466,10 +559,15 @@ class ShapeRecognitionGame {
         choiceEl.classList.add('wrong');
         setTimeout(() => choiceEl.classList.remove('wrong'), 450);
       }
-      const wrongPhrases = ['try again', 'aww man'];
-      const wrongPick = this.randomPickAvoidRepeat(wrongPhrases, this.lastWrongPhrase);
-      this.lastWrongPhrase = wrongPick;
-      this.context.speak(wrongPick);
+      
+      if (isRound2 && !isRound2Correct) {
+        this.context.speak(`find ${this.targetShape}`);
+      } else {
+        const wrongPhrases = ['try again', 'aww man'];
+        const wrongPick = this.randomPickAvoidRepeat(wrongPhrases, this.lastWrongPhrase);
+        this.lastWrongPhrase = wrongPick;
+        this.context.speak(wrongPick);
+      }
       this.context.characterAnimation('nod');
     }
   }

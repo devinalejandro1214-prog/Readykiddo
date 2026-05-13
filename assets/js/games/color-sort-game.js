@@ -338,19 +338,17 @@ class ColorSortGame {
 
     const colors = this.getBranchColors();
     const isRound2 = this.itemsShown >= 6;
+    
+    const batchSize = isRound2 ? colors.length : Math.min(3, colors.length);
+    if (!this.colorSeen) this.colorSeen = {};
+    const unseen = colors.filter(color => !this.colorSeen[color]);
+    const pool = unseen.length >= batchSize ? unseen : colors;
 
-    if (!isRound2) {
-      if (!this.colorSeen) this.colorSeen = {};
-      const unseen = colors.filter(color => !this.colorSeen[color]);
-      const colorPool = unseen.length > 0 ? unseen : colors;
-      this.currentColor = colorPool[Math.floor(Math.random() * colorPool.length)];
-      this.colorSeen[this.currentColor] = true;
-      this.currentBatchColors = [this.currentColor];
-    } else {
-      this.currentBatchColors = [...colors].sort(() => Math.random() - 0.5);
-      this.matchedColors = new Set();
-      this.currentColor = null;
-    }
+    this.currentBatchColors = [...pool].sort(() => Math.random() - 0.5).slice(0, batchSize);
+    this.currentBatchColors.forEach(c => this.colorSeen[c] = true);
+    
+    this.matchedColors = new Set();
+    this.currentColor = null;
 
     this.itemStartTime = Date.now();
     this.busy = false;
@@ -365,14 +363,21 @@ class ColorSortGame {
     this.renderZones();
     this.renderItem();
     this.renderProgress();
-
-    const instructionEl = document.getElementById('colorInstruction');
-    if (instructionEl) {
-      instructionEl.textContent = isRound2
-        ? 'Find all the colors!'
-        : `Find the ${this.currentColor}!`;
+    
+    if (isRound2) {
+      this.context.speak('find all the colors');
+      this.callOutNextColor();
+    } else {
+      this.context.speak('match the colors');
     }
-    this.context.speak(isRound2 ? 'find all the colors' : this.currentColor);
+  }
+
+  callOutNextColor() {
+    const unmatched = this.currentBatchColors.filter(color => !this.matchedColors.has(color));
+    if (!unmatched.length) return;
+
+    this.currentColor = unmatched[Math.floor(Math.random() * unmatched.length)];
+    setTimeout(() => this.context.speak(`find ${this.currentColor}`), 500);
   }
 
   renderItem() {
