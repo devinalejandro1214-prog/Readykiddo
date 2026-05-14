@@ -236,15 +236,18 @@ class FeedAlienGame {
     grid.classList.toggle('packed', itemCount > 12);
 
     for (let i = 0; i < itemCount; i++) {
-      const food = document.createElement('button');
+      const food = document.createElement('div');
       food.className = 'food-item';
-      food.type = 'button';
       food.dataset.foodId = `food-${this.currentRound}-${i}`;
+      food.setAttribute('role', 'button');
+      food.setAttribute('tabindex', '0');
+      food.setAttribute('draggable', 'false');
       food.setAttribute('aria-label', 'Food item');
       food.innerHTML = this.getFoodEmoji();
       food.addEventListener('pointerdown', e => this.startFoodDrag(e, food));
       food.addEventListener('mousedown', e => this.startFoodDrag(e, food));
       food.addEventListener('touchstart', e => this.startFoodDrag(e, food), { passive: false });
+      food.addEventListener('dragstart', e => e.preventDefault());
       grid.appendChild(food);
     }
   }
@@ -284,6 +287,7 @@ class FeedAlienGame {
       sourceEl: foodEl,
       ghostEl: ghost,
       placeholderEl: placeholder,
+      pointerId: typeof event.pointerId === 'number' ? event.pointerId : null,
       offsetX,
       offsetY,
       baseLeft: rect.left,
@@ -293,6 +297,14 @@ class FeedAlienGame {
       currentLeft: rect.left,
       currentTop: rect.top
     };
+
+    if (typeof event.pointerId === 'number' && typeof foodEl.setPointerCapture === 'function') {
+      try {
+        foodEl.setPointerCapture(event.pointerId);
+      } catch (err) {
+        // Ignore browsers that reject capture on this target.
+      }
+    }
 
     document.body.classList.add('feed-dragging');
     document.addEventListener('pointermove', this.handleDragMove);
@@ -312,6 +324,9 @@ class FeedAlienGame {
 
   onDragMove(event) {
     if (!this.activeDrag) return;
+    if (typeof event.pointerId === 'number' && this.activeDrag.pointerId !== null && event.pointerId !== this.activeDrag.pointerId) {
+      return;
+    }
     const point = this.getPoint(event);
     if (!point) return;
     if (event.cancelable) event.preventDefault();
@@ -330,6 +345,9 @@ class FeedAlienGame {
 
   onDragEnd(event) {
     if (!this.activeDrag) return;
+    if (typeof event.pointerId === 'number' && this.activeDrag.pointerId !== null && event.pointerId !== this.activeDrag.pointerId) {
+      return;
+    }
     this.getPoint(event);
 
     const mouthTarget = document.getElementById('alienMouthTarget');

@@ -1633,6 +1633,38 @@ Status:
 ## 2026-05-14 - Codex
 
 Prompt:
+> Okay the tiles arent dragging is the only issue. You can click but you cannot move to the mouth
+
+Actions Taken:
+- Hardened the Feed the Alien drag interaction for real browser input instead of just simulated game logic.
+- Changed food tiles from native buttons to drag-safe `div` tiles with explicit role/button semantics.
+- Added extra pointer/mouse/touch event coverage so the drag can keep tracking across browsers more reliably.
+- Added drag-safety CSS to prevent native browser dragging/callouts from interrupting the move-to-mouth interaction.
+- Kept the overlap-based drop logic so the food counts when it is clearly over the alien's mouth.
+
+Files/Folders Changed:
+- `assets/js/games/feed-alien-game.js`
+- `assets/css/feed-alien-game.css`
+
+Verification:
+- `node --check assets/js/games/feed-alien-game.js`
+- `npm test`
+- `npm run build`
+- `git diff --check`
+- Desktop drag verification: counter changed from `0 / 2` to `1 / 2`, bubble changed to `1`
+- Mobile drag verification: counter changed from `0 / 2` to `1 / 2`, bubble changed to `1`
+
+Observed Results:
+- A real drag now moves the tile into the mouth path and increments the count on both desktop and mobile runtime checks.
+
+Status:
+- Ready to push.
+
+---
+
+## 2026-05-14 - Codex
+
+Prompt:
 > Next adjust the alien feeding game.
 
 Actions Taken:
