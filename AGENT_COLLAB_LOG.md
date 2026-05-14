@@ -1590,3 +1590,80 @@ Verification:
 Notes / Next Steps:
 - Did not bring over unrelated local registry/experimental files in this push.
 - Manual browser gameplay/layout verification still recommended after Netlify rebuilds.
+
+---
+
+## 2026-05-14 - Codex
+
+Prompt:
+> Okay ill work on the images. Can you fix the alien invasion game
+
+Actions Taken:
+- Reworked Space Defender so it now runs as a continuous 5-level game instead of pausing after each wave.
+- Removed the level-complete overlay flow and replaced it with automatic progression into the next level.
+- Added a lightweight in-game level flash so progression still feels readable without interrupting play.
+- Capped the mode at 5 levels and replaced the old endless progression structure with explicit level data.
+- Tuned level counts and pacing for levels 1-5 so difficulty still ramps in a clean way.
+
+Files/Folders Changed:
+- `assets/js/games/space-defender-game.js`
+- `assets/css/space-defender-game.css`
+- `assets/data/games/space-defender/levels.json`
+
+Verification:
+- `node --check assets/js/games/space-defender-game.js`
+- `npm test`
+- `npm run build`
+- `git diff --check`
+- Browser runtime pass with forced fast-clear progression on:
+  - desktop `game-loader.html?game=space-defender&world=space`
+  - mobile `game-loader.html?game=space-defender&world=space`
+
+Observed Results:
+- Levels now advance automatically with no between-level popup.
+- Game reaches `LEVEL 5` and then lands in the final summary screen.
+- No unexpected `Continue to Level` button appears during active gameplay.
+- Desktop and mobile both completed the 5-level flow cleanly.
+
+Status:
+- Local fix complete and ready for push when requested.
+
+---
+
+## 2026-05-14 - Codex
+
+Prompt:
+> Next adjust the alien feeding game.
+
+Actions Taken:
+- Reworked Feed the Alien from tap-select into a drag-to-mouth interaction.
+- Added a real mouth drop target so food only counts when dropped on the alien.
+- Changed the thought bubble to live count upward from `0` as each food is fed.
+- Updated round instructions to match the drag mechanic.
+- Capped this version of the counting range at `1-10`.
+- Tuned round progression so all 6 rounds stay within the current 1-10 counting scope.
+- Added audio-manager speech fallback for unmapped prompts, so spoken numbers still play even before dedicated number recordings exist.
+
+Files/Folders Changed:
+- `assets/js/games/feed-alien-game.js`
+- `assets/css/feed-alien-game.css`
+- `assets/js/audio-manager.js`
+
+Verification:
+- `node --check assets/js/games/feed-alien-game.js`
+- `node --check assets/js/audio-manager.js`
+- `npm test`
+- `npm run build`
+- `git diff --check`
+- Full desktop Feed the Alien runtime pass through all 6 rounds
+- Full mobile Feed the Alien runtime pass through all 6 rounds
+
+Observed Results:
+- Food now has to be dragged into the mouth to count.
+- The bubble resets to `0` at the start of each round and increments `1, 2, 3...` with each successful feed.
+- Desktop verified round targets stayed within 1-10: `1, 2, 4, 5, 8, 8`
+- Mobile verified round targets stayed within 1-10: `2, 2, 4, 6, 10, 10`
+- End screen still appears correctly after round 6.
+
+Status:
+- Local fix complete and ready for push when requested.

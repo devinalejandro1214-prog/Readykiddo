@@ -1,35 +1,27 @@
-/* ─────────────────────────────────────────────────────────
-   ReadyKiddo — Feed the Alien Game
-   6 rounds: Dynamic difficulty based on performance
-   Numbers: 2-20, but capped at 10 if accuracy < 65%
-   Skip ahead if child passes round 1 easily
-   ───────────────────────────────────────────────────────── */
+/*
+   ReadyKiddo - Feed the Alien Game
+   6 rounds with drag-to-mouth feeding
+   Counting range capped at 1-10 for this version
+*/
 
 class FeedAlienGame {
   constructor(context) {
     this.context = context;
     this.worldSlug = context.worldSlug;
 
-    // Game state
-    this.totalItems = 6;           // 6 rounds
-    this.currentRound = 0;         // 0-5
+    this.totalItems = 6;
+    this.currentRound = 0;
     this.ended = false;
 
-    // Difficulty tracking
-    this.difficulty = 1;           // Current difficulty level (1-4)
-    this.skippedRound1 = false;    // Did child skip past easy?
-    this.accuracyThreshold = 0.65; // 65% threshold
-    this.maxNumber = 20;           // Default max
-    this.canReachMax = true;       // Will be false if accuracy < 65%
+    this.difficulty = 1;
+    this.maxNumber = 10;
 
-    // Current round state
-    this.requiredCount = 0;        // How many to feed alien
-    this.selectedCount = 0;        // How many child has selected
-    this.selectedFoods = new Set();
+    this.requiredCount = 0;
+    this.selectedCount = 0;
+    this.fedFoods = new Set();
     this.roundStartTime = 0;
     this.roundCorrect = false;
 
-    // Performance tracking
     this.performance = {
       correctItems: 0,
       totalItems: 6,
@@ -40,11 +32,11 @@ class FeedAlienGame {
       opportunityAreas: []
     };
 
-    // Pupil tracking cleanup
     this._pupilHandler = null;
+    this.activeDrag = null;
+    this.handleDragMove = this.onDragMove.bind(this);
+    this.handleDragEnd = this.onDragEnd.bind(this);
   }
-
-  /* ── Lifecycle ──────────────────────────────────────────── */
 
   async startGame() {
     this.render();
@@ -61,16 +53,13 @@ class FeedAlienGame {
     setTimeout(() => this.beginRound(), 600);
   }
 
-  /* ── Difficulty System ──────────────────────────────────── */
-
   getDifficultyRange(level) {
-    // Returns [min, max] range for numbers to generate
     switch (level) {
-      case 1: return [2, 5];       // Very easy
-      case 2: return [6, 10];      // Easy
-      case 3: return [11, 15];     // Medium (+5 progression)
-      case 4: return [16, this.maxNumber]; // Hard (+5 progression)
-      default: return [2, 5];
+      case 1: return [1, 3];
+      case 2: return [3, 5];
+      case 3: return [5, 7];
+      case 4: return [7, 10];
+      default: return [1, 3];
     }
   }
 
@@ -79,63 +68,32 @@ class FeedAlienGame {
   }
 
   updateDifficulty() {
-    // Called after each round to check if difficulty should change
-    const currentAccuracy = this.performance.correctItems / (this.currentRound + 1);
-
-    // Check if we should cap at 10 based on overall accuracy
-    if (currentAccuracy < this.accuracyThreshold && this.maxNumber > 10) {
-      this.maxNumber = 10;
-      this.canReachMax = false;
-      console.log('[FeedAlien] Accuracy below 65%, capping at 10');
-    }
-
-    // Check if should skip ahead after round 1
-    if (this.currentRound === 0 && this.roundCorrect) {
-      const wasEasy = this.requiredCount <= 3; // Very quick/easy pass
-      if (wasEasy && this.difficulty < 3) {
-        this.difficulty = 3; // Skip ahead to medium
-        this.skippedRound1 = true;
-        console.log('[FeedAlien] Skipping to difficulty 3 (fast pass on round 1)');
-      }
-    }
-
-    // Progressive difficulty increase
-    if (this.currentRound > 0 && this.roundCorrect && !this.skippedRound1) {
-      // Normal progression: 1→2→3→4
-      if (this.difficulty < 4) {
-        this.difficulty++;
-      }
+    if (this.roundCorrect && this.currentRound > 0 && this.difficulty < 4) {
+      this.difficulty++;
     }
   }
-
-  /* ── Round Management ───────────────────────────────────── */
 
   beginRound() {
     if (this.ended) return;
     if (this.currentRound >= this.totalItems) return this.end();
 
-    // Generate required count for this round
     const [min, max] = this.getDifficultyRange(this.difficulty);
     this.requiredCount = this.generateRandomNumber(min, max);
 
-    // Reset round state
     this.selectedCount = 0;
-    this.selectedFoods = new Set();
+    this.fedFoods = new Set();
     this.roundStartTime = Date.now();
     this.roundCorrect = false;
+    this.cancelDrag();
 
-    // Update UI
     this.renderAlien();
     this.renderFoodGrid();
     this.updateCounter();
     this.renderProgress();
     this.updateInstruction();
 
-    // Provide audio feedback
-    const feedText = `Feed the alien ${this.requiredCount} items!`;
-    this.context.speak(feedText);
-
-    console.log(`[FeedAlien] Round ${this.currentRound + 1}: Need ${this.requiredCount} (Level ${this.difficulty})`);
+    this.context.speak(`Feed the alien ${this.requiredCount} items!`);
+    console.log(`[FeedAlien] Round ${this.currentRound + 1}: Need ${this.requiredCount}`);
   }
 
   getFoodEmoji() {
@@ -149,67 +107,6 @@ class FeedAlienGame {
     };
     return worldFoods[this.worldSlug] || '🍎';
   }
-
-  toggleFoodItem(foodId) {
-    if (this.roundCorrect) return;
-
-    if (this.selectedFoods.has(foodId)) {
-      this.selectedFoods.delete(foodId);
-      this.selectedCount = this.selectedFoods.size;
-      this.updateCounter();
-      this.context.speak('removed');
-      return;
-    }
-
-    if (this.selectedCount >= this.requiredCount) return;
-
-    this.selectedFoods.add(foodId);
-    this.selectedCount = this.selectedFoods.size;
-    this.updateCounter();
-
-    // Chomp + play selection sound
-    this.triggerChomp();
-    this.context.speak('got it');
-
-    // Check if correct
-    if (this.selectedCount === this.requiredCount) {
-      this.roundCorrect = true;
-      this.handleCorrect();
-    }
-  }
-
-  handleCorrect() {
-    this.performance.correctItems++;
-    const responseTime = Date.now() - this.roundStartTime;
-    this.performance.responseTimes.push(responseTime);
-
-    this.performance.roundDetails.push({
-      round: this.currentRound + 1,
-      required: this.requiredCount,
-      difficulty: this.difficulty,
-      responseTime: responseTime,
-      correct: true
-    });
-
-    this.renderAlienHappy();
-
-    // Update difficulty for next round
-    this.updateDifficulty();
-
-    // Celebration then next round
-    this.context.speak('perfect');
-    this.renderCelebration();
-    setTimeout(() => {
-      this.currentRound++;
-      if (this.currentRound < this.totalItems) {
-        this.beginRound();
-      } else {
-        this.end();
-      }
-    }, 1500);
-  }
-
-  /* ── Rendering ──────────────────────────────────────────── */
 
   render() {
     const gameArea = document.getElementById('gameArea');
@@ -227,8 +124,8 @@ class FeedAlienGame {
         </div>
 
         <div class="feed-alien-container" id="feedAlienContainer"></div>
-        <div class="feed-instruction" id="feedInstruction">Feed the hungry alien!</div>
-        <div class="feed-counter" id="feedCounter">0 / 2</div>
+        <div class="feed-instruction" id="feedInstruction">Drag food to the alien's mouth!</div>
+        <div class="feed-counter" id="feedCounter">0 / 1</div>
         <div class="feed-grid" id="feedGrid"></div>
         <div class="feed-celebration" id="feedCelebration" style="display:none;">
           <div class="celebration-emoji">🎉</div>
@@ -242,7 +139,6 @@ class FeedAlienGame {
     const container = document.getElementById('feedAlienContainer');
     if (!container) return;
 
-    // Clean up any existing pupil handler before re-rendering
     if (this._pupilHandler) {
       document.removeEventListener('pointermove', this._pupilHandler);
       this._pupilHandler = null;
@@ -251,7 +147,7 @@ class FeedAlienGame {
     container.innerHTML = `
       <div class="alien-wrapper">
         <div class="alien-thought-bubble" id="alienThought">
-          <span class="thought-number">${this.requiredCount}</span>
+          <span class="thought-number">0</span>
         </div>
         <div class="alien" id="alienChar">
           <div class="alien-shadow"></div>
@@ -267,6 +163,7 @@ class FeedAlienGame {
           <div class="eye l"><div class="pupil"></div></div>
           <div class="eye r"><div class="pupil"></div></div>
           <div class="mouth-wrap">
+            <div class="mouth-drop-target" id="alienMouthTarget" aria-hidden="true"></div>
             <div class="mouth" id="alienMouth">
               <div class="tongue"></div>
             </div>
@@ -297,14 +194,16 @@ class FeedAlienGame {
         p.style.transform = `translate(${x}px, ${y}px)`;
       });
       const dist = Math.hypot(clientX - cx, clientY - cy);
-      mouth.classList.toggle('open', dist < rect.width * 0.75);
+      mouth.classList.toggle('open', dist < rect.width * 0.75 || this.activeDrag !== null);
     };
 
-    this._pupilHandler = (e) => updatePupils(e.clientX, e.clientY);
+    this._pupilHandler = e => updatePupils(e.clientX, e.clientY);
     document.addEventListener('pointermove', this._pupilHandler);
 
     alienEl.addEventListener('pointerenter', () => mouth.classList.add('open'));
-    alienEl.addEventListener('pointerleave', () => mouth.classList.remove('open'));
+    alienEl.addEventListener('pointerleave', () => {
+      if (!this.activeDrag) mouth.classList.remove('open');
+    });
 
     mouth.addEventListener('animationend', () => mouth.classList.remove('chomp'));
   }
@@ -313,7 +212,7 @@ class FeedAlienGame {
     const mouth = document.getElementById('alienMouth');
     if (!mouth) return;
     mouth.classList.remove('chomp');
-    void mouth.offsetWidth; // force reflow so animation restarts
+    void mouth.offsetWidth;
     mouth.classList.add('chomp');
   }
 
@@ -329,13 +228,13 @@ class FeedAlienGame {
     const grid = document.getElementById('feedGrid');
     if (!grid) return;
     grid.innerHTML = '';
-    const itemCount = Math.max(8, Math.min(this.requiredCount + 2, 20));
-    const columns = itemCount > 16 ? 5 : itemCount > 12 ? 4 : 4;
-    grid.style.setProperty('--feed-grid-columns', String(columns));
-    grid.classList.toggle('dense', itemCount > 12);
-    grid.classList.toggle('packed', itemCount > 16);
 
-    // Create enough food items for the requested count, plus a small buffer.
+    const itemCount = Math.max(this.requiredCount + 3, 8);
+    const columns = itemCount > 12 ? 5 : itemCount > 9 ? 4 : 4;
+    grid.style.setProperty('--feed-grid-columns', String(columns));
+    grid.classList.toggle('dense', itemCount > 9);
+    grid.classList.toggle('packed', itemCount > 12);
+
     for (let i = 0; i < itemCount; i++) {
       const food = document.createElement('button');
       food.className = 'food-item';
@@ -343,9 +242,220 @@ class FeedAlienGame {
       food.dataset.foodId = `food-${this.currentRound}-${i}`;
       food.setAttribute('aria-label', 'Food item');
       food.innerHTML = this.getFoodEmoji();
-      food.addEventListener('click', () => this.toggleFoodItem(food.dataset.foodId));
+      food.addEventListener('pointerdown', e => this.startFoodDrag(e, food));
+      food.addEventListener('mousedown', e => this.startFoodDrag(e, food));
+      food.addEventListener('touchstart', e => this.startFoodDrag(e, food), { passive: false });
       grid.appendChild(food);
     }
+  }
+
+  startFoodDrag(event, foodEl) {
+    if (this.roundCorrect || this.activeDrag) return;
+    if (this.fedFoods.has(foodEl.dataset.foodId)) return;
+
+    event.preventDefault();
+    const point = this.getPoint(event);
+    if (!point) return;
+
+    const rect = foodEl.getBoundingClientRect();
+    const placeholder = document.createElement('div');
+    placeholder.className = 'food-placeholder';
+    placeholder.style.width = `${rect.width}px`;
+    placeholder.style.height = `${rect.height}px`;
+
+    foodEl.after(placeholder);
+    foodEl.classList.add('food-source-hidden');
+
+    const ghost = foodEl.cloneNode(true);
+    ghost.classList.remove('food-source-hidden');
+    ghost.classList.add('food-drag-ghost');
+    ghost.style.width = `${rect.width}px`;
+    ghost.style.height = `${rect.height}px`;
+    ghost.style.left = `${rect.left}px`;
+    ghost.style.top = `${rect.top}px`;
+    ghost.style.transform = 'translate(0px, 0px) scale(1.08) rotate(-4deg)';
+    document.body.appendChild(ghost);
+
+    const offsetX = point.clientX - rect.left;
+    const offsetY = point.clientY - rect.top;
+
+    this.activeDrag = {
+      foodId: foodEl.dataset.foodId,
+      sourceEl: foodEl,
+      ghostEl: ghost,
+      placeholderEl: placeholder,
+      offsetX,
+      offsetY,
+      baseLeft: rect.left,
+      baseTop: rect.top,
+      width: rect.width,
+      height: rect.height,
+      currentLeft: rect.left,
+      currentTop: rect.top
+    };
+
+    document.body.classList.add('feed-dragging');
+    document.addEventListener('pointermove', this.handleDragMove);
+    document.addEventListener('pointerup', this.handleDragEnd);
+    document.addEventListener('pointercancel', this.handleDragEnd);
+    document.addEventListener('mousemove', this.handleDragMove);
+    document.addEventListener('mouseup', this.handleDragEnd);
+    document.addEventListener('touchmove', this.handleDragMove, { passive: false });
+    document.addEventListener('touchend', this.handleDragEnd);
+    document.addEventListener('touchcancel', this.handleDragEnd);
+
+    const mouthTarget = document.getElementById('alienMouthTarget');
+    if (mouthTarget) mouthTarget.classList.add('active');
+    const mouth = document.getElementById('alienMouth');
+    if (mouth) mouth.classList.add('open');
+  }
+
+  onDragMove(event) {
+    if (!this.activeDrag) return;
+    const point = this.getPoint(event);
+    if (!point) return;
+    if (event.cancelable) event.preventDefault();
+    const { ghostEl, offsetX, offsetY, baseLeft, baseTop } = this.activeDrag;
+    const nextLeft = point.clientX - offsetX;
+    const nextTop = point.clientY - offsetY;
+    this.activeDrag.currentLeft = nextLeft;
+    this.activeDrag.currentTop = nextTop;
+    ghostEl.style.transform = `translate(${nextLeft - baseLeft}px, ${nextTop - baseTop}px) scale(1.08) rotate(-4deg)`;
+
+    const mouthTarget = document.getElementById('alienMouthTarget');
+    if (!mouthTarget) return;
+    const hit = this.isGhostOverMouth();
+    mouthTarget.classList.toggle('over', hit);
+  }
+
+  onDragEnd(event) {
+    if (!this.activeDrag) return;
+    this.getPoint(event);
+
+    const mouthTarget = document.getElementById('alienMouthTarget');
+    const hit = this.isGhostOverMouth();
+
+    if (hit) {
+      this.feedFood(this.activeDrag.foodId, this.activeDrag.sourceEl, this.activeDrag.placeholderEl, this.activeDrag.ghostEl);
+    } else {
+      this.restoreDraggedFood();
+    }
+
+    this.cleanupDragState();
+  }
+
+  feedFood(foodId, sourceEl, placeholderEl, ghostEl) {
+    this.fedFoods.add(foodId);
+    this.selectedCount = this.fedFoods.size;
+
+    ghostEl.remove();
+    placeholderEl.remove();
+    sourceEl.remove();
+
+    this.updateCounter();
+    this.triggerChomp();
+    this.context.speak(String(this.selectedCount));
+
+    if (this.selectedCount === this.requiredCount) {
+      this.roundCorrect = true;
+      setTimeout(() => this.handleCorrect(), 380);
+    }
+  }
+
+  restoreDraggedFood() {
+    if (!this.activeDrag) return;
+    const { sourceEl, ghostEl, placeholderEl } = this.activeDrag;
+    ghostEl.remove();
+    placeholderEl.remove();
+    sourceEl.classList.remove('food-source-hidden');
+  }
+
+  cleanupDragState() {
+    document.body.classList.remove('feed-dragging');
+    document.removeEventListener('pointermove', this.handleDragMove);
+    document.removeEventListener('pointerup', this.handleDragEnd);
+    document.removeEventListener('pointercancel', this.handleDragEnd);
+    document.removeEventListener('mousemove', this.handleDragMove);
+    document.removeEventListener('mouseup', this.handleDragEnd);
+    document.removeEventListener('touchmove', this.handleDragMove);
+    document.removeEventListener('touchend', this.handleDragEnd);
+    document.removeEventListener('touchcancel', this.handleDragEnd);
+
+    const mouthTarget = document.getElementById('alienMouthTarget');
+    if (mouthTarget) {
+      mouthTarget.classList.remove('active');
+      mouthTarget.classList.remove('over');
+    }
+    const mouth = document.getElementById('alienMouth');
+    if (mouth) mouth.classList.remove('open');
+
+    this.activeDrag = null;
+  }
+
+  getPoint(event) {
+    const touch = event?.changedTouches?.[0] || event?.touches?.[0];
+    const point = touch || event;
+    if (!point || typeof point.clientX !== 'number' || typeof point.clientY !== 'number') {
+      return null;
+    }
+    if (this.activeDrag) {
+      this.activeDrag.lastPoint = { clientX: point.clientX, clientY: point.clientY };
+    }
+    return point;
+  }
+
+  isGhostOverMouth() {
+    if (!this.activeDrag) return false;
+    const mouthTarget = document.getElementById('alienMouthTarget');
+    if (!mouthTarget) return false;
+
+    const mouthRect = mouthTarget.getBoundingClientRect();
+    const ghostRect = {
+      left: this.activeDrag.currentLeft,
+      right: this.activeDrag.currentLeft + this.activeDrag.width,
+      top: this.activeDrag.currentTop,
+      bottom: this.activeDrag.currentTop + this.activeDrag.height
+    };
+    return !(
+      ghostRect.right < mouthRect.left ||
+      ghostRect.left > mouthRect.right ||
+      ghostRect.bottom < mouthRect.top ||
+      ghostRect.top > mouthRect.bottom
+    );
+  }
+
+  cancelDrag() {
+    if (!this.activeDrag) return;
+    this.restoreDraggedFood();
+    this.cleanupDragState();
+  }
+
+  handleCorrect() {
+    this.performance.correctItems++;
+    const responseTime = Date.now() - this.roundStartTime;
+    this.performance.responseTimes.push(responseTime);
+
+    this.performance.roundDetails.push({
+      round: this.currentRound + 1,
+      required: this.requiredCount,
+      difficulty: this.difficulty,
+      responseTime,
+      correct: true
+    });
+
+    this.renderAlienHappy();
+    this.updateDifficulty();
+    this.context.speak('perfect');
+    this.renderCelebration();
+
+    setTimeout(() => {
+      this.currentRound++;
+      if (this.currentRound < this.totalItems) {
+        this.beginRound();
+      } else {
+        this.end();
+      }
+    }, 1400);
   }
 
   updateCounter() {
@@ -354,17 +464,19 @@ class FeedAlienGame {
       counter.textContent = `${this.selectedCount} / ${this.requiredCount}`;
     }
 
-    // Update visual feedback
-    const foodItems = document.querySelectorAll('.food-item');
-    foodItems.forEach(item => {
-      item.classList.toggle('selected', this.selectedFoods.has(item.dataset.foodId));
-    });
+    const thought = document.querySelector('#alienThought .thought-number');
+    if (thought) {
+      thought.textContent = String(this.selectedCount);
+      thought.parentElement?.classList.remove('count-pop');
+      void thought.offsetWidth;
+      thought.parentElement?.classList.add('count-pop');
+    }
   }
 
   updateInstruction() {
     const instr = document.getElementById('feedInstruction');
     if (instr) {
-      instr.textContent = `Feed the alien ${this.requiredCount} items!`;
+      instr.textContent = `Drag ${this.requiredCount} items into the alien's mouth!`;
     }
 
     const level = document.getElementById('feedLevel');
@@ -391,29 +503,24 @@ class FeedAlienGame {
 
   renderCelebration() {
     const cel = document.getElementById('feedCelebration');
-    if (cel) {
-      cel.style.display = 'flex';
-      setTimeout(() => {
-        cel.style.display = 'none';
-      }, 1000);
-    }
+    if (!cel) return;
+    cel.style.display = 'flex';
+    setTimeout(() => {
+      cel.style.display = 'none';
+    }, 1000);
   }
-
-  /* ── End Game ──────────────────────────────────────────── */
 
   end() {
     this.ended = true;
+    this.cancelDrag();
 
-    // Clean up pupil tracking listener
     if (this._pupilHandler) {
       document.removeEventListener('pointermove', this._pupilHandler);
       this._pupilHandler = null;
     }
 
-    // Calculate final accuracy
     this.performance.accuracy = this.performance.correctItems / this.totalItems;
 
-    // Determine strengths and opportunities
     if (this.performance.accuracy >= 0.9) {
       this.performance.strengthAreas = ['Advanced counting', 'Accuracy'];
       this.performance.opportunityAreas = [];
@@ -426,7 +533,7 @@ class FeedAlienGame {
     }
 
     const nextGameRecommendation = typeof window.getNextGameRecommendation === 'function'
-      ? window.getNextGameRecommendation('feed-alien', this.canReachMax ? 'hard' : 'easy', this.performance.accuracy)
+      ? window.getNextGameRecommendation('feed-alien', 'easy', this.performance.accuracy)
       : 'world-reveal';
 
     this.context.saveSession({
@@ -449,7 +556,7 @@ class FeedAlienGame {
     const accuracy = Math.round(this.performance.accuracy * 100);
     const stars = this.performance.accuracy >= 0.8 ? 3 : this.performance.accuracy >= 0.6 ? 2 : 1;
     const nextGameType = typeof window.getNextGameRecommendation === 'function'
-      ? window.getNextGameRecommendation('feed-alien', this.canReachMax ? 'hard' : 'easy', this.performance.accuracy)
+      ? window.getNextGameRecommendation('feed-alien', 'easy', this.performance.accuracy)
       : 'world-reveal';
     const nextLabel = nextGameType === 'world-reveal' ? 'Back to World' : 'Continue Adventure';
 
@@ -481,9 +588,8 @@ class FeedAlienGame {
   }
 
   togglePause() {
-    // Implement pause logic if needed
+    // Reserved for future pause handling
   }
 }
 
-// Ensure the class is globally accessible
 window.FeedAlienGame = FeedAlienGame;

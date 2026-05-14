@@ -132,6 +132,10 @@
   z-index: 10;
 }
 
+.alien-thought-bubble.count-pop {
+  animation: bubbleCountPop 0.32s ease, bubbleBob 2s ease-in-out 0.32s infinite;
+}
+
 .thought-number {
   font-size: 32px;
   font-weight: 700;
@@ -141,6 +145,12 @@
 @keyframes bubbleBob {
   0%, 100% { transform: translateY(0); }
   50%       { transform: translateY(-8px); }
+}
+
+@keyframes bubbleCountPop {
+  0% { transform: scale(0.8); }
+  70% { transform: scale(1.12); }
+  100% { transform: scale(1); }
 }
 
 /* ── Gumblop alien character (all positions % of .alien size) ── */
@@ -367,6 +377,27 @@
 .mouth.open  { transform: scaleY(1.18) translateY(-4px); }
 .mouth.chomp { animation: chomp .55s ease-out; }
 
+.mouth-drop-target {
+  position: absolute;
+  inset: 8% 18% 8% 18%;
+  border-radius: 50% 50% 48% 48% / 35% 35% 70% 70%;
+  border: 3px dashed rgba(255, 255, 255, 0.28);
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+  z-index: 8;
+}
+
+.mouth-drop-target.active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.mouth-drop-target.over {
+  border-color: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 0 0 8px rgba(255, 255, 255, 0.14);
+}
+
 @keyframes chomp {
   0%   { transform: scaleY(1.3)  scaleX(1.05); }
   35%  { transform: scaleY(.4)   scaleX(1.1);  }
@@ -447,6 +478,8 @@
   transition: all 0.2s ease;
   box-shadow: 0 8px 16px rgba(245, 158, 11, 0.3);
   animation: foodEnter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  touch-action: none;
+  user-select: none;
 }
 
 .feed-grid.dense .food-item {
@@ -495,6 +528,31 @@
 
 .food-item:active {
   transform: scale(0.92);
+}
+
+.food-placeholder {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 20px;
+  border: 3px dashed rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.food-source-hidden {
+  visibility: hidden;
+}
+
+.food-drag-ghost {
+  position: fixed;
+  margin: 0;
+  z-index: 150;
+  pointer-events: none;
+  transform: scale(1.08) rotate(-4deg);
+  box-shadow: 0 16px 32px rgba(245, 158, 11, 0.38);
+}
+
+body.feed-dragging .alien-thought-bubble {
+  animation-play-state: paused;
 }
 
 /* ── Celebration ────────────────────────────────────────– */

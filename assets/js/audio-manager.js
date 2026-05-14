@@ -200,6 +200,7 @@
 
   /* ── Voice playback ──────────────────────────────────────── */
   let currentVoice = null;
+  let currentUtterance = null;
 
   function getPath(key) {
     const map = getVoiceMap();
@@ -207,15 +208,50 @@
     return file ? VOICE_BASE + file : null;
   }
 
+  function speakFallbackText(text) {
+    if (isMuted() || !('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') {
+      return Promise.resolve(false);
+    }
+
+    try {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(String(text));
+      utterance.rate = 0.95;
+      utterance.pitch = isFemaleChar() ? 1.08 : 0.98;
+      currentUtterance = utterance;
+
+      return new Promise(resolve => {
+        utterance.onend = () => {
+          if (currentUtterance === utterance) currentUtterance = null;
+          resolve(true);
+        };
+        utterance.onerror = () => {
+          if (currentUtterance === utterance) currentUtterance = null;
+          resolve(false);
+        };
+        window.speechSynthesis.speak(utterance);
+      });
+    } catch (err) {
+      console.warn('[Audio] Speech fallback failed:', err.message);
+      return Promise.resolve(false);
+    }
+  }
+
   function speak(key) {
     if (isMuted()) return Promise.resolve(false);
     const path = getPath(key);
-    if (!path) { console.warn('[Audio] No clip for:', key); return Promise.resolve(false); }
+    if (!path) {
+      return speakFallbackText(key);
+    }
 
     // Stop any currently playing voice immediately
     if (currentVoice) {
       currentVoice.pause();
       currentVoice.currentTime = 0;
+    }
+    if (currentUtterance && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      currentUtterance = null;
     }
 
     // Use preloaded element if available, otherwise create new
@@ -239,10 +275,15 @@
   }
 
   function stopVoice() {
-    if (!currentVoice) return;
-    currentVoice.pause();
-    currentVoice.currentTime = 0;
-    currentVoice = null;
+    if (currentVoice) {
+      currentVoice.pause();
+      currentVoice.currentTime = 0;
+      currentVoice = null;
+    }
+    if (currentUtterance && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      currentUtterance = null;
+    }
   }
 
   /* ── Mute button factory ─────────────────────────────────── */

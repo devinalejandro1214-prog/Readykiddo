@@ -1,17 +1,18 @@
-/* ─────────────────────────────────────────────────────────
+/*
    Space Defender Game Logic
-   ───────────────────────────────────────────────────────── */
+*/
 
 class SpaceDefenderGame {
   constructor(context) {
     this.context = context;
     this.container = document.getElementById('gameArea');
-    
-    // Game state
+
     this.level = 1;
+    this.maxLevels = 5;
     this.score = 0;
     this.lives = 3;
     this.isPlaying = false;
+    this.transitioningLevel = false;
     this.enemies = [];
     this.lasers = [];
     this.config = {
@@ -21,7 +22,6 @@ class SpaceDefenderGame {
       worldData: null
     };
 
-    // Tracking Metrics
     this.metrics = {
       shotsFired: 0,
       enemiesHit: 0,
@@ -31,20 +31,17 @@ class SpaceDefenderGame {
       dragPoints: []
     };
 
-    // Game loop references
     this.lastTime = 0;
     this.spawnTimer = 0;
     this.shootTimer = 0;
     this.animationFrameId = null;
 
-    // Ship element
-    this.shipX = 50; // percentage
+    this.shipX = 50;
     this.enemyDirection = 1;
     this.enemyHorizontalSpeed = 8;
     this.enemyDropStep = 6;
     this.enemyLowerBound = 84;
 
-    // ── FIX: keyboard & on-screen arrow state ──
     this.keysDown = new Set();
   }
 
@@ -63,26 +60,25 @@ class SpaceDefenderGame {
       ]);
       this.config.levels = await levelsRes.json();
       this.config.worlds = await worldsRes.json();
-      
-      this.config.worldData = this.config.worlds[this.context.worldSlug] || this.config.worlds['space'];
-      this.config.currentLevelData = this.config.levels[this.level.toString()];
-      
+
+      this.config.worldData = this.config.worlds[this.context.worldSlug] || this.config.worlds.space;
+      this.config.currentLevelData = this.config.levels[String(this.level)];
+
       document.documentElement.style.setProperty('--sd-primary', this.config.worldData.colors.primary);
       document.documentElement.style.setProperty('--sd-accent', this.config.worldData.colors.accent);
-      
     } catch (e) {
       console.warn('Using fallback Space Defender config', e);
-      // ── FIX: complete fallback with colors ──
       this.config.worldData = {
         ship: 'assets/images/games/space-defender/ships/space-ship.png',
         background: 'assets/images/games/space-defender/backgrounds/space-bg.png',
         colors: { primary: '#4f46e5', accent: '#818cf8' }
       };
       this.config.levels = {
-        '1': { enemyCount: 5,  speedMs: 2500, spawnIntervalMs: 2000 },
-        '2': { enemyCount: 8,  speedMs: 2000, spawnIntervalMs: 1500 },
-        '3': { enemyCount: 12, speedMs: 1500, spawnIntervalMs: 1200 },
-        'endless': { enemyCount: 15, speedMs: 1000, spawnIntervalMs: 1000 }
+        '1': { enemyCount: 5, speedMs: 2500, spawnIntervalMs: 2000 },
+        '2': { enemyCount: 7, speedMs: 2150, spawnIntervalMs: 1700 },
+        '3': { enemyCount: 9, speedMs: 1850, spawnIntervalMs: 1450 },
+        '4': { enemyCount: 11, speedMs: 1550, spawnIntervalMs: 1200 },
+        '5': { enemyCount: 13, speedMs: 1300, spawnIntervalMs: 1000 }
       };
       this.config.currentLevelData = this.config.levels['1'];
       document.documentElement.style.setProperty('--sd-primary', '#4f46e5');
@@ -101,6 +97,7 @@ class SpaceDefenderGame {
           <div class="level-indicator" id="sdLevel">LEVEL 1</div>
           <div class="score-counter">Score: <span id="sdScore">0</span></div>
         </div>
+        <div class="level-flash" id="sdLevelFlash" aria-live="polite"></div>
         <div class="play-area" id="sdPlayArea">
           <div class="ship" id="sdShip" style="left: 50%;">
             <img src="${this.config.worldData.ship}" class="ship-sprite" onerror="this.src=''; this.style.backgroundColor='white'; this.style.borderRadius='10px';" />
@@ -110,7 +107,6 @@ class SpaceDefenderGame {
           </div>
         </div>
 
-        <!-- ── FIX: on-screen arrow controls ── -->
         <div class="arrow-controls" id="sdArrowControls">
           <button class="arrow-btn" id="sdBtnLeft" aria-label="Move Left">&#9664;</button>
           <div class="arrow-hint">or use arrow keys</div>
@@ -121,60 +117,73 @@ class SpaceDefenderGame {
       </div>
     `;
 
-    this.playArea   = document.getElementById('sdPlayArea');
-    this.shipElement= document.getElementById('sdShip');
-    this.overlay    = document.getElementById('sdOverlay');
+    this.playArea = document.getElementById('sdPlayArea');
+    this.shipElement = document.getElementById('sdShip');
+    this.overlay = document.getElementById('sdOverlay');
+    this.levelFlash = document.getElementById('sdLevelFlash');
 
     this.setupControls();
   }
 
   setupControls() {
-    // ── drag / touch ──
     let isDragging = false;
 
-    const startDrag = (e) => { if (!this.isPlaying) return; isDragging = true; this.updateShipPosition(e); };
-    const moveDrag  = (e) => { if (!isDragging || !this.isPlaying) return; this.updateShipPosition(e); this.metrics.dragPoints.push({ x: this.shipX, time: Date.now() }); };
-    const endDrag   = () => { isDragging = false; };
+    const startDrag = e => {
+      if (!this.isPlaying) return;
+      isDragging = true;
+      this.updateShipPosition(e);
+    };
+    const moveDrag = e => {
+      if (!isDragging || !this.isPlaying) return;
+      this.updateShipPosition(e);
+      this.metrics.dragPoints.push({ x: this.shipX, time: Date.now() });
+    };
+    const endDrag = () => {
+      isDragging = false;
+    };
 
     this.playArea.addEventListener('mousedown', startDrag);
     document.addEventListener('mousemove', moveDrag);
     document.addEventListener('mouseup', endDrag);
-    this.playArea.addEventListener('touchstart', (e) => startDrag(e.touches[0]), { passive: false });
-    document.addEventListener('touchmove',  (e) => moveDrag(e.touches[0]),  { passive: false });
+    this.playArea.addEventListener('touchstart', e => startDrag(e.touches[0]), { passive: false });
+    document.addEventListener('touchmove', e => moveDrag(e.touches[0]), { passive: false });
     document.addEventListener('touchend', endDrag);
 
-    // ── FIX: keyboard arrow keys (← → A D) ──
-    document.addEventListener('keydown', (e) => {
-      if (['ArrowLeft','ArrowRight','a','A','d','D'].includes(e.key)) {
+    document.addEventListener('keydown', e => {
+      if (['ArrowLeft', 'ArrowRight', 'a', 'A', 'd', 'D'].includes(e.key)) {
         e.preventDefault();
         this.keysDown.add(e.key);
       }
     });
-    document.addEventListener('keyup', (e) => {
+    document.addEventListener('keyup', e => {
       this.keysDown.delete(e.key);
     });
 
-    // ── FIX: on-screen arrow buttons (hold to move) ──
-    const btnLeft  = document.getElementById('sdBtnLeft');
+    const btnLeft = document.getElementById('sdBtnLeft');
     const btnRight = document.getElementById('sdBtnRight');
-    const addKey   = (key) => { this.keysDown.add(key); };
-    const clearAll = ()    => { this.keysDown.delete('ArrowLeft'); this.keysDown.delete('ArrowRight'); };
+    const addKey = key => {
+      this.keysDown.add(key);
+    };
+    const clearAll = () => {
+      this.keysDown.delete('ArrowLeft');
+      this.keysDown.delete('ArrowRight');
+    };
 
     if (btnLeft) {
-      btnLeft.addEventListener('mousedown',  () => addKey('ArrowLeft'));
+      btnLeft.addEventListener('mousedown', () => addKey('ArrowLeft'));
       btnLeft.addEventListener('touchstart', () => addKey('ArrowLeft'), { passive: true });
     }
     if (btnRight) {
-      btnRight.addEventListener('mousedown',  () => addKey('ArrowRight'));
+      btnRight.addEventListener('mousedown', () => addKey('ArrowRight'));
       btnRight.addEventListener('touchstart', () => addKey('ArrowRight'), { passive: true });
     }
-    document.addEventListener('mouseup',   clearAll);
-    document.addEventListener('touchend',  clearAll);
+    document.addEventListener('mouseup', clearAll);
+    document.addEventListener('touchend', clearAll);
   }
 
   updateShipPosition(e) {
     const rect = this.playArea.getBoundingClientRect();
-    let x   = e.clientX || e.pageX;
+    const x = e.clientX || e.pageX;
     let pos = ((x - rect.left) / rect.width) * 100;
     pos = Math.max(5, Math.min(95, pos));
     this.shipX = pos;
@@ -188,19 +197,11 @@ class SpaceDefenderGame {
     if (type === 'start') {
       html = `
         <div class="overlay-title">Ready for action, ${this.context.childName}?</div>
-        <div class="overlay-text">Enemies are coming! Use ← → arrows (or drag) to dodge — we auto-shoot!</div>
+        <div class="overlay-text">Enemies are coming! Clear 5 levels in one smooth run. Use left and right arrows, or drag, to dodge. We auto-shoot!</div>
         <button class="btn-primary" id="sdBtnStart">Start Level 1</button>
       `;
       this.context.speak(`Ready for action, ${this.context.childName}? Enemies are coming!`);
       this.context.characterAnimation('wave');
-    } else if (type === 'levelComplete') {
-      html = `
-        <div class="overlay-title">Level Complete!</div>
-        <div class="overlay-text">Great job! The next level is faster!</div>
-        <button class="btn-primary" id="sdBtnNext">Continue to Level ${this.level + 1}</button>
-      `;
-      this.context.speak(`Level ${this.level} Complete! Next level is faster!`);
-      this.context.characterAnimation('celebrate');
     } else if (type === 'gameOver') {
       this.context.characterAnimation('nod');
       this.context.speak(`Great effort, ${this.context.childName}! You made it through ${this.level} levels!`);
@@ -218,9 +219,6 @@ class SpaceDefenderGame {
     const btnStart = document.getElementById('sdBtnStart');
     if (btnStart) btnStart.onclick = () => this.startLevel();
 
-    const btnNext = document.getElementById('sdBtnNext');
-    if (btnNext) btnNext.onclick = () => { this.level++; this.startLevel(); };
-
     const btnSummary = document.getElementById('sdBtnSummary');
     if (btnSummary) btnSummary.onclick = () => this.showScreen('summary');
 
@@ -236,23 +234,32 @@ class SpaceDefenderGame {
   }
 
   generateSummaryHTML() {
-    const accuracy    = this.metrics.shotsFired > 0 ? Math.round((this.metrics.enemiesHit / this.metrics.shotsFired) * 100) : 0;
+    const accuracy = this.metrics.shotsFired > 0
+      ? Math.round((this.metrics.enemiesHit / this.metrics.shotsFired) * 100)
+      : 0;
     const avgReaction = this.metrics.reactionTimes.length > 0
       ? (this.metrics.reactionTimes.reduce((a, b) => a + b, 0) / this.metrics.reactionTimes.length / 1000).toFixed(1)
       : 'N/A';
 
-    this.context.saveSession({ metrics: { accuracy, avgReaction, enemiesDefeated: this.score, levelsReached: this.level } });
+    this.context.saveSession({
+      metrics: {
+        accuracy,
+        avgReaction,
+        enemiesDefeated: this.score,
+        levelsReached: this.level
+      }
+    });
 
     return `
       <div class="parent-summary">
         <h3>${this.context.childName}'s Space Defender Adventure</h3>
-        <p><strong>🎯 What ${this.context.childName} Did:</strong><br>
+        <p><strong>What ${this.context.childName} Did:</strong><br>
         Piloted a ship and defended against incoming aliens using arrow keys and quick reflexes.</p>
-        <p><strong>⭐ Skills Showed:</strong></p>
+        <p><strong>Skills Showed:</strong></p>
         <ul>
           <li>Hand-Eye Coordination (${accuracy}% hit accuracy)</li>
           <li>Quick Reaction Time (avg ${avgReaction} sec)</li>
-          <li>Focus &amp; Attention</li>
+          <li>Focus and Attention</li>
         </ul>
         <div class="stats">
           <div class="stat-item"><span class="stat-label">Enemies Defeated</span><span class="stat-value">${this.score}</span></div>
@@ -267,47 +274,42 @@ class SpaceDefenderGame {
 
   startLevel() {
     this.overlay.style.display = 'none';
-    this.keysDown.clear(); // clear any stale keys
+    this.keysDown.clear();
+    this.transitioningLevel = false;
 
-    const levelKey = this.level > 3 ? 'endless' : this.level.toString();
-    this.config.currentLevelData = this.config.levels[levelKey] || this.config.levels['3'];
-
-    if (levelKey === 'endless') {
-      this.config.currentLevelData = Object.assign({}, this.config.currentLevelData);
-      this.config.currentLevelData.enemyCount = 12 + (this.level - 4) * 3;
-      this.config.currentLevelData.speedMs    = Math.max(400, 800 - (this.level - 4) * 50);
-    }
+    const levelKey = String(Math.min(this.level, this.maxLevels));
+    this.config.currentLevelData = this.config.levels[levelKey] || this.config.levels['5'];
 
     document.getElementById('sdLevel').textContent = `LEVEL ${this.level}`;
     this.isPlaying = true;
     this.enemiesSpawnedThisLevel = 0;
     this.lastTime = performance.now();
 
-    this.enemies.forEach(e => e.el.remove());
-    this.lasers.forEach(l => l.el.remove());
+    this.enemies.forEach(enemy => enemy.el.remove());
+    this.lasers.forEach(laser => laser.el.remove());
     this.enemies = [];
-    this.lasers  = [];
+    this.lasers = [];
     this.spawnTimer = 0;
     this.enemyDirection = 1;
     this.enemyHorizontalSpeed = this.getFormationSpeed();
     this.enemyDropStep = this.getFormationDropStep();
     this.createEnemyFormation();
+    this.showLevelFlash(`Level ${this.level}`);
 
     this.gameLoop(this.lastTime);
   }
 
   gameLoop(currentTime) {
     if (!this.isPlaying) return;
-    const dt  = currentTime - this.lastTime;
+    const dt = currentTime - this.lastTime;
     this.lastTime = currentTime;
     this.update(dt);
-    this.animationFrameId = requestAnimationFrame((t) => this.gameLoop(t));
+    this.animationFrameId = requestAnimationFrame(t => this.gameLoop(t));
   }
 
   update(dt) {
-    // ── FIX: process arrow-key / button movement ──
-    const SPEED = 80; // % per second
-    const move  = SPEED * (dt / 1000);
+    const SPEED = 80;
+    const move = SPEED * (dt / 1000);
     if (this.keysDown.has('ArrowLeft') || this.keysDown.has('a') || this.keysDown.has('A')) {
       this.shipX = Math.max(5, this.shipX - move);
       this.shipElement.style.left = `${this.shipX}%`;
@@ -317,22 +319,22 @@ class SpaceDefenderGame {
       this.shipElement.style.left = `${this.shipX}%`;
     }
 
-    // Shooting
     this.shootTimer += dt;
     if (this.shootTimer >= 400) {
       this.shoot();
       this.shootTimer = 0;
     }
 
-    // Move Lasers
     for (let i = this.lasers.length - 1; i >= 0; i--) {
       const laser = this.lasers[i];
       laser.y -= (dt / 1000) * 100;
       laser.el.style.top = `${laser.y}%`;
-      if (laser.y < -5) { laser.el.remove(); this.lasers.splice(i, 1); }
+      if (laser.y < -5) {
+        laser.el.remove();
+        this.lasers.splice(i, 1);
+      }
     }
 
-    // Move Enemies in a classic Space-Invaders sweep: side to side, then step down.
     const horizontalStep = this.enemyHorizontalSpeed * (dt / 1000) * this.enemyDirection;
     const shouldDrop = this.enemies.some(enemy => {
       const nextX = enemy.x + horizontalStep;
@@ -374,9 +376,23 @@ class SpaceDefenderGame {
       }
     }
 
-    if (this.enemiesSpawnedThisLevel >= this.config.currentLevelData.enemyCount && this.enemies.length === 0) {
+    if (!this.transitioningLevel && this.enemiesSpawnedThisLevel >= this.config.currentLevelData.enemyCount && this.enemies.length === 0) {
       this.isPlaying = false;
-      setTimeout(() => this.showScreen('levelComplete'), 1000);
+      this.transitioningLevel = true;
+
+      if (this.level >= this.maxLevels) {
+        this.showLevelFlash('All levels cleared!');
+        this.context.characterAnimation('celebrate');
+        this.context.speak('Amazing! You cleared all 5 levels!');
+        setTimeout(() => this.showScreen('summary'), 900);
+      } else {
+        this.showLevelFlash(`Level ${this.level} clear!`);
+        this.context.characterAnimation('celebrate');
+        setTimeout(() => {
+          this.level++;
+          this.startLevel();
+        }, 650);
+      }
     }
   }
 
@@ -385,12 +401,12 @@ class SpaceDefenderGame {
     const laserEl = document.createElement('div');
     laserEl.className = 'laser';
     laserEl.style.left = `${this.shipX}%`;
-    laserEl.style.top  = '82%';
+    laserEl.style.top = '82%';
     this.playArea.appendChild(laserEl);
     this.lasers.push({ el: laserEl, x: this.shipX, y: 82 });
 
     if (this.enemies.length > 0) {
-      const target    = this.enemies[this.enemies.length - 1];
+      const target = this.enemies[this.enemies.length - 1];
       const spawnTime = this.metrics.enemySpawnTimes[target.id];
       if (spawnTime) {
         const reactTime = Date.now() - spawnTime;
@@ -400,17 +416,25 @@ class SpaceDefenderGame {
   }
 
   getFormationSpeed() {
-    const levelIndex = Math.max(0, this.level - 1);
-    return Math.min(16, 7 + levelIndex * 1.5);
+    const levelSpeeds = [7, 8.5, 10.5, 12.5, 14];
+    return levelSpeeds[Math.min(this.level, this.maxLevels) - 1] || 14;
   }
 
   getFormationDropStep() {
     return this.level >= 4 ? 7 : 6;
   }
 
+  showLevelFlash(message) {
+    if (!this.levelFlash) return;
+    this.levelFlash.textContent = message;
+    this.levelFlash.classList.remove('show');
+    void this.levelFlash.offsetWidth;
+    this.levelFlash.classList.add('show');
+  }
+
   createEnemyFormation() {
     const enemyCount = this.config.currentLevelData.enemyCount;
-    const columns = enemyCount >= 15 ? 5 : enemyCount >= 10 ? 4 : enemyCount >= 6 ? 4 : enemyCount;
+    const columns = enemyCount >= 12 ? 5 : enemyCount >= 8 ? 4 : enemyCount >= 6 ? 4 : enemyCount;
     const rows = Math.ceil(enemyCount / columns);
     const widthPct = 9;
     const heightPct = 9;
@@ -436,7 +460,11 @@ class SpaceDefenderGame {
       const img = document.createElement('img');
       img.className = 'enemy-sprite';
       img.src = 'assets/images/games/space-defender/enemies/space-aliens/alien1.png';
-      img.onerror = () => { img.src = ''; img.style.backgroundColor = '#ef4444'; img.style.borderRadius = '12px'; };
+      img.onerror = () => {
+        img.src = '';
+        img.style.backgroundColor = '#ef4444';
+        img.style.borderRadius = '12px';
+      };
       enemyEl.appendChild(img);
       this.playArea.appendChild(enemyEl);
 
@@ -477,9 +505,9 @@ class SpaceDefenderGame {
     document.getElementById('sdScore').textContent = this.score;
 
     const exp = document.createElement('div');
-    exp.className  = 'explosion';
+    exp.className = 'explosion';
     exp.style.left = `${enemy.x}%`;
-    exp.style.top  = `${enemy.y}%`;
+    exp.style.top = `${enemy.y}%`;
     this.playArea.appendChild(exp);
     setTimeout(() => exp.remove(), 400);
 
@@ -498,10 +526,13 @@ class SpaceDefenderGame {
     this.context.characterAnimation('nod');
 
     this.container.style.boxShadow = 'inset 0 0 50px red';
-    setTimeout(() => { this.container.style.boxShadow = 'none'; }, 300);
+    setTimeout(() => {
+      this.container.style.boxShadow = 'none';
+    }, 300);
 
     if (this.lives <= 0) {
       this.isPlaying = false;
+      this.transitioningLevel = true;
       setTimeout(() => this.showScreen('gameOver'), 1000);
     }
   }
