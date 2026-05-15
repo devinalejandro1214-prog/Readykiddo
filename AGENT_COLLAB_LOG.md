@@ -2420,3 +2420,10 @@ GitHub/Netlify:
 - Generated dedicated recorded basket-prompt clips for counts 1-10 with the local Kokoro pipeline.
 - Wired the new basket-prompt clips into the active RKAudio map for both voice paths.
 - Validation passed: node --check assets/js/games/feed-alien-game.js, node --check assets/js/audio-manager.js, npm test, npm run build, git diff --check.
+
+## 2026-05-15 - Codex Letter Line Audio + Randomization Update
+- Updated Letter Line to speak the full prompt style, e.g. Where does M go?, instead of the older find M phrasing.
+- Generated dedicated recorded where does <letter> go clips for A-Z with the local Kokoro pipeline.
+- Wired those new prompt clips into the active RKAudio map for both voice paths.
+- Updated round flow so the first two rounds stay guided (A-J, then K-T), and later rounds switch to randomized 10-letter windows.
+- Validation passed: node --check assets/js/games/number-line-game.js, node --check assets/js/audio-manager.js, npm test, npm run build, git diff --check.

@@ -10,12 +10,12 @@ class NumberLineGame {
     this.letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
     this.rounds = [
-      { start: 0, gaps: 1, decoys: 2 },
-      { start: 0, gaps: 2, decoys: 2 },
-      { start: 0, gaps: 2, decoys: 3 },
-      { start: 10, gaps: 2, decoys: 3 },
-      { start: 10, gaps: 3, decoys: 4 },
-      { start: 10, gaps: 3, decoys: 4 }
+      { start: 0, gaps: 1, decoys: 2, mode: 'fixed' },
+      { start: 10, gaps: 2, decoys: 3, mode: 'fixed' },
+      { gaps: 2, decoys: 3, mode: 'random' },
+      { gaps: 2, decoys: 4, mode: 'random' },
+      { gaps: 3, decoys: 4, mode: 'random' },
+      { gaps: 3, decoys: 4, mode: 'random' }
     ];
 
     this.currentRound = 0;
@@ -40,7 +40,9 @@ class NumberLineGame {
 
   beginRound() {
     const cfg = this.rounds[this.currentRound];
-    this.sequence = this.letters.slice(cfg.start, cfg.start + 10);
+    this.sequence = cfg.mode === 'random'
+      ? this._buildRandomSequence()
+      : this.letters.slice(cfg.start, cfg.start + 10);
     this.gapPositions = this._pickGaps(cfg.gaps).sort((a, b) => a - b);
     this.activeGapIdx = 0;
     this.performance.totalGaps += cfg.gaps;
@@ -371,7 +373,13 @@ class NumberLineGame {
 
   _speakActivePrompt() {
     const target = this.sequence[this.gapPositions[this.activeGapIdx]];
-    if (target) this.context.speak(`find ${target}`);
+    if (target) this.context.speak(`Where does ${target} go?`);
+  }
+
+  _buildRandomSequence() {
+    const maxStart = this.letters.length - 10;
+    const start = Math.floor(Math.random() * (maxStart + 1));
+    return this.letters.slice(start, start + 10);
   }
 
   _pickGaps(count) {
