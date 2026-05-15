@@ -44,7 +44,7 @@ const COLOR_PNG_MAP = {
     yellow: { item: 'star',   path: null },
     orange: { item: 'star',   path: 'assets/images/games/color-sort/items/space-orange-star.png' },
     green:  { item: 'rocket', path: 'assets/images/games/color-sort/items/space-green-rocket.png' },
-    purple: { item: 'planet', path: 'assets/images/games/color-sort/items/space-purple-planet.png' },
+    purple: { item: 'planet', path: null },
   },
   beach: {
     red:    { item: 'starfish',  path: null },

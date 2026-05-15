@@ -2401,3 +2401,8 @@ GitHub/Netlify:
 - Wired all new clips into the active RKAudio path in assets/js/audio-manager.js for both Em and Amara routing.
 - Validation passed: node --check assets/js/audio-manager.js, npm test, npm run build, git diff --check.
 - Scope intentionally stayed narrow: active audio wiring plus newly generated voice assets only.
+
+## 2026-05-15 - Codex Space Purple Tile Fix
+- Updated the Space world color-sort mapping so purple no longer uses the purple planet image.
+- Purple in Space now falls back to the solid purple tile, while blue keeps the blue planet asset.
+- Scope stayed intentionally narrow to avoid changing the other world/item mappings.
