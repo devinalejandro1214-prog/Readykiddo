@@ -480,6 +480,38 @@
    small Android portrait, etc.) to keep tray fully visible.
    ═══════════════════════════════════════════════════════ */
 
+/* ── Narrow portrait phones (≤400px wide) ───────────────
+   On 320–400px screens auto-fit minmax(100px) only fits 2
+   items per row → 3 rows for 5 items → tray ~490px → clips.
+   Dropping to minmax(80px) fits 3 per row → 2 rows → fits. */
+@media (max-width: 400px) {
+  .fbs-layout {
+    gap: 12px;
+    padding: 14px 10px 16px;
+  }
+
+  .fbs-tray {
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .fbs-item {
+    padding: 10px 6px;
+  }
+
+  .fbs-item-emoji {
+    font-size: 1.7rem;
+  }
+
+  .fbs-item-label {
+    font-size: 0.68rem;
+  }
+}
+
+/* ── Short viewport: landscape phones + compact screens ──
+   Also fix minwidth here so narrow+short combos (320×568)
+   don't produce 3 rows under the height breakpoint either. */
 @media (max-height: 620px) {
   .fbs-layout {
     gap: 10px;
@@ -505,6 +537,9 @@
   }
 
   .fbs-tray {
+    /* 80px min ensures 3 items/row on narrow screens,
+       keeping the tray to 2 rows for 5 items */
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
     gap: 8px;
     padding: 10px;
   }

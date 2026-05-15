@@ -44,15 +44,45 @@
     'find circle':    'em-circle.m4a',
     'find square':    'em-square.m4a',
     'find triangle':  'em-triangle.m4a',
-    'find star':      'em-yay.m4a',
-    'find rectangle': 'em-great-job.m4a',
-    'find diamond':   'em-you-found-it.m4a',
+    'find star':      'em-star.wav',
+    'find rectangle': 'em-rectangle.wav',
+    'find diamond':   'em-diamond.wav',
+
+    // New generated gameplay callouts
+    'find b':         'em-find-b.wav',
+    'find c':         'em-find-c.wav',
+    'find d':         'em-find-d.wav',
+    'find f':         'em-find-f.wav',
+    'find h':         'em-find-h.wav',
+    'find l':         'em-find-l.wav',
+    'find m':         'em-find-m.wav',
+    'find p':         'em-find-p.wav',
+    'find r':         'em-find-r.wav',
+    'find s':         'em-find-s.wav',
+    'find t':         'em-find-t.wav',
+    'starts with the sound buh': 'em-fbs-b.wav',
+    'starts with the sound sss': 'em-fbs-s.wav',
+    'starts with the sound mmm': 'em-fbs-m.wav',
+    'starts with the sound fff': 'em-fbs-f.wav',
+    'starts with the sound puh': 'em-fbs-p.wav',
+    'starts with the sound duh': 'em-fbs-d.wav',
+    '1': 'em-num-1.wav',
+    '2': 'em-num-2.wav',
+    '3': 'em-num-3.wav',
+    '4': 'em-num-4.wav',
+    '5': 'em-num-5.wav',
+    '6': 'em-num-6.wav',
+    '7': 'em-num-7.wav',
+    '8': 'em-num-8.wav',
+    '9': 'em-num-9.wav',
+    '10': 'em-num-10.wav',
 
     // Correct feedback
     'you got it':   'em-you-got-it.m4a',
     'you found it': 'em-you-found-it.m4a',
     'great job':    'em-great-job.m4a',
     'good job':     'Em-Good job.m4a',
+    'perfect':      'em-great-job.m4a',
     'yay':          'em-yay.m4a',
     'impressive':   'Em-impressive.m4a',
     'i cant believe it': 'Em-I canâ€™t believe it.m4a',
@@ -88,15 +118,43 @@
     'find circle':    'em-circle.m4a',
     'find square':    'em-square.m4a',
     'find triangle':  'em-triangle.m4a',
-    'find star':      'Amara-Yay.m4a',
-    'find rectangle': 'Amara-You so smart .m4a',
-    'find diamond':   'Amara-Wow.m4a',
+    'find star':      'em-star.wav',
+    'find rectangle': 'em-rectangle.wav',
+    'find diamond':   'em-diamond.wav',
+    'find b':         'em-find-b.wav',
+    'find c':         'em-find-c.wav',
+    'find d':         'em-find-d.wav',
+    'find f':         'em-find-f.wav',
+    'find h':         'em-find-h.wav',
+    'find l':         'em-find-l.wav',
+    'find m':         'em-find-m.wav',
+    'find p':         'em-find-p.wav',
+    'find r':         'em-find-r.wav',
+    'find s':         'em-find-s.wav',
+    'find t':         'em-find-t.wav',
+    'starts with the sound buh': 'em-fbs-b.wav',
+    'starts with the sound sss': 'em-fbs-s.wav',
+    'starts with the sound mmm': 'em-fbs-m.wav',
+    'starts with the sound fff': 'em-fbs-f.wav',
+    'starts with the sound puh': 'em-fbs-p.wav',
+    'starts with the sound duh': 'em-fbs-d.wav',
+    '1': 'em-num-1.wav',
+    '2': 'em-num-2.wav',
+    '3': 'em-num-3.wav',
+    '4': 'em-num-4.wav',
+    '5': 'em-num-5.wav',
+    '6': 'em-num-6.wav',
+    '7': 'em-num-7.wav',
+    '8': 'em-num-8.wav',
+    '9': 'em-num-9.wav',
+    '10': 'em-num-10.wav',
 
     // Correct feedback — Amara's voice
     'you got it':   'Amara-Yay.m4a',
     'you found it': 'Amara-Yay we did it!.m4a',
     'great job':    'Amara-You so smart .m4a',
     'good job':     'Amara-You so smart .m4a',
+    'perfect':      'Amara-You so smart .m4a',
     'yay':          'Amara-Yay.m4a',
     'impressive':   'Amara-You look so cool.m4a',
     'wow':          'Amara-Wow.m4a',
@@ -202,10 +260,34 @@
   let currentVoice = null;
   let currentUtterance = null;
 
+  function normalizeKey(value) {
+    return String(value || '')
+      .toLowerCase()
+      .replace(/[’]/g, "'")
+      .replace(/[^a-z0-9' ]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
   function getPath(key) {
     const map = getVoiceMap();
-    const file = map[key.toLowerCase().trim()];
-    return file ? VOICE_BASE + file : null;
+    const normalized = normalizeKey(key);
+    if (!normalized) return null;
+
+    if (map[normalized]) {
+      return VOICE_BASE + map[normalized];
+    }
+
+    let bestKey = null;
+    let bestLength = 0;
+    for (const candidate of Object.keys(map)) {
+      if (normalized.includes(candidate) && candidate.length > bestLength) {
+        bestKey = candidate;
+        bestLength = candidate.length;
+      }
+    }
+
+    return bestKey ? VOICE_BASE + map[bestKey] : null;
   }
 
   function speakFallbackText(text) {

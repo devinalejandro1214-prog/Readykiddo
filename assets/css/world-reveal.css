@@ -316,6 +316,9 @@ body {
     }
 
     .welcome-card {
+        /* Push below the fixed mute button (top:16px + 44px = 60px from viewport).
+           Panel inset is 22px, so top:42px puts card top at 64px — clear of button. */
+        top: 42px;
         max-width: calc(100vw - 32px);
         padding: 12px 18px;
     }
@@ -350,6 +353,7 @@ body {
 
     .welcome-card {
         border-radius: 28px;
+        top: 42px; /* keep mute-button clearance at this breakpoint too */
     }
 
     .welcome-card h1 {
