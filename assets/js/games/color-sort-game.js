@@ -469,6 +469,12 @@ class ColorSortGame {
   async showEndScreen(accuracy) {
     const gameArea = document.getElementById('gameArea');
     const stars = Math.min(3, Math.round(accuracy * 3));
+
+    // Celebration audio — pick by star count
+    const celebClips = ['yay', 'impressive', 'great job'];
+    this.context.speak(celebClips[Math.min(stars, celebClips.length) - 1] || 'yay');
+    this.context.characterAnimation('celebrate');
+
     gameArea.innerHTML = `
       <div class="color-end-card">
         <div class="color-end-panel">
@@ -480,12 +486,12 @@ class ColorSortGame {
             </svg>`).join('')}
           </div>
           <p class="color-accuracy">${Math.round(accuracy*100)}% Correct</p>
-          <button class="color-next-btn" id="nextGameBtn">Next Game</button>
+          <button class="color-next-btn" id="nextGameBtn">Next Game ▶</button>
         </div>
       </div>
     `;
     document.getElementById('nextGameBtn').addEventListener('click', () => {
-      window.location.href = 'game-loader.html?game=shape-recognition';
+      this.context.goToNextGame('shape-recognition');
     });
   }
 

@@ -219,49 +219,103 @@ class GameShell {
   }
 
   requireInteraction() {
+    // Look up game metadata from the registry for a themed overlay
+    const gameConfig = (typeof GAME_REGISTRY !== 'undefined' && GAME_REGISTRY[this.gameType]) || {};
+    const gameName = gameConfig.name || 'Get Ready!';
+    const gameDesc = gameConfig.description || 'Your adventure is about to begin.';
+
     return new Promise(resolve => {
       const overlay = document.createElement('div');
       overlay.className = 'interaction-overlay';
       overlay.innerHTML = `
         <div class="interaction-panel">
-          <h2>Ready to Play?</h2>
-          <button class="start-btn" id="tapToStartBtn">Start Game</button>
+          <div class="interaction-game-badge">${gameName}</div>
+          <p class="interaction-desc">${gameDesc}</p>
+          <button class="start-btn" id="tapToStartBtn">
+            <span class="start-btn-icon">▶</span> Let's Go!
+          </button>
         </div>
       `;
       Object.assign(overlay.style, {
         position: 'fixed', inset: 0, zIndex: 9999,
-        background: 'rgba(6, 12, 26, 0.85)',
+        background: 'rgba(6, 12, 26, 0.88)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        backdropFilter: 'blur(4px)'
+        backdropFilter: 'blur(6px)'
       });
 
       const style = document.createElement('style');
       style.textContent = `
-        .interaction-panel { text-align: center; color: white; font-family: "Fredoka", sans-serif; animation: panelSlide 0.5s ease-out; }
-        .interaction-panel h2 { font-size: 32px; margin-bottom: 24px; text-shadow: 0 4px 12px rgba(0,0,0,0.5); }
-        .start-btn { 
-          padding: 16px 36px; font-size: 24px; font-weight: 700; font-family: inherit;
-          color: white; background: linear-gradient(135deg, #09395f 0%, #0b5f95 100%); 
-          border: 3px solid rgba(255,255,255,0.2); border-radius: 999px;
-          box-shadow: 0 8px 24px rgba(11, 95, 149, 0.4); cursor: pointer;
-          transition: transform 0.2s, box-shadow 0.2s;
+        @keyframes rkPanelPop {
+          from { opacity: 0; transform: translateY(28px) scale(0.96); }
+          to   { opacity: 1; transform: translateY(0) scale(1); }
         }
-        .start-btn:active { transform: scale(0.95); }
+        @keyframes rkBtnPulse {
+          0%,100% { box-shadow: 0 8px 24px rgba(11,95,149,0.4); }
+          50%     { box-shadow: 0 12px 34px rgba(242,140,24,0.45); }
+        }
+        .interaction-panel {
+          text-align: center; color: white;
+          font-family: "Fredoka", sans-serif;
+          animation: rkPanelPop 0.45s cubic-bezier(0.34,1.56,0.64,1) both;
+          max-width: min(480px, 88vw);
+          padding: 36px 32px;
+          background: rgba(9,57,95,0.72);
+          border: 2px solid rgba(255,255,255,0.14);
+          border-radius: 28px;
+          box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+        }
+        .interaction-game-badge {
+          display: inline-block;
+          padding: 6px 20px;
+          border-radius: 999px;
+          background: linear-gradient(135deg, #f28c18, #ffb23e);
+          color: #09395f;
+          font-size: 13px;
+          font-weight: 700;
+          letter-spacing: 0.04em;
+          text-transform: uppercase;
+          margin-bottom: 16px;
+        }
+        .interaction-desc {
+          font-size: 20px;
+          font-weight: 600;
+          line-height: 1.3;
+          margin-bottom: 28px;
+          opacity: 0.9;
+        }
+        .start-btn {
+          display: inline-flex; align-items: center; gap: 10px;
+          padding: 16px 38px; font-size: 24px; font-weight: 700; font-family: inherit;
+          color: white; background: linear-gradient(135deg, #09395f 0%, #0b5f95 100%);
+          border: 3px solid rgba(255,255,255,0.22); border-radius: 999px;
+          box-shadow: 0 8px 24px rgba(11,95,149,0.4); cursor: pointer;
+          transition: transform 0.2s, box-shadow 0.2s;
+          animation: rkBtnPulse 2.2s ease-in-out 0.8s infinite;
+        }
+        .start-btn:hover { transform: translateY(-3px) scale(1.03); }
+        .start-btn:active { transform: scale(0.96); }
+        .start-btn-icon {
+          display: grid; width: 36px; height: 36px; place-items: center;
+          border-radius: 50%; background: rgba(255,255,255,0.18);
+          font-size: 14px;
+        }
       `;
       document.head.appendChild(style);
       document.body.appendChild(overlay);
 
       const btn = document.getElementById('tapToStartBtn');
       btn.addEventListener('click', () => {
-        if (window.RKAudio) window.RKAudio.unlock();
-        if (window.ReadyKiddoAudio && window.ReadyKiddoAudio.unlock) window.ReadyKiddoAudio.unlock();
+        if (window.RKAudio) {
+          RKAudio.unlock();
+          RKAudio.speak('ready');
+        }
         overlay.remove();
         style.remove();
-        
+
         // Ensure loading spinner is gone so game is instantly visible
         const spinner = document.getElementById('loadingSpinner');
         if (spinner) spinner.style.display = 'none';
-        
+
         resolve();
       }, { once: true });
     });

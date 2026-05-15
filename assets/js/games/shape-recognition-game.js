@@ -403,6 +403,12 @@ class ShapeRecognitionGame {
   async showEndScreen(accuracy) {
     const gameArea = document.getElementById('gameArea');
     const stars = Math.min(3, Math.round(accuracy * 3));
+
+    // Celebration audio
+    const celebClips = ['yay', 'impressive', 'great job'];
+    this.context.speak(celebClips[Math.min(stars, celebClips.length) - 1] || 'yay');
+    this.context.characterAnimation('celebrate');
+
     gameArea.innerHTML = `
       <div class="shape-end-card">
         <div class="shape-end-panel">
@@ -414,7 +420,7 @@ class ShapeRecognitionGame {
             </svg>`).join('')}
           </div>
           <p class="shape-accuracy">${Math.round(accuracy*100)}% Correct</p>
-          <button class="shape-next-btn" id="nextGameBtn">Next Game</button>
+          <button class="shape-next-btn" id="nextGameBtn">Next Game ▶</button>
         </div>
       </div>
     `;

@@ -282,11 +282,15 @@
 
     // Start when DOM is ready
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initializeGame);
+      document.addEventListener('DOMContentLoaded', () => {
+        if (window.RKAudio) RKAudio.injectMuteButton('body');
+        initializeGame();
+      });
     } else {
+      if (window.RKAudio) RKAudio.injectMuteButton('body');
       initializeGame();
     }
-  </script>
+</script>
     <script src="assets/js/feedback-widget.js"></script>
 </body>
 </html>

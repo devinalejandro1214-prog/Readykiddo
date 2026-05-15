@@ -53,10 +53,9 @@ async function startGameWithWelcome(profile) {
     startButton.disabled = true;
     startButton.querySelector('span:last-child').textContent = 'Starting...';
 
-    if (window.ReadyKiddoAudio) {
-        await window.ReadyKiddoAudio.unlock();
-        window.ReadyKiddoAudio.speak('welcome');
-    }
+    // Unlock audio context on press (needed for iOS), then navigate.
+    // Do NOT re-speak 'welcome' here — it already played on page load.
+    if (window.RKAudio) RKAudio.unlock();
 
     localStorage.setItem('gameProfile', JSON.stringify(profile));
     setTimeout(() => {
@@ -76,8 +75,8 @@ function setupResumeButton(profile) {
     button.querySelector('span').textContent = `Resume ${resume.label}`;
     hint.textContent = `Saved ${resume.itemsShown || 0} rounds in.`;
 
-    button.addEventListener('click', async () => {
-        if (window.ReadyKiddoAudio) await window.ReadyKiddoAudio.unlock();
+    button.addEventListener('click', () => {
+        if (window.RKAudio) RKAudio.unlock();
         localStorage.setItem('gameProfile', JSON.stringify(profile));
         window.location.href = `game-loader.html?game=${resume.gameType}&resume=true`;
     });
@@ -87,31 +86,23 @@ function getSavedGame(profile) {
     const childId = profile.childId;
     if (!childId) return null;
 
-    const candidates = [
-        {
-            key: `colorSortProgress_${childId}`,
-            gameType: 'color-sort',
-            label: 'Color Sort'
-        },
-        {
-            key: `shapeRecognitionProgress_${childId}`,
-            gameType: 'shape-recognition',
-            label: 'Shape Game'
-        }
+    // Check dedicated progress keys for games that save mid-session
+    const keyedCandidates = [
+        { key: `colorSortProgress_${childId}`,       gameType: 'color-sort',       label: 'Color Sort'   },
+        { key: `shapeRecognitionProgress_${childId}`, gameType: 'shape-recognition', label: 'Shape Game'   }
     ];
 
-    return candidates
+    const fromKeys = keyedCandidates
         .map(candidate => {
             try {
                 const saved = JSON.parse(localStorage.getItem(candidate.key) || 'null');
                 if (!saved || typeof saved.itemsShown !== 'number') return null;
-                return { ...candidate, ...saved };
-            } catch (e) {
-                return null;
-            }
+                return { ...candidate, itemsShown: saved.itemsShown, savedAt: saved.savedAt || 0 };
+            } catch (e) { return null; }
         })
-        .filter(Boolean)
-        .sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0))[0] || null;
+        .filter(Boolean);
+
+    return fromKeys.sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0))[0] || null;
 }
 
 function setupIntroVideo(profile) {

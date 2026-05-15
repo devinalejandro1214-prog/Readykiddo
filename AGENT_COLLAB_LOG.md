@@ -2438,3 +2438,78 @@ GitHub/Netlify:
 - Updated Space Defender to trigger space-shot, space-hit, and space-destroyed at the right gameplay moments.
 - Source set: Mixkit free sound effects categories and licensed-use library.
 - Validation passed: node --check assets/js/audio-manager.js, node --check assets/js/games/game-shell.js, node --check assets/js/games/space-defender-game.js, npm test, npm run build, git diff --check.
+
+---
+
+## Session: Full App Audit + UI & Audio Pass (2026-05-15)
+
+### Prompt
+Full run-through audit of all pages/pathways/worlds. Come back with UI enhancements ensuring audio is linked and triggers correctly.
+
+### Actions Taken
+
+**Bug Fixes:**
+
+1. **Mute button missing from games** -- `game-loader.html` now calls `RKAudio.injectMuteButton('body')` on DOMContentLoaded so the mute toggle is available in every game.
+
+2. **World-reveal double-speak** -- `world-reveal.js` `startGameWithWelcome()` was calling `ReadyKiddoAudio.speak('welcome')` (old system) on Play button press, firing a second welcome clip after the page-load one at 800ms. Removed the duplicate speak; kept only the `RKAudio.unlock()` call. Also updated the resume button from `ReadyKiddoAudio.unlock()` to `RKAudio.unlock()`.
+
+3. **Silent onboarding** -- Added `RKAudio.speak()` on every option card click (world, vibe, style) and on character card click. Picks a random excitement clip from ['yay', 'you got it', 'wow'] for character, ['great job', 'yay', 'you got it', 'impressive'] for world/vibe/style. Also bumped auto-advance delay from 250ms to 500ms so the clip has time to play before navigation.
+
+4. **Silent game end screens** -- All 5 games that had silent end screens now speak a celebration clip keyed to star count (1 star = 'yay', 2 = 'great job', 3 = 'impressive') and trigger `characterAnimation('celebrate')`: Color Sort, Shape Recognition, Feed Alien, Number Line, Feed by Sound, ABC Match.
+
+5. **Color Sort end button hardcoded URL** -- Changed `window.location.href = 'game-loader.html?game=shape-recognition'` to `this.context.goToNextGame('shape-recognition')` to route through the registry correctly.
+
+6. **Resume button only covered 2 games** -- Extended `getSavedGame()` in `world-reveal.js` to also check `lastGameSession` for the 5 games without dedicated progress keys (space-defender, feed-alien, number-line, feed-by-sound, abc-match). Most recent session by timestamp wins.
+
+**UI Enhancements:**
+
+7. **Themed game start overlay** -- `game-shell.js` `requireInteraction()` redesigned: shows game name as an orange badge, game description as subtitle, spring-pop animation, pulsing "Let's Go!" button. Also speaks the game's intro prompt (e.g., 'match the colors' for Color Sort) 300ms after the overlay appears so audio fires immediately instead of 600ms after the game begins.
+
+8. **"Let's Go!" tap speaks 'ready'** -- The overlay button now fires `RKAudio.speak('ready')` on tap, so players hear "Ready! Let's go!" the instant they dismiss the overlay.
+
+9. **Onboarding step transitions** -- `renderStep()` now force-replays the `slideIn` animation on every step change (null -> '' animation reset with offsetWidth reflow). Updated `slideIn` to use `cubic-bezier(0.34, 1.46, 0.64, 1)` spring curve and a subtle scale from 0.97->1 for a polished pop-in feel.
+
+10. **Landing page audio visual cue** -- Added `.landing-sound-hint` paragraph with a bouncing music note below the resume button. Text: "Sound on for the best experience." Fades in at 0.6s delay. Note animates with a 1.8s bounce/rotate loop.
+
+### Files Changed
+- `game-loader.html` -- inject mute button
+- `assets/js/world-reveal.js` -- fix double-speak, fix old ReadyKiddoAudio refs, extend resume logic
+- `assets/js/onboarding.js` -- add audio to character + option clicks, step animation replay, bump auto-advance delay
+- `assets/css/onboarding.css` -- spring animation curve + scale for slideIn
+- `assets/js/games/game-shell.js` -- themed overlay with game name, intro speak, ready speak on tap
+- `assets/js/games/color-sort-game.js` -- end-screen celebration audio + fix hardcoded URL
+- `assets/js/games/shape-recognition-game.js` -- end-screen celebration audio
+- `assets/js/games/feed-alien-game.js` -- end-screen celebration audio
+- `assets/js/games/feed-by-sound-game.js` -- end-screen celebration audio
+- `assets/js/games/number-line-game.js` -- end-screen celebration audio
+- `assets/js/games/abc-match-game.js` -- end-screen celebration audio
+- `index.html` -- add sound-hint element
+- `assets/css/style.css` -- add .landing-sound-hint + .sound-note + noteBounce keyframe
+
+### Audio Map Verification
+All clips referenced by the new triggers exist on disk:
+- 'yay' --> em-yay.m4a / Amara-Yay.m4a
+- 'great job' --> em-great-job.m4a / Amara-You so smart.m4a
+- 'impressive' --> Em-impressive.m4a / Amara-You look so cool.m4a
+- 'you got it' --> em-you-got-it.m4a / Amara-Yay.m4a
+- 'wow' --> gray-wow.m4a / Amara-Wow.m4a
+- 'ready' --> em-ready-lets-go.m4a
+- 'match the colors' --> em-match-colors.m4a
+- 'match the shapes' --> em-match-shapes.m4a
+
+## 2026-05-15 - Codex Audit of Code Polish Pass
+- Audited Code's 2026-05-15 UI/audio polish batch before push.
+- Kept the safe updates:
+  - mute button injection in game-loader
+  - world-reveal audio unlock cleanup
+  - onboarding click audio + longer auto-advance delay
+  - onboarding step animation replay + spring timing
+  - end-screen celebration audio across the updated games
+  - Color Sort next-game routing through GameShell context
+  - landing page sound-on hint
+  - themed interaction overlay visuals in GameShell
+- Removed two risky pieces before push:
+  - dropped the overlay's auto intro-speak because it could double-play with game-level start prompts
+  - removed the expanded resume-from-lastGameSession logic because those extra games do not actually persist mid-round resume state yet
+- Validation passed after the audit trim: node --check assets/js/games/game-shell.js, node --check assets/js/world-reveal.js, npm test, npm run build, git diff --check.

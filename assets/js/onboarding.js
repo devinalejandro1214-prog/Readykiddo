@@ -109,7 +109,14 @@ function renderStep(stepIndex) {
     const progress = ((stepIndex + 1) / onboardingSteps.length) * 100;
 
     progressFill.style.width = progress + '%';
-    questionCard.innerHTML   = '';
+
+    // Replay the slideIn animation every time the step changes
+    questionCard.style.animation = 'none';
+    // Force reflow so removing the animation takes effect before re-adding it
+    void questionCard.offsetWidth;
+    questionCard.style.animation = '';
+
+    questionCard.innerHTML = '';
 
     if (step.type === 'setup') {
         renderSetupForm();
@@ -176,6 +183,11 @@ function renderSetupForm() {
                     .forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
             userChoices.character = char.name;
+            // Play a random excitement clip on character pick
+            if (window.RKAudio) {
+                const picks = ['yay', 'you got it', 'wow'];
+                RKAudio.speak(picks[Math.floor(Math.random() * picks.length)]);
+            }
         });
 
         grid.appendChild(card);
@@ -229,8 +241,14 @@ function renderOptionButtons(step) {
             btn.classList.add('selected');
             userChoices[step.id] = label;
 
+            // Play a short excitement clip on every option pick
+            if (window.RKAudio) {
+                const picks = ['great job', 'yay', 'you got it', 'impressive'];
+                RKAudio.speak(picks[Math.floor(Math.random() * picks.length)]);
+            }
+
             // Auto-advance to next step after selection
-            setTimeout(() => advanceFromOptionStep(step), 250);
+            setTimeout(() => advanceFromOptionStep(step), 500);
         });
 
         group.appendChild(btn);

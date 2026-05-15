@@ -495,6 +495,11 @@ class FeedBySoundGame {
     const pct   = Math.round(accuracy * 100);
     const stars  = accuracy >= 0.9 ? 3 : accuracy >= 0.65 ? 2 : 1;
 
+    // Celebration audio + character animation
+    const celebClips = ['yay', 'great job', 'impressive'];
+    this.context.speak(celebClips[stars - 1] || 'yay');
+    this.context.characterAnimation('celebrate');
+
     const nextGameType = typeof window.getNextGameRecommendation === 'function'
       ? window.getNextGameRecommendation('feed-by-sound', 'normal', accuracy)
       : 'world-reveal';

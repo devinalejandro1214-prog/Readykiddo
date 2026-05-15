@@ -137,6 +137,29 @@ body {
     transform: translateY(1px);
 }
 
+.landing-sound-hint {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 13px;
+    font-weight: 600;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    animation: fadeInUp 0.6s ease-out 0.6s both;
+    letter-spacing: 0.02em;
+}
+
+.sound-note {
+    font-size: 16px;
+    animation: noteBounce 1.8s ease-in-out infinite;
+    display: inline-block;
+}
+
+@keyframes noteBounce {
+    0%, 100% { transform: translateY(0) rotate(-8deg); }
+    50%       { transform: translateY(-5px) rotate(8deg); }
+}
+
 @keyframes fadeInUp {
     from {
         opacity: 0;
