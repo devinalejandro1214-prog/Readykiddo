@@ -27,8 +27,9 @@
         circle: 'em-circle.m4a',
         square: 'em-square.m4a',
         triangle: 'em-triangle.m4a',
-        star: 'em-yay.m4a',
-        rectangle: 'em-great-job.m4a',
+        star: 'em-star.wav',
+        rectangle: 'em-rectangle.wav',
+        diamond: 'em-diamond.wav',
 
         correct: 'em-you-got-it.m4a',
         'you got it': 'em-you-got-it.m4a',
@@ -165,3 +166,4 @@
         unlock
     };
 }());
+

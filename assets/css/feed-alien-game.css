@@ -17,7 +17,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 20px;
+  /* Top padding reserves space for the absolute HUD (52px mobile / 62px desktop)
+     plus the thought bubble that extends ~10–40px above the alien wrapper.
+     This prevents the bubble from sliding behind the HUD bar. */
+  padding: 72px 20px 20px;
   z-index: 10;
 }
 
@@ -103,7 +106,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 60px;
+  /* margin-top removed — feed-game padding-top handles HUD clearance */
+  margin-top: 0;
   margin-bottom: 16px;
   z-index: 15;
 }
@@ -447,105 +451,113 @@
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-/* ── Food Grid ──────────────────────────────────────────– */
-.feed-grid {
-  display: grid;
-  grid-template-columns: repeat(var(--feed-grid-columns, 4), minmax(64px, 1fr));
-  gap: 12px;
-  width: 100%;
-  max-width: 520px;
-  margin-bottom: 20px;
-  padding: 0 20px;
-  z-index: 20;
-}
-
-.feed-grid.dense {
+/* ── Basket Area ────────────────────────────────────────– */
+.feed-basket-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 10px;
+  z-index: 20;
+  margin-top: 4px;
 }
 
-.feed-grid.packed {
-  gap: 8px;
-}
-
-.food-item {
-  width: 100%;
-  aspect-ratio: 1;
-  background: linear-gradient(135deg, #fff8dc, #ffe4b5);
-  border: 3px solid #f59e0b;
-  border-radius: 20px;
-  font-size: 36px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 8px 16px rgba(245, 158, 11, 0.3);
-  animation: foodEnter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+.feed-basket {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: grab;
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
-  -webkit-user-drag: none;
+  position: relative;
+  animation: basketEnter 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.feed-basket:active { cursor: grabbing; }
+
+@keyframes basketEnter {
+  from { opacity: 0; transform: scale(0.6) translateY(20px); }
+  to   { opacity: 1; transform: scale(1)   translateY(0);    }
+}
+
+/* Food peeking out of the top */
+.basket-peeks {
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: flex-end;
+  gap: 2px;
+  margin-bottom: -12px;
+  position: relative;
+  z-index: 2;
 }
 
-.feed-grid.dense .food-item {
+.basket-peek {
   font-size: 30px;
-  border-radius: 18px;
+  animation: peekBob 2.2s ease-in-out infinite;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.28));
+  line-height: 1;
 }
 
-.feed-grid.packed .food-item {
-  font-size: 24px;
-  border-radius: 16px;
+.basket-peek:nth-child(1) { transform: rotate(-8deg);  animation-delay: 0s;    }
+.basket-peek:nth-child(2) { transform: rotate(0deg);   animation-delay: 0.25s; font-size: 34px; }
+.basket-peek:nth-child(3) { transform: rotate(8deg);   animation-delay: 0.5s;  }
+
+@keyframes peekBob {
+  0%, 100% { transform: translateY(0)    rotate(var(--r, 0deg)); }
+  50%       { transform: translateY(-6px) rotate(var(--r, 0deg)); }
 }
 
-.food-item:nth-child(1) { animation-delay: 0.05s; }
-.food-item:nth-child(2) { animation-delay: 0.1s; }
-.food-item:nth-child(3) { animation-delay: 0.15s; }
-.food-item:nth-child(4) { animation-delay: 0.2s; }
-.food-item:nth-child(5) { animation-delay: 0.25s; }
-.food-item:nth-child(6) { animation-delay: 0.3s; }
-.food-item:nth-child(7) { animation-delay: 0.35s; }
-.food-item:nth-child(8) { animation-delay: 0.4s; }
-
-@keyframes foodEnter {
-  from {
-    opacity: 0;
-    transform: scale(0.5) rotate(-15deg);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) rotate(0);
-  }
+/* Main basket body */
+.basket-body {
+  font-size: 90px;
+  line-height: 1;
+  filter: drop-shadow(0 8px 18px rgba(0,0,0,0.30));
+  transition: transform 0.12s ease;
+  position: relative;
+  z-index: 1;
+  /* Subtle pulse to invite interaction */
+  animation: basketPulse 2.8s ease-in-out infinite;
 }
 
-.food-item:hover:not(.selected) {
-  transform: scale(1.08) rotate(-3deg);
-  box-shadow: 0 12px 24px rgba(245, 158, 11, 0.4);
+@keyframes basketPulse {
+  0%, 100% { filter: drop-shadow(0 8px 18px rgba(0,0,0,0.30)); }
+  50%       { filter: drop-shadow(0 10px 24px rgba(245,158,11,0.45)); }
 }
 
-.food-item.selected {
-  background: linear-gradient(135deg, #22c55e, #4ade80);
-  border-color: #16a34a;
-  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.3),
-    0 8px 16px rgba(34, 197, 94, 0.4);
-  transform: scale(0.95);
-  opacity: 0.8;
+.feed-basket:hover .basket-body,
+.feed-basket:active .basket-body {
+  transform: scale(1.08);
+  animation-play-state: paused;
+  filter: drop-shadow(0 12px 28px rgba(245,158,11,0.55));
 }
 
-.food-item:active {
-  transform: scale(0.92);
+/* Refill animation when a food is successfully fed */
+.feed-basket.basket-refill .basket-body {
+  animation: basketRefill 0.45s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+.feed-basket.basket-refill .basket-peeks {
+  animation: peeksRefill 0.45s cubic-bezier(0.34,1.56,0.64,1) both;
 }
 
-.food-placeholder {
-  width: 100%;
-  aspect-ratio: 1;
-  border-radius: 20px;
-  border: 3px dashed rgba(255, 255, 255, 0.28);
-  background: rgba(255, 255, 255, 0.12);
+@keyframes basketRefill {
+  0%   { transform: scale(0.85) rotate(-4deg); }
+  60%  { transform: scale(1.12) rotate(2deg);  }
+  100% { transform: scale(1)    rotate(0deg);  }
+}
+@keyframes peeksRefill {
+  0%   { transform: translateY(6px);  opacity: 0.4; }
+  100% { transform: translateY(0);    opacity: 1;   }
 }
 
-.food-source-hidden {
-  visibility: hidden;
+.basket-hint {
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.88);
+  text-shadow: 0 2px 6px rgba(0,0,0,0.35);
+  letter-spacing: 0.02em;
+  margin: 0;
+  pointer-events: none;
 }
 
 .food-drag-ghost {
@@ -723,6 +735,13 @@ body.feed-dragging .alien-thought-bubble {
 
 /* ── Mobile ────────────────────────────────────────────– */
 @media (max-width: 768px) {
+  .feed-game {
+    /* Mobile HUD: top 12px + 40px button = 52px.
+       Thought bubble extends 10px above wrapper → need 62px+.
+       72px base covers this. No change needed here, but call it out explicitly. */
+    padding-top: 68px;
+  }
+
   .feed-hud {
     top: 12px;
     left: 12px;
@@ -737,13 +756,13 @@ body.feed-dragging .alien-thought-bubble {
 
   .feed-alien-container {
     height: 240px;
-    margin-top: 56px;
-    margin-bottom: 12px;
+    margin-top: 0;   /* cleared — parent padding handles HUD gap */
+    margin-bottom: 8px;
   }
 
   .alien-wrapper {
     width: 160px;
-    height: 195px; /* 23:28 ratio */
+    height: 195px;
   }
 
   .alien-thought-bubble {
@@ -759,35 +778,24 @@ body.feed-dragging .alien-thought-bubble {
 
   .feed-instruction {
     font-size: 18px;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
 
   .feed-counter {
     font-size: 20px;
-    margin-bottom: 16px;
+    margin-bottom: 8px;
   }
 
-  .feed-grid {
-    grid-template-columns: repeat(var(--feed-grid-columns, 3), minmax(52px, 1fr));
-    gap: 10px;
-    max-width: 100%;
-    padding: 0 16px;
+  .basket-body {
+    font-size: 72px;
   }
 
-  .food-item {
-    font-size: 28px;
-    border-width: 2px;
-    border-radius: 16px;
-  }
-
-  .feed-grid.dense .food-item {
+  .basket-peek {
     font-size: 24px;
-    border-radius: 14px;
   }
 
-  .feed-grid.packed .food-item {
-    font-size: 20px;
-    border-radius: 12px;
+  .basket-peek:nth-child(2) {
+    font-size: 28px;
   }
 
   .feed-end-panel {
@@ -805,20 +813,26 @@ body.feed-dragging .alien-thought-bubble {
   }
 }
 
-/* ── Web/Desktop Responsive ────────────────────────────– */
+/* ── Desktop ────────────────────────────────────────────– */
 @media (min-width: 769px) {
   .feed-game {
     align-items: center;
     justify-content: center;
+    /* Desktop HUD: top 18px + 44px button = 62px.
+       Thought bubble at top: -40px above the wrapper (which is offset ~31px
+       down inside the 380px container) → bubble clears by ~10px.
+       84px padding gives comfortable clearance over the 62px HUD. */
+    padding-top: 84px;
   }
 
   .feed-alien-container {
     height: 380px;
+    margin-top: 0;
   }
 
   .alien-wrapper {
     width: 260px;
-    height: 317px; /* 23:28 ratio */
+    height: 317px;
   }
 
   .alien-thought-bubble {
@@ -834,16 +848,28 @@ body.feed-dragging .alien-thought-bubble {
 
   .feed-instruction {
     font-size: 32px;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     max-width: 600px;
   }
 
   .feed-counter {
     font-size: 36px;
+    margin-bottom: 12px;
   }
 
-  .feed-grid {
-    max-width: 500px;
-    grid-template-columns: repeat(4, 1fr);
+  .basket-body {
+    font-size: 110px;
+  }
+
+  .basket-peek {
+    font-size: 36px;
+  }
+
+  .basket-peek:nth-child(2) {
+    font-size: 42px;
+  }
+
+  .basket-hint {
+    font-size: 17px;
   }
 }

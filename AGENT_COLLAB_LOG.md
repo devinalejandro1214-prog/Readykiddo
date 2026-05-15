@@ -2020,3 +2020,218 @@ Notes / Next Steps:
 - Drop target is the alien body (generous) rather than just the mouth â€” more forgiving for young children learning drag mechanics
 - Wrong picks dim permanently per round (educational: child sees the item + label + hears its actual sound)
 - Each decoy has a `sound` property so the alien can say exactly what sound that item starts with
+
+
+---
+
+## 2026-05-14 - Claude Code
+
+Prompt:
+> Build it the items are in download 5 file folder in the downloads
+
+Task:
+Build the ABC Match game — a tap-based letter-matching game where the alien holds up a letter chip image and the child taps the emoji tile that starts with that letter.
+
+Actions Taken:
+- Discovered 25 letter chip JPEG images in `C:\Users\Devin\Downloads\download (5)\`.
+- Created `assets/images/abc-match/letters/` directory and copied all 25 chip images with clean names (`a.jpeg` through `z.jpeg`). Note: P was not in the source folder so `p.jpeg` is absent — all other letters present.
+- Created `assets/js/games/abc-match-game.js` (`ABCMatchGame` class):
+  - 10 rounds covering letters B, C, D, F, H, L, M, R, S, T
+  - Each round: alien holds up the letter chip image + 4 emoji picture tiles (1 correct, 3 distractors)
+  - Tap mechanics (no drag needed): locked state prevents double-taps
+  - Correct tap: letter chip ghost flies to tile (translateX/Y + scale 0 + fade), alien chomps, advance to next round
+  - Wrong tap: tile shakes with CSS keyframe, `speak('try again')`
+  - Full Gumblop alien with pupil tracking and mouth open/chomp animations
+  - End screen with star rating and accuracy %, calls `context.saveSession()` and `context.goToNextGame()`
+- Created `assets/css/abc-match-game.css`:
+  - `.am-` prefix throughout
+  - `.am-letter-chip` — 80px/96px letter image in bubble
+  - `.am-grid` — 2×2 emoji tile grid
+  - `.am-tile--correct` — green border + pop scale animation
+  - `.am-tile--shake` — red border + shake keyframe for wrong answers
+  - `.am-chip-ghost` — flying chip animation element
+  - Full Gumblop CSS (body, eyes, pupils, mouth, arms, feet, antenna, cheeks, chomp keyframe)
+  - End card with star system and CTA button
+- Updated `game-registry.js`:
+  - Added `abc-match` entry (order 9, `ABCMatchGame`, active)
+  - Updated `getNextGameRecommendation` chain: `feed-by-sound` ? `abc-match` ? `world-reveal`
+
+Files/Folders Changed:
+- `assets/images/abc-match/letters/` (new directory — 25 JPEG files a–z, except p)
+- `assets/js/games/abc-match-game.js` (new)
+- `assets/css/abc-match-game.css` (new)
+- `assets/js/games/game-registry.js` (updated — added entry + updated chain)
+- `AGENT_COLLAB_LOG.md` (this entry)
+
+GitHub/Netlify:
+- Local only. Not pushed from this prompt.
+
+Notes / Next Steps:
+- P chip image is absent from the source folder — rounds do not use letter P. If Codex can source or generate `p.jpeg`, it can be added to `assets/images/abc-match/letters/` and a P round can be appended to `this.rounds` in the JS.
+- The game is ready to test at: `game-loader.html?game=abc-match`
+- The user can customize emoji items per world (Option A agreed) — the round data at the top of `abc-match-game.js` is the easy edit point.
+- Codex: please push to GitHub and verify Netlify deploys the new files when ready.
+
+
+---
+
+## 2026-05-14 - Claude Code
+
+Prompt:
+> [User provided Letter P chip image]
+
+Actions Taken:
+- Copied `Letter_P_202605142215.jpeg` from Downloads to `assets/images/abc-match/letters/p.jpeg`.
+- Added letter P round to `ABCMatchGame` in `abc-match-game.js`:
+  - P: Pizza?? (correct) | Dog?? | Moon?? | Ball??
+- Game now has 11 rounds: B C D F H L M P R S T
+
+Files/Folders Changed:
+- `assets/images/abc-match/letters/p.jpeg` (new)
+- `assets/js/games/abc-match-game.js` (added P round)
+- `AGENT_COLLAB_LOG.md` (this entry)
+
+GitHub/Netlify:
+- Local only. Not pushed from this prompt.
+
+---
+
+## 2026-05-15 - Claude Code
+
+Prompt:
+> Run through again make sure the tiles to feed the alien works and the letters in the alphabet need to have the background taken out extracting just the letters
+
+Actions Taken:
+
+**Feed Alien drag fix:**
+- Diagnosed root bug in `feed-alien-game.js` `onDragEnd`: the final drop event coordinates were never used to update `activeDrag.currentLeft`/`currentTop`, so `isGhostOverMouth()` always compared against the food tile's original position (never the mouth).
+- Fixed by updating ghost position from the pointerup/mouseup/touchend coordinates before hit-testing.
+- Added a direct cursor-in-mouth-rect fallback with 40px padding for kid-friendly accuracy, covering fast drags and automation scenarios.
+
+**Letter image background removal:**
+- Wrote Python (Pillow + NumPy) script to process all 26 JPEG letter chips in `assets/images/abc-match/letters/`.
+- Used adaptive flood-fill from border pixels: per-image histogram gap detection to find the natural split between background and letter color clusters.
+- Holes filled via BFS from outside the inverted mask so enclosed letter interiors remain fully opaque.
+- All 11 game-round letters (B C D F H L M P R S T) verified 100% opaque at center.
+- Saved as PNG with transparency; auto-cropped and resized to 256px max (down from 1200x896, now 43-146KB each).
+
+**JS/CSS updates for transparent letter chips:**
+- `abc-match-game.js`: updated image path from `.jpeg` to `.png`.
+- `abc-match-game.css`: `.am-chip-wrap` gets soft blue gradient background for contrast; `.am-letter-chip` changed to `object-fit: contain` and `filter: drop-shadow` (respects transparency instead of clipping).
+
+Files/Folders Changed:
+- `assets/js/games/feed-alien-game.js` (onDragEnd drag-end position fix + fallback hit-test)
+- `assets/js/games/abc-match-game.js` (image path .jpeg -> .png)
+- `assets/css/abc-match-game.css` (chip-wrap background, object-fit contain, drop-shadow)
+- `assets/images/abc-match/letters/a.png` through `z.png` (26 new transparent PNG files, replaces background-removal step)
+
+GitHub/Netlify:
+- Not deployed at time of entry.
+
+Notes / Next Steps:
+- Feed Alien drag should now register correctly on both real touch/pointer and mouse automation.
+- Q letter chip is light cream on light background - background extraction is imperfect but Q is not used in any current game round.
+- Consider running letter images through a dedicated AI background removal service (remove.bg, etc.) for pixel-perfect results if needed.
+
+---
+
+## 2026-05-15 - Claude Code
+
+Prompt:
+> Idea - can we just have a basket of food that we feed the alien with. You click and hold on the basket and an item appears and you drag the item to the aliens mouth. This way we dont take up too much space with all the individual items.
+
+Actions Taken:
+- Redesigned Feed Alien game interaction from a food grid to a single basket mechanic.
+- Replaced renderFoodGrid() with renderBasket() -- one persistent basket element, no individual tile management.
+- Hold/press basket -> food item pops out at basket center with a spring animation.
+- Drag ghost to alien mouth -> feeds and increments counter; release outside mouth -> ghost snaps back to basket with fade-shrink animation.
+- Basket shows a "refill" bounce animation after each successful feed.
+- Removed fedFoods Set (no per-tile tracking needed), removed placeholder and sourceEl from drag state.
+- Basket styled with food emoji peeks (world-themed) + large basket emoji + pulsing glow affordance + "Hold & drag to feed!" hint label.
+- CSS: replaced all .feed-grid / .food-item / .food-placeholder styles with .feed-basket-area / .feed-basket / .basket-peeks / .basket-peek / .basket-body / .basket-hint and responsive sizing for mobile vs desktop.
+- Retained all alien, HUD, counter, instruction, end-screen, and drag ghost styles unchanged.
+
+Files/Folders Changed:
+- assets/js/games/feed-alien-game.js (full rework of basket mechanic)
+- assets/css/feed-alien-game.css (grid styles removed, basket styles added)
+
+GitHub/Netlify:
+- Not deployed at time of entry.
+
+Notes / Next Steps:
+- Basket is always visible and always "full" -- infinite food supply.
+- The hit-test fallback (cursor-in-mouth + 40px padding) ensures drops register even on fast drags.
+
+---
+
+## 2026-05-15 - Codex
+
+Prompt:
+> Okay code fixed this. Can you audit what updates would be needed for the mobile phone/tablet. Audit also the UI to ensure the mobile version doesnt have anything over laping like the alien isnt overlaping the progress bar etc. REport back with updates needed for the full experience mobile verison
+
+Actions Taken:
+- Audited the latest local game updates with a mobile-first browser pass.
+- Ran phone and tablet layout checks for:
+  - `feed-alien`
+  - `number-line`
+  - `feed-by-sound`
+  - `abc-match`
+- Verified overlap/positioning using live DOM rects and spot-checked interaction flow.
+
+Verification:
+- `node --check assets/js/games/abc-match-game.js`
+- `node --check assets/js/games/feed-alien-game.js`
+- `npm test`
+- `git diff --check` on touched game files
+- Phone + tablet layout audit
+- Feed Alien phone drag verification
+- ABC Match phone + tablet + desktop tap verification
+
+Observed Results:
+- `number-line` layout was clean on phone and tablet.
+- `abc-match` layout was clean on phone and tablet.
+- `feed-alien` phone layout was clean and drag still worked.
+- `feed-alien` tablet layout still has a HUD/bubble overlap risk.
+- `feed-by-sound` phone layout is too tall for the viewport; the tray extends below the screen with no page scroll, so lower content is clipped.
+- `abc-match` still uses fallback speech for the core letter prompts (`find B`, etc.) because the audio map does not define single-letter callouts.
+- `feed-by-sound` still uses fallback speech for the custom phonics instruction lines (`Find something that starts with...`).
+
+Status:
+- Audit complete. Reported back with mobile/tablet polish items still needed before calling the full mobile experience settled.
+
+---
+
+## 2026-05-15 - Claude Code
+
+Prompt:
+> Just do the UI update for now. (Addressing Codex mobile audit items 1 and 2)
+
+Actions Taken:
+
+**Fix 1 - Feed Alien tablet HUD / thought bubble overlap:**
+- Root cause: .feed-alien-container had margin-top: 60px (mobile: 56px), but the thought bubble
+  extends top: -40px above the alien-wrapper which itself is centered inside the 380px container.
+  On desktop the bubble's top edge fell within the HUD's 62px zone.
+- Fix: Added padding-top to .feed-game at all breakpoints (68px mobile, 72px base, 84px desktop)
+  so the flex content always starts below the HUD bar. Removed margin-top from
+  .feed-alien-container everywhere (parent padding handles the clearance).
+
+**Fix 2 - Feed by Sound phone layout clipping in landscape / short viewports:**
+- Root cause: .game-container has overflow: hidden with no scroll. In landscape on a phone
+  (viewport ~375px tall) the alien-area + gap + tray stacks taller than the screen, clipping
+  the bottom of the tray.
+- Fix: Added two new media query breakpoints to feed-by-sound-game.css:
+  - max-height: 620px: reduces alien size, gap, padding, tray padding, item font sizes
+    while keeping column layout. Handles landscape iPhone/Android portrait-compact.
+  - max-height: 500px: switches .fbs-layout to row wrap so the alien-area and tray sit
+    side-by-side, dramatically reducing total height for very short viewports (landscape SE etc.).
+
+Files/Folders Changed:
+- assets/css/feed-alien-game.css (padding-top on .feed-game, removed margin-top from .feed-alien-container)
+- assets/css/feed-by-sound-game.css (added max-height: 620px and max-height: 500px breakpoints)
+
+GitHub/Netlify:
+- Not deployed at time of entry.
+
+Notes / Next Steps:
+- Audio fallback issues (items 3 and 4 from Codex audit) deferred -- user wants those done separately.

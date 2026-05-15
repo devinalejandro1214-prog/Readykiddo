@@ -75,6 +75,15 @@ const GAME_REGISTRY = {
     cssPath: 'assets/css/feed-by-sound-game.css',
     isActive: true,
     order: 8
+  },
+  'abc-match': {
+    name: 'ABC Match',
+    description: 'Tap the picture that starts with the letter!',
+    class: 'ABCMatchGame',
+    scriptPath: 'assets/js/games/abc-match-game.js',
+    cssPath: 'assets/css/abc-match-game.css',
+    isActive: true,
+    order: 9
   }
 };
 
@@ -252,6 +261,10 @@ function getNextGameRecommendation(currentGameType, finalBranch, accuracy) {
   }
 
   if (currentGameType === 'feed-by-sound') {
+    return 'abc-match'; // Letter matching after phonics
+  }
+
+  if (currentGameType === 'abc-match') {
     return 'world-reveal'; // Finish the loop and head back to the world
   }
 

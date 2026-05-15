@@ -1,7 +1,7 @@
 /*
    ReadyKiddo - Feed the Alien Game
-   6 rounds with drag-to-mouth feeding
-   Counting range capped at 1-10 for this version
+   6 rounds — drag food from the basket into the alien's mouth.
+   Hold the basket → food pops out → drag to mouth.
 */
 
 class FeedAlienGame {
@@ -14,11 +14,9 @@ class FeedAlienGame {
     this.ended = false;
 
     this.difficulty = 1;
-    this.maxNumber = 10;
 
     this.requiredCount = 0;
     this.selectedCount = 0;
-    this.fedFoods = new Set();
     this.roundStartTime = 0;
     this.roundCorrect = false;
 
@@ -35,7 +33,7 @@ class FeedAlienGame {
     this._pupilHandler = null;
     this.activeDrag = null;
     this.handleDragMove = this.onDragMove.bind(this);
-    this.handleDragEnd = this.onDragEnd.bind(this);
+    this.handleDragEnd  = this.onDragEnd.bind(this);
   }
 
   async startGame() {
@@ -81,13 +79,12 @@ class FeedAlienGame {
     this.requiredCount = this.generateRandomNumber(min, max);
 
     this.selectedCount = 0;
-    this.fedFoods = new Set();
     this.roundStartTime = Date.now();
     this.roundCorrect = false;
     this.cancelDrag();
 
     this.renderAlien();
-    this.renderFoodGrid();
+    this.renderBasket();
     this.updateCounter();
     this.renderProgress();
     this.updateInstruction();
@@ -98,15 +95,17 @@ class FeedAlienGame {
 
   getFoodEmoji() {
     const worldFoods = {
-      space: '🪐',
-      beach: '🐚',
-      jungle: '🍃',
-      studio: '🎨',
-      castle: '👑',
+      space:        '🪐',
+      beach:        '🐚',
+      jungle:       '🍃',
+      studio:       '🎨',
+      castle:       '👑',
       'candy-land': '🍭'
     };
     return worldFoods[this.worldSlug] || '🍎';
   }
+
+  /* ─── Shell HTML ─────────────────────────────────────── */
 
   render() {
     const gameArea = document.getElementById('gameArea');
@@ -126,7 +125,9 @@ class FeedAlienGame {
         <div class="feed-alien-container" id="feedAlienContainer"></div>
         <div class="feed-instruction" id="feedInstruction">Drag food to the alien's mouth!</div>
         <div class="feed-counter" id="feedCounter">0 / 1</div>
-        <div class="feed-grid" id="feedGrid"></div>
+
+        <div class="feed-basket-area" id="feedBasketArea"></div>
+
         <div class="feed-celebration" id="feedCelebration" style="display:none;">
           <div class="celebration-emoji">🎉</div>
         </div>
@@ -134,6 +135,8 @@ class FeedAlienGame {
     `;
     document.getElementById('feedPauseBtn').addEventListener('click', () => this.togglePause());
   }
+
+  /* ─── Alien ──────────────────────────────────────────── */
 
   renderAlien() {
     const container = document.getElementById('feedAlienContainer');
@@ -177,22 +180,20 @@ class FeedAlienGame {
 
   setupAlienInteraction() {
     const alienEl = document.getElementById('alienChar');
-    const mouth = document.getElementById('alienMouth');
-    const pupils = document.querySelectorAll('.pupil');
+    const mouth   = document.getElementById('alienMouth');
+    const pupils  = document.querySelectorAll('.pupil');
     if (!alienEl || !mouth) return;
 
     const updatePupils = (clientX, clientY) => {
       const rect = alienEl.getBoundingClientRect();
       if (!rect.width) return;
       const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      const dx = (clientX - cx) / (rect.width / 2);
+      const cy = rect.top  + rect.height / 2;
+      const dx = (clientX - cx) / (rect.width  / 2);
       const dy = (clientY - cy) / (rect.height / 2);
-      const x = Math.max(-1, Math.min(1, dx)) * 8;
-      const y = Math.max(-1, Math.min(1, dy)) * 8;
-      pupils.forEach(p => {
-        p.style.transform = `translate(${x}px, ${y}px)`;
-      });
+      const x  = Math.max(-1, Math.min(1, dx)) * 8;
+      const y  = Math.max(-1, Math.min(1, dy)) * 8;
+      pupils.forEach(p => { p.style.transform = `translate(${x}px, ${y}px)`; });
       const dist = Math.hypot(clientX - cx, clientY - cy);
       mouth.classList.toggle('open', dist < rect.width * 0.75 || this.activeDrag !== null);
     };
@@ -224,105 +225,105 @@ class FeedAlienGame {
     }
   }
 
-  renderFoodGrid() {
-    const grid = document.getElementById('feedGrid');
-    if (!grid) return;
-    grid.innerHTML = '';
+  /* ─── Basket ─────────────────────────────────────────── */
 
-    const itemCount = Math.max(this.requiredCount + 3, 8);
-    const columns = itemCount > 12 ? 5 : itemCount > 9 ? 4 : 4;
-    grid.style.setProperty('--feed-grid-columns', String(columns));
-    grid.classList.toggle('dense', itemCount > 9);
-    grid.classList.toggle('packed', itemCount > 12);
+  renderBasket() {
+    const area = document.getElementById('feedBasketArea');
+    if (!area) return;
 
-    for (let i = 0; i < itemCount; i++) {
-      const food = document.createElement('div');
-      food.className = 'food-item';
-      food.dataset.foodId = `food-${this.currentRound}-${i}`;
-      food.setAttribute('role', 'button');
-      food.setAttribute('tabindex', '0');
-      food.setAttribute('draggable', 'false');
-      food.setAttribute('aria-label', 'Food item');
-      food.innerHTML = this.getFoodEmoji();
-      food.addEventListener('pointerdown', e => this.startFoodDrag(e, food));
-      food.addEventListener('mousedown', e => this.startFoodDrag(e, food));
-      food.addEventListener('touchstart', e => this.startFoodDrag(e, food), { passive: false });
-      food.addEventListener('dragstart', e => e.preventDefault());
-      grid.appendChild(food);
-    }
+    const emoji = this.getFoodEmoji();
+    area.innerHTML = `
+      <div class="feed-basket" id="feedBasket"
+           role="button" tabindex="0"
+           aria-label="Food basket — hold and drag to feed the alien">
+        <div class="basket-peeks">
+          <span class="basket-peek" style="animation-delay:0s">${emoji}</span>
+          <span class="basket-peek" style="animation-delay:.25s">${emoji}</span>
+          <span class="basket-peek" style="animation-delay:.5s">${emoji}</span>
+        </div>
+        <div class="basket-body">🧺</div>
+      </div>
+      <p class="basket-hint">Hold &amp; drag to feed!</p>
+    `;
+
+    const basket = document.getElementById('feedBasket');
+    basket.addEventListener('pointerdown', e => this.startBasketDrag(e));
+    basket.addEventListener('mousedown',   e => this.startBasketDrag(e));
+    basket.addEventListener('touchstart',  e => this.startBasketDrag(e), { passive: false });
+    basket.addEventListener('dragstart',   e => e.preventDefault());
   }
 
-  startFoodDrag(event, foodEl) {
-    if (this.roundCorrect || this.activeDrag) return;
-    if (this.fedFoods.has(foodEl.dataset.foodId)) return;
+  /* ─── Drag — Start ───────────────────────────────────── */
 
+  startBasketDrag(event) {
+    if (this.roundCorrect || this.activeDrag) return;
     event.preventDefault();
+
     const point = this.getPoint(event);
     if (!point) return;
 
-    const rect = foodEl.getBoundingClientRect();
-    const placeholder = document.createElement('div');
-    placeholder.className = 'food-placeholder';
-    placeholder.style.width = `${rect.width}px`;
-    placeholder.style.height = `${rect.height}px`;
+    const basket = document.getElementById('feedBasket');
+    if (!basket) return;
 
-    foodEl.after(placeholder);
-    foodEl.classList.add('food-source-hidden');
+    const bRect    = basket.getBoundingClientRect();
+    const ghostSize = 72;
+    const startX   = bRect.left + bRect.width  / 2 - ghostSize / 2;
+    const startY   = bRect.top  + bRect.height / 2 - ghostSize / 2;
 
-    // Clone the tile — strip food-item so its animation/transition can't fight us
+    // Build ghost tile
     const ghost = document.createElement('div');
     ghost.className = 'food-drag-ghost';
-    ghost.textContent = foodEl.textContent;
-    ghost.style.width = `${rect.width}px`;
-    ghost.style.height = `${rect.height}px`;
+    ghost.textContent = this.getFoodEmoji();
+    ghost.style.width        = `${ghostSize}px`;
+    ghost.style.height       = `${ghostSize}px`;
     ghost.style.borderRadius = '20px';
-    ghost.style.background = 'linear-gradient(135deg, #fff8dc, #ffe4b5)';
-    ghost.style.border = '3px solid #f59e0b';
-    ghost.style.fontSize = foodEl.style.fontSize || window.getComputedStyle(foodEl).fontSize;
-    ghost.style.display = 'flex';
-    ghost.style.alignItems = 'center';
+    ghost.style.background   = 'linear-gradient(135deg, #fff8dc, #ffe4b5)';
+    ghost.style.border       = '3px solid #f59e0b';
+    ghost.style.fontSize     = '40px';
+    ghost.style.display      = 'flex';
+    ghost.style.alignItems   = 'center';
     ghost.style.justifyContent = 'center';
-
-    const offsetX = point.clientX - rect.left;
-    const offsetY = point.clientY - rect.top;
-    const startX = rect.left;
-    const startY = rect.top;
-
-    // Position: fixed left:0 top:0, move entirely via transform — no CSS fighting
-    ghost.style.transform = `translate(${startX}px, ${startY}px) scale(1.1) rotate(-4deg)`;
+    // Start at basket, small → pop into full size
+    ghost.style.transform    = `translate(${startX}px, ${startY}px) scale(0.5) rotate(-6deg)`;
     document.body.appendChild(ghost);
 
+    // Pop-out animation
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        ghost.style.transition = 'transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        ghost.style.transform  = `translate(${startX}px, ${startY}px) scale(1.15) rotate(-4deg)`;
+        setTimeout(() => { ghost.style.transition = 'none'; }, 200);
+      });
+    });
+
+    const offsetX = point.clientX - startX;
+    const offsetY = point.clientY - startY;
+
     this.activeDrag = {
-      foodId: foodEl.dataset.foodId,
-      sourceEl: foodEl,
-      ghostEl: ghost,
-      placeholderEl: placeholder,
-      pointerId: typeof event.pointerId === 'number' ? event.pointerId : null,
+      ghostEl:     ghost,
+      pointerId:   typeof event.pointerId === 'number' ? event.pointerId : null,
       offsetX,
       offsetY,
-      width: rect.width,
-      height: rect.height,
-      currentLeft: startX,
-      currentTop: startY
+      width:        ghostSize,
+      height:       ghostSize,
+      currentLeft:  startX,
+      currentTop:   startY
     };
 
-    if (typeof event.pointerId === 'number' && typeof foodEl.setPointerCapture === 'function') {
-      try {
-        foodEl.setPointerCapture(event.pointerId);
-      } catch (err) {
-        // Ignore browsers that reject capture on this target.
-      }
+    // Pointer capture so move events follow the finger even off-element
+    if (typeof event.pointerId === 'number') {
+      try { basket.setPointerCapture(event.pointerId); } catch (_) {}
     }
 
     document.body.classList.add('feed-dragging');
-    document.addEventListener('pointermove', this.handleDragMove);
-    document.addEventListener('pointerup', this.handleDragEnd);
+    document.addEventListener('pointermove',  this.handleDragMove);
+    document.addEventListener('pointerup',    this.handleDragEnd);
     document.addEventListener('pointercancel', this.handleDragEnd);
-    document.addEventListener('mousemove', this.handleDragMove);
-    document.addEventListener('mouseup', this.handleDragEnd);
-    document.addEventListener('touchmove', this.handleDragMove, { passive: false });
-    document.addEventListener('touchend', this.handleDragEnd);
-    document.addEventListener('touchcancel', this.handleDragEnd);
+    document.addEventListener('mousemove',    this.handleDragMove);
+    document.addEventListener('mouseup',      this.handleDragEnd);
+    document.addEventListener('touchmove',    this.handleDragMove, { passive: false });
+    document.addEventListener('touchend',     this.handleDragEnd);
+    document.addEventListener('touchcancel',  this.handleDragEnd);
 
     const mouthTarget = document.getElementById('alienMouthTarget');
     if (mouthTarget) mouthTarget.classList.add('active');
@@ -330,74 +331,94 @@ class FeedAlienGame {
     if (mouth) mouth.classList.add('open');
   }
 
+  /* ─── Drag — Move ────────────────────────────────────── */
+
   onDragMove(event) {
     if (!this.activeDrag) return;
-    if (typeof event.pointerId === 'number' && this.activeDrag.pointerId !== null && event.pointerId !== this.activeDrag.pointerId) {
-      return;
-    }
+    if (typeof event.pointerId === 'number' &&
+        this.activeDrag.pointerId !== null &&
+        event.pointerId !== this.activeDrag.pointerId) return;
+
     const point = this.getPoint(event);
     if (!point) return;
     if (event.cancelable) event.preventDefault();
+
     const { ghostEl, offsetX, offsetY } = this.activeDrag;
     const nextLeft = point.clientX - offsetX;
     const nextTop  = point.clientY - offsetY;
     this.activeDrag.currentLeft = nextLeft;
     this.activeDrag.currentTop  = nextTop;
-    // translate sets the viewport position directly (ghost has left:0, top:0)
     ghostEl.style.transform = `translate(${nextLeft}px, ${nextTop}px) scale(1.1) rotate(-4deg)`;
 
     const mouthTarget = document.getElementById('alienMouthTarget');
-    if (!mouthTarget) return;
-    const hit = this.isGhostOverMouth();
-    mouthTarget.classList.toggle('over', hit);
+    if (mouthTarget) mouthTarget.classList.toggle('over', this.isGhostOverMouth());
   }
+
+  /* ─── Drag — End ─────────────────────────────────────── */
 
   onDragEnd(event) {
     if (!this.activeDrag) return;
-    if (typeof event.pointerId === 'number' && this.activeDrag.pointerId !== null && event.pointerId !== this.activeDrag.pointerId) {
-      return;
+    if (typeof event.pointerId === 'number' &&
+        this.activeDrag.pointerId !== null &&
+        event.pointerId !== this.activeDrag.pointerId) return;
+
+    const point = this.getPoint(event);
+
+    // Update ghost coords from final drop so hit-test works
+    // even when no intermediate move events fired
+    if (point) {
+      const { offsetX, offsetY } = this.activeDrag;
+      this.activeDrag.currentLeft = point.clientX - offsetX;
+      this.activeDrag.currentTop  = point.clientY - offsetY;
     }
-    this.getPoint(event);
 
     const mouthTarget = document.getElementById('alienMouthTarget');
-    const hit = this.isGhostOverMouth();
+    let hit = this.isGhostOverMouth();
+
+    // Fallback: cursor itself lands on or near the mouth
+    if (!hit && point && mouthTarget) {
+      const mr  = mouthTarget.getBoundingClientRect();
+      const pad = 40;
+      hit = point.clientX >= mr.left  - pad &&
+            point.clientX <= mr.right  + pad &&
+            point.clientY >= mr.top    - pad &&
+            point.clientY <= mr.bottom + pad;
+    }
 
     if (hit) {
-      this.feedFood(this.activeDrag.foodId, this.activeDrag.sourceEl, this.activeDrag.placeholderEl, this.activeDrag.ghostEl);
+      this.feedFood(this.activeDrag.ghostEl);
     } else {
-      this.restoreDraggedFood();
+      this.returnToBasket(this.activeDrag.ghostEl);
     }
 
     this.cleanupDragState();
   }
 
-  feedFood(foodId, sourceEl, placeholderEl, ghostEl) {
-    this.fedFoods.add(foodId);
-    this.selectedCount = this.fedFoods.size;
+  /* ─── Feed ───────────────────────────────────────────── */
 
-    // Animate the ghost flying into the mouth, then vanish
+  feedFood(ghostEl) {
+    this.selectedCount++;
+
+    // Fly ghost into mouth
     const mouth = document.getElementById('alienMouth');
     if (mouth && ghostEl) {
-      const mr = mouth.getBoundingClientRect();
+      const mr     = mouth.getBoundingClientRect();
       const mouthCX = mr.left + mr.width  / 2;
       const mouthCY = mr.top  + mr.height / 2;
-      const gw = ghostEl.offsetWidth  || this.activeDrag?.width  || 60;
-      const gh = ghostEl.offsetHeight || this.activeDrag?.height || 60;
-      // Enable transition just for this fly-in
-      ghostEl.style.transition = 'transform 0.22s cubic-bezier(0.5, 0, 1, 1), opacity 0.22s ease';
-      ghostEl.style.transform  = `translate(${mouthCX - gw / 2}px, ${mouthCY - gh / 2}px) scale(0.05) rotate(20deg)`;
+      const gw = ghostEl.offsetWidth  || this.activeDrag?.width  || 72;
+      const gh = ghostEl.offsetHeight || this.activeDrag?.height || 72;
+      ghostEl.style.transition = 'transform 0.22s cubic-bezier(0.5,0,1,1), opacity 0.22s ease';
+      ghostEl.style.transform  = `translate(${mouthCX - gw/2}px, ${mouthCY - gh/2}px) scale(0.05) rotate(20deg)`;
       ghostEl.style.opacity    = '0';
       setTimeout(() => ghostEl.remove(), 240);
     } else {
       ghostEl?.remove();
     }
 
-    placeholderEl.remove();
-    sourceEl.remove();
-
     this.updateCounter();
     this.triggerChomp();
     this.context.speak(String(this.selectedCount));
+    this._animateBasketRefill();
 
     if (this.selectedCount === this.requiredCount) {
       this.roundCorrect = true;
@@ -405,24 +426,47 @@ class FeedAlienGame {
     }
   }
 
-  restoreDraggedFood() {
-    if (!this.activeDrag) return;
-    const { sourceEl, ghostEl, placeholderEl } = this.activeDrag;
-    ghostEl.remove();
-    placeholderEl.remove();
-    sourceEl.classList.remove('food-source-hidden');
+  // Ghost snaps back to basket when dropped outside mouth
+  returnToBasket(ghostEl) {
+    if (!ghostEl) return;
+    const basket = document.getElementById('feedBasket');
+    if (basket) {
+      const br = basket.getBoundingClientRect();
+      const tx = br.left + br.width  / 2 - (this.activeDrag?.width  || 72) / 2;
+      const ty = br.top  + br.height / 2 - (this.activeDrag?.height || 72) / 2;
+      ghostEl.style.transition = 'transform 0.28s cubic-bezier(0.4,0,0.6,1), opacity 0.28s ease';
+      ghostEl.style.transform  = `translate(${tx}px, ${ty}px) scale(0.2) rotate(10deg)`;
+      ghostEl.style.opacity    = '0';
+    } else {
+      ghostEl.style.transition = 'opacity 0.2s ease';
+      ghostEl.style.opacity    = '0';
+    }
+    setTimeout(() => ghostEl.remove(), 300);
   }
+
+  _animateBasketRefill() {
+    const basket = document.getElementById('feedBasket');
+    if (!basket) return;
+    basket.classList.remove('basket-refill');
+    void basket.offsetWidth;
+    basket.classList.add('basket-refill');
+    basket.addEventListener('animationend', () => {
+      basket.classList.remove('basket-refill');
+    }, { once: true });
+  }
+
+  /* ─── Drag cleanup ───────────────────────────────────── */
 
   cleanupDragState() {
     document.body.classList.remove('feed-dragging');
-    document.removeEventListener('pointermove', this.handleDragMove);
-    document.removeEventListener('pointerup', this.handleDragEnd);
+    document.removeEventListener('pointermove',   this.handleDragMove);
+    document.removeEventListener('pointerup',     this.handleDragEnd);
     document.removeEventListener('pointercancel', this.handleDragEnd);
-    document.removeEventListener('mousemove', this.handleDragMove);
-    document.removeEventListener('mouseup', this.handleDragEnd);
-    document.removeEventListener('touchmove', this.handleDragMove);
-    document.removeEventListener('touchend', this.handleDragEnd);
-    document.removeEventListener('touchcancel', this.handleDragEnd);
+    document.removeEventListener('mousemove',     this.handleDragMove);
+    document.removeEventListener('mouseup',       this.handleDragEnd);
+    document.removeEventListener('touchmove',     this.handleDragMove);
+    document.removeEventListener('touchend',      this.handleDragEnd);
+    document.removeEventListener('touchcancel',   this.handleDragEnd);
 
     const mouthTarget = document.getElementById('alienMouthTarget');
     if (mouthTarget) {
@@ -434,6 +478,14 @@ class FeedAlienGame {
 
     this.activeDrag = null;
   }
+
+  cancelDrag() {
+    if (!this.activeDrag) return;
+    this.activeDrag.ghostEl?.remove();
+    this.cleanupDragState();
+  }
+
+  /* ─── Point helper ───────────────────────────────────── */
 
   getPoint(event) {
     const touch = event?.changedTouches?.[0] || event?.touches?.[0];
@@ -447,37 +499,30 @@ class FeedAlienGame {
     return point;
   }
 
+  /* ─── Hit-test ───────────────────────────────────────── */
+
   isGhostOverMouth() {
     if (!this.activeDrag) return false;
     const mouthTarget = document.getElementById('alienMouthTarget');
     if (!mouthTarget) return false;
 
-    const mouthRect = mouthTarget.getBoundingClientRect();
-    const ghostRect = {
-      left: this.activeDrag.currentLeft,
-      right: this.activeDrag.currentLeft + this.activeDrag.width,
-      top: this.activeDrag.currentTop,
-      bottom: this.activeDrag.currentTop + this.activeDrag.height
+    const mr = mouthTarget.getBoundingClientRect();
+    const gr = {
+      left:   this.activeDrag.currentLeft,
+      right:  this.activeDrag.currentLeft + this.activeDrag.width,
+      top:    this.activeDrag.currentTop,
+      bottom: this.activeDrag.currentTop  + this.activeDrag.height
     };
-    return !(
-      ghostRect.right < mouthRect.left ||
-      ghostRect.left > mouthRect.right ||
-      ghostRect.bottom < mouthRect.top ||
-      ghostRect.top > mouthRect.bottom
-    );
+    return !(gr.right < mr.left || gr.left > mr.right ||
+             gr.bottom < mr.top || gr.top  > mr.bottom);
   }
 
-  cancelDrag() {
-    if (!this.activeDrag) return;
-    this.restoreDraggedFood();
-    this.cleanupDragState();
-  }
+  /* ─── Round correct ──────────────────────────────────── */
 
   handleCorrect() {
     this.performance.correctItems++;
     const responseTime = Date.now() - this.roundStartTime;
     this.performance.responseTimes.push(responseTime);
-
     this.performance.roundDetails.push({
       round: this.currentRound + 1,
       required: this.requiredCount,
@@ -501,11 +546,11 @@ class FeedAlienGame {
     }, 1400);
   }
 
+  /* ─── UI helpers ─────────────────────────────────────── */
+
   updateCounter() {
     const counter = document.getElementById('feedCounter');
-    if (counter) {
-      counter.textContent = `${this.selectedCount} / ${this.requiredCount}`;
-    }
+    if (counter) counter.textContent = `${this.selectedCount} / ${this.requiredCount}`;
 
     const thought = document.querySelector('#alienThought .thought-number');
     if (thought) {
@@ -518,14 +563,10 @@ class FeedAlienGame {
 
   updateInstruction() {
     const instr = document.getElementById('feedInstruction');
-    if (instr) {
-      instr.textContent = `Drag ${this.requiredCount} items into the alien's mouth!`;
-    }
+    if (instr) instr.textContent = `Feed the alien ${this.requiredCount} item${this.requiredCount !== 1 ? 's' : ''}!`;
 
     const level = document.getElementById('feedLevel');
-    if (level) {
-      level.textContent = `Level ${this.difficulty}`;
-    }
+    if (level) level.textContent = `Level ${this.difficulty}`;
   }
 
   renderProgress() {
@@ -548,10 +589,10 @@ class FeedAlienGame {
     const cel = document.getElementById('feedCelebration');
     if (!cel) return;
     cel.style.display = 'flex';
-    setTimeout(() => {
-      cel.style.display = 'none';
-    }, 1000);
+    setTimeout(() => { cel.style.display = 'none'; }, 1000);
   }
+
+  /* ─── End ────────────────────────────────────────────── */
 
   end() {
     this.ended = true;
@@ -565,13 +606,13 @@ class FeedAlienGame {
     this.performance.accuracy = this.performance.correctItems / this.totalItems;
 
     if (this.performance.accuracy >= 0.9) {
-      this.performance.strengthAreas = ['Advanced counting', 'Accuracy'];
+      this.performance.strengthAreas  = ['Advanced counting', 'Accuracy'];
       this.performance.opportunityAreas = [];
     } else if (this.performance.accuracy >= 0.7) {
-      this.performance.strengthAreas = ['Good counting skills'];
+      this.performance.strengthAreas  = ['Good counting skills'];
       this.performance.opportunityAreas = ['Building consistency'];
     } else {
-      this.performance.strengthAreas = ['Getting started'];
+      this.performance.strengthAreas  = ['Getting started'];
       this.performance.opportunityAreas = ['Number recognition', 'Counting practice'];
     }
 
@@ -584,7 +625,7 @@ class FeedAlienGame {
         accuracy: Math.round(this.performance.accuracy * 100),
         roundsCompleted: this.totalItems,
         averageResponseMs: this.performance.responseTimes.length
-          ? Math.round(this.performance.responseTimes.reduce((sum, ms) => sum + ms, 0) / this.performance.responseTimes.length)
+          ? Math.round(this.performance.responseTimes.reduce((a, b) => a + b, 0) / this.performance.responseTimes.length)
           : 0,
         highestDifficulty: this.difficulty
       },
@@ -597,7 +638,7 @@ class FeedAlienGame {
   showEndScreen() {
     const gameArea = document.getElementById('gameArea');
     const accuracy = Math.round(this.performance.accuracy * 100);
-    const stars = this.performance.accuracy >= 0.8 ? 3 : this.performance.accuracy >= 0.6 ? 2 : 1;
+    const stars    = this.performance.accuracy >= 0.8 ? 3 : this.performance.accuracy >= 0.6 ? 2 : 1;
     const nextGameType = typeof window.getNextGameRecommendation === 'function'
       ? window.getNextGameRecommendation('feed-alien', 'easy', this.performance.accuracy)
       : 'world-reveal';
@@ -608,26 +649,20 @@ class FeedAlienGame {
         <div class="feed-end-panel">
           <h1>Alien Satisfied!</h1>
           <p>Great job feeding your new friend!</p>
-
           <div class="feed-stars">
-            ${Array(3).fill(0).map((_, i) => `
-              <div class="feed-star ${i < stars ? 'lit' : ''}">⭐</div>
-            `).join('')}
+            ${Array(3).fill(0).map((_, i) =>
+              `<div class="feed-star ${i < stars ? 'lit' : ''}">⭐</div>`
+            ).join('')}
           </div>
-
           <div class="feed-accuracy">${accuracy}% Accurate</div>
-
-          <button class="feed-next-btn" id="feedNextBtn">
-            ▶ ${nextLabel.toUpperCase()}
-          </button>
+          <button class="feed-next-btn" id="feedNextBtn">▶ ${nextLabel.toUpperCase()}</button>
         </div>
       </div>
     `;
 
-    const nextBtn = document.getElementById('feedNextBtn');
-    if (nextBtn) {
-      nextBtn.addEventListener('click', () => this.context.goToNextGame(nextGameType));
-    }
+    document.getElementById('feedNextBtn')?.addEventListener('click', () => {
+      this.context.goToNextGame(nextGameType);
+    });
   }
 
   togglePause() {
