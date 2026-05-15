@@ -1739,6 +1739,42 @@ Status:
 ## 2026-05-14 - Codex
 
 Prompt:
+> Alright a new game now please audit and push
+
+Actions Taken:
+- Reviewed the new `feed-by-sound` game implementation and registry wiring.
+- Audited the game against the intended behavior note from Code's log.
+- Found and fixed a state bug where a wrong-answer hint timer could overwrite the correct progress message a couple seconds later.
+- Hardened pointer capture handling so drag start does not throw if capture is unavailable or rejected.
+- Swapped the positive feedback lines to shared mapped phrases (`you got it`, `yay`) instead of unmapped robotic fallbacks.
+
+Files/Folders Changed:
+- `assets/js/games/feed-by-sound-game.js`
+- `assets/css/feed-by-sound-game.css`
+- `assets/js/games/game-registry.js`
+
+Verification:
+- `node --check assets/js/games/feed-by-sound-game.js`
+- `npm test`
+- `git diff --check -- assets/js/games/feed-by-sound-game.js assets/css/feed-by-sound-game.css assets/js/games/game-registry.js`
+- Phone-sized browser pass
+- Tablet-sized browser pass
+- Desktop browser pass
+
+Observed Results:
+- Wrong drop on all viewports dimmed the decoy and showed the expected gentle hint.
+- Correct drop on all viewports fed the item, reduced remaining correct items from `3` to `2`, and kept the progress text stable as `2 more to find! Keep going! 🌟`.
+- No runtime errors appeared in phone, tablet, or desktop passes after the pointer-capture safeguard was added.
+- Sound prompts still rely partly on fallback speech for the custom phonics lines because dedicated recorded phoneme prompts do not exist yet.
+
+Status:
+- Feed by Sound passed mobile-first audit and is ready for push.
+
+---
+
+## 2026-05-14 - Codex
+
+Prompt:
 > Okay the tiles arent dragging is the only issue. You can click but you cannot move to the mouth
 
 Actions Taken:
@@ -1918,3 +1954,69 @@ Notes / Next Steps:
 - Root cause note for Codex: the original ghost used `cloneNode(true)` which copied the food-item animation. Creating a fresh div avoids all inherited CSS side effects.
 - The `isGhostOverMouth` collision check is unchanged — it still uses `currentLeft`/`currentTop` which now correctly represent viewport coordinates.
 - If Codex's version of the file has different drag code, this fix must be applied to whatever version is being deployed — the key invariants are: (1) ghost must NOT have food-item class or any animated class, (2) transform must not be blocked by animation.
+
+---
+
+## 2026-05-14 - Claude Code
+
+Prompt:
+> User shared V2 _ Feed by sound _phonics_.html (Observable export). Build it as a new game.
+
+Game Mechanics Extracted from File:
+- Gumblop says a letter sound out loud (e.g. "/b/ like in Ball")
+- Child sees a tray of items (emoji + written label for passive print exposure)
+- Drag items that start with that sound into Gumblop's mouth
+- Correct: flies into mouth with chomp animation, eaten
+- Wrong: dims with gentle hint ("Hmm, that starts with /k/!") — no buzzer, no penalty
+- Gumblop's mouth shape mirrors the sound: pursed for /b/ /p/ /m/, wide for vowels
+- 6 rounds covering sounds: /b/ /s/ /m/ /f/ /p/ /d/
+
+Actions Taken:
+- Created `assets/js/games/feed-by-sound-game.js` — full `FeedBySoundGame` class:
+  - 6 phoneme rounds with correct items + labeled decoys (decoys carry their own sound for hints)
+  - `beginRound()` — shuffles correct + decoys into tray, speaks prompt after 500ms paint delay
+  - `_alienHTML()` — full Gumblop with `mouth--pursed`, `mouth--wide`, `mouth--default` classes for resting shape
+  - `_trayHTML()` — grid of item cards, each with emoji + written label (passive print exposure)
+  - `_setupAlienInteraction()` — pointermove pupil tracking (±6px), pointerenter/leave mouth, chomp cleanup
+  - `_startDrag()` — fresh ghost div (no class baggage), position via `translate(x,y)` on `left:0;top:0` base
+  - `_onMove` / `_onEnd` — pointer-captured drag, checks overlap with alien body rect
+  - `_handleCorrect()` — fly-into-mouth animation, removes tile, updates bubble counter
+  - `_handleWrong()` — spring-back ghost, dims tile (pointer-events:none), shows sound hint in bubble, alien head-shake
+  - `_springBack()` — elastic return via `cubic-bezier(0.34,1.56,0.64,1)`
+  - `_completeRound()` — all correct items eaten → celebration → next round after 1800ms
+  - `end()` — saves session metrics, shows end screen
+  - Drop target is the entire alien body (generous hit area — child is learning, not competing)
+
+- Created `assets/css/feed-by-sound-game.css`:
+  - Full Gumblop CSS (percentage-based, self-contained)
+  - `.mouth--pursed` (scaleX 0.65, scaleY 0.55 resting) for lip consonants
+  - `.mouth--wide` (scaleY 1.1 resting) for open vowels
+  - `.mouth.open !important` overrides resting shape during drag
+  - `.fbs-item` — square cards with emoji + label, aspect-ratio:1, auto-fit grid
+  - `.fbs-item--ghost` — opacity 0.25 while being dragged
+  - `.fbs-item--dim` — opacity 0.32, grayscale, pointer-events:none (wrong picks stay visible but locked)
+  - `.fbs-item-ghost` — fixed-position drag clone with `animation:none !important; transition:none !important`
+  - `.fbs-alien--shake` / `.fbs-alien--happy` — state animations
+  - `.fbs-bubble` with left-pointing CSS tail (same pattern as number-line bubble)
+  - `.fbs-sound-badge` — purple pill showing the phoneme prompt (e.g. "/b/ like in Ball")
+  - Shared keyframes: bob, shadowPulse, blink, armWiggleL/R, chomp (self-contained)
+
+- Updated `assets/js/games/game-registry.js`:
+  - Added `feed-by-sound` entry (order 8, isActive: true)
+  - Updated chain: `number-line` → `feed-by-sound` → `world-reveal`
+
+Files/Folders Changed:
+- `assets/js/games/feed-by-sound-game.js` (created)
+- `assets/css/feed-by-sound-game.css` (created)
+- `assets/js/games/game-registry.js` (modified)
+- `AGENT_COLLAB_LOG.md` (this entry)
+
+GitHub/Netlify:
+- Local only. Ready for Codex to verify, commit, and push.
+
+Notes / Next Steps:
+- Test URL: `game-loader.html?game=feed-by-sound`
+- Full game chain is now: Color Sort → Shape Recognition → Space Defender → Feed the Alien → Letter Line → Feed by Sound → World Reveal
+- Drop target is the alien body (generous) rather than just the mouth — more forgiving for young children learning drag mechanics
+- Wrong picks dim permanently per round (educational: child sees the item + label + hears its actual sound)
+- Each decoy has a `sound` property so the alien can say exactly what sound that item starts with

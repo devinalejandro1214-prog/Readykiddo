@@ -66,6 +66,15 @@ const GAME_REGISTRY = {
     cssPath: 'assets/css/number-line-game.css',
     isActive: true,
     order: 7
+  },
+  'feed-by-sound': {
+    name: 'Feed by Sound',
+    description: 'Hear a sound and feed Gumblop the right foods!',
+    class: 'FeedBySoundGame',
+    scriptPath: 'assets/js/games/feed-by-sound-game.js',
+    cssPath: 'assets/css/feed-by-sound-game.css',
+    isActive: true,
+    order: 8
   }
 };
 
@@ -239,6 +248,10 @@ function getNextGameRecommendation(currentGameType, finalBranch, accuracy) {
   }
 
   if (currentGameType === 'number-line') {
+    return 'feed-by-sound'; // Phonics after the letter line
+  }
+
+  if (currentGameType === 'feed-by-sound') {
     return 'world-reveal'; // Finish the loop and head back to the world
   }
 
