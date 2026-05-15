@@ -57,6 +57,15 @@ const GAME_REGISTRY = {
     cssPath: 'assets/css/feed-alien-game.css',
     isActive: true,
     order: 6
+  },
+  'number-line': {
+    name: 'Letter Line',
+    description: 'Fill in the missing letters on the line!',
+    class: 'NumberLineGame',
+    scriptPath: 'assets/js/games/number-line-game.js',
+    cssPath: 'assets/css/number-line-game.css',
+    isActive: true,
+    order: 7
   }
 };
 
@@ -226,6 +235,10 @@ function getNextGameRecommendation(currentGameType, finalBranch, accuracy) {
   }
 
   if (currentGameType === 'feed-alien') {
+    return 'number-line'; // Number line is next after feeding the alien
+  }
+
+  if (currentGameType === 'number-line') {
     return 'world-reveal'; // Finish the loop and head back to the world
   }
 

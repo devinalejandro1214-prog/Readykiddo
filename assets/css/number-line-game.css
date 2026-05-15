@@ -1,0 +1,627 @@
+/* ─────────────────────────────────────────────────────────
+   ReadyKiddo — Number Line Game Styles
+   ───────────────────────────────────────────────────────── */
+
+/* ── CSS custom properties (local to this game) ── */
+.nl-layout,
+.nl-end-card {
+  --nl-sky-top:      #dff4ff;
+  --nl-sky-bottom:   #f7fbff;
+  --nl-slot-size-sm: 36px;
+  --nl-slot-size-lg: 48px;
+  --nl-tile-size-sm: 52px;
+  --nl-tile-size-lg: 64px;
+  --nl-track-h:      6px;
+  --nl-accent:       #7c3aed;   /* purple */
+  --nl-correct:      #22c55e;   /* green */
+  --nl-tile-bg:      #f97316;   /* orange */
+  --nl-tile-text:    #fff;
+  --nl-bubble-bg:    rgba(255,255,255,0.92);
+  --alien-body:      oklch(76% 0.10 180);
+  --alien-belly:     oklch(88% 0.06 180);
+  --alien-shade:     oklch(62% 0.10 180);
+  --alien-cheek:     rgba(255, 119, 154, 0.35);
+}
+
+/* ═══════════════════════════════════════════════════════
+   LAYOUT SHELL
+   ═══════════════════════════════════════════════════════ */
+
+#gameArea {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  min-height: 100%;
+}
+
+.nl-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 860px;
+  padding: 16px 12px 20px;
+  gap: 16px;
+  background:
+    linear-gradient(180deg, var(--nl-sky-top) 0 65%, transparent 65%),
+    linear-gradient(180deg, #dff7cb 65%, #bfe7a4 100%);
+  min-height: 100%;
+  box-sizing: border-box;
+}
+
+/* ═══════════════════════════════════════════════════════
+   ALIEN AREA  (small Gumblop + speech bubble)
+   ═══════════════════════════════════════════════════════ */
+
+.nl-alien-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  align-self: flex-start;
+  padding: 0 4px;
+}
+
+/* Small Gumblop — percentage-based internals from the isolated alien */
+.nl-alien {
+  position: relative;
+  flex-shrink: 0;
+  width: 110px;
+  height: 134px;   /* 23:28 ≈ 110:134 */
+  animation: bob 3.6s ease-in-out infinite;
+}
+
+@media (min-width: 600px) {
+  .nl-alien {
+    width: 150px;
+    height: 183px;
+  }
+}
+
+/* ── Alien internals — all % based, inherited from feed-alien ── */
+
+.nl-alien .alien-shadow {
+  position: absolute;
+  left: 50%;
+  bottom: 2%;
+  transform: translateX(-50%);
+  width: 78%;
+  height: 9%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(15,37,69,0.28), transparent 70%);
+  animation: shadowPulse 3.6s ease-in-out infinite;
+  z-index: 1;
+}
+
+.nl-alien .antenna {
+  position: absolute;
+  left: 50%;
+  top: 2.5%;
+  transform: translateX(-50%);
+  width: 1.3%;
+  height: 13.6%;
+  background: var(--alien-shade);
+  border-radius: 999px;
+  z-index: 3;
+}
+
+.nl-alien .antenna::before {
+  content: "";
+  position: absolute;
+  top: -28%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 500%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff 0%, rgba(255,255,255,0) 35%), #ff6f9c;
+  box-shadow: inset -3px -6px 8px rgba(0,0,0,.2);
+  animation: blink 4s ease-in-out infinite;
+}
+
+.nl-alien .alien-body-shape {
+  position: absolute;
+  left: 50%;
+  top: 14.3%;
+  transform: translateX(-50%);
+  width: 82.6%;
+  height: 78.6%;
+  background:
+    radial-gradient(60% 50% at 30% 25%, rgba(255,255,255,.55), transparent 60%),
+    radial-gradient(80% 60% at 70% 90%, var(--alien-shade) 0%, transparent 60%),
+    var(--alien-body);
+  border-radius: 50% 50% 45% 45% / 60% 60% 40% 40%;
+  box-shadow:
+    inset -10px -30px 50px rgba(0,0,0,.18),
+    inset 20px 10px 40px rgba(255,255,255,.25),
+    0 20px 40px rgba(15,37,69,.16);
+}
+
+.nl-alien .alien-belly {
+  position: absolute;
+  left: 50%;
+  top: 39.3%;
+  transform: translateX(-50%);
+  width: 47.8%;
+  height: 35.7%;
+  border-radius: 50%;
+  background:
+    radial-gradient(60% 50% at 50% 30%, #fff 0%, transparent 60%),
+    var(--alien-belly);
+  opacity: 0.85;
+  z-index: 2;
+}
+
+.nl-alien .foot {
+  position: absolute;
+  bottom: 0;
+  width: 23.9%;
+  height: 5.4%;
+  background: var(--alien-shade);
+  border-radius: 50%;
+  z-index: 2;
+  box-shadow: inset 0 -4px 8px rgba(0,0,0,.2);
+}
+.nl-alien .foot.l { left: 18.7%; }
+.nl-alien .foot.r { right: 18.7%; }
+
+.nl-alien .arm {
+  position: absolute;
+  top: 64.3%;
+  width: 15.2%;
+  height: 19.6%;
+  background: var(--alien-body);
+  border-radius: 60% 60% 45% 45% / 50% 50% 50% 50%;
+  box-shadow: inset -6px -10px 14px rgba(0,0,0,.18), inset 4px 4px 8px rgba(255,255,255,.2);
+  z-index: 3;
+}
+.nl-alien .arm.l {
+  left: 3%;
+  transform: rotate(-22deg);
+  transform-origin: top center;
+  animation: armWiggleL 3.6s ease-in-out infinite;
+}
+.nl-alien .arm.r {
+  right: 3%;
+  transform: rotate(22deg);
+  transform-origin: top center;
+  animation: armWiggleR 3.6s ease-in-out infinite;
+}
+
+.nl-alien .cheek {
+  position: absolute;
+  top: 44.6%;
+  width: 13%;
+  height: 6.8%;
+  border-radius: 50%;
+  background: var(--alien-cheek);
+  filter: blur(2px);
+  z-index: 5;
+}
+.nl-alien .cheek.l { left: 20%; }
+.nl-alien .cheek.r { right: 20%; }
+
+.nl-alien .eye {
+  position: absolute;
+  top: 31.8%;
+  width: 19.6%;
+  height: 17.9%;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: inset 0 -8px 16px rgba(0,0,0,.08), inset 0 4px 0 rgba(15,37,69,.04);
+  z-index: 6;
+  overflow: hidden;
+}
+.nl-alien .eye.l { left: 19.1%; }
+.nl-alien .eye.r { right: 19.1%; }
+
+.nl-alien .pupil {
+  position: absolute;
+  top: 28%;
+  left: 24.4%;
+  width: 48.9%;
+  height: 50%;
+  background: #1b2a44;
+  border-radius: 50%;
+  transition: transform 120ms ease-out;
+}
+.nl-alien .pupil::after,
+.nl-alien .pupil::before {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  background: #fff;
+}
+.nl-alien .pupil::after {
+  top: 16%; left: 18%;
+  width: 31.8%; height: 28%;
+}
+.nl-alien .pupil::before {
+  right: 18%; bottom: 16%;
+  width: 13.6%; height: 12%;
+}
+
+.nl-alien .mouth-wrap {
+  position: absolute;
+  left: 50%;
+  top: 59.3%;
+  transform: translateX(-50%);
+  width: 39.1%;
+  height: 23.2%;
+  z-index: 7;
+}
+.nl-alien .mouth {
+  position: absolute;
+  inset: 0;
+  background: #3a0d22;
+  border-radius: 50% 50% 48% 48% / 35% 35% 70% 70%;
+  box-shadow: inset 0 14px 20px rgba(0,0,0,.55), inset 0 -6px 12px rgba(255,90,120,.25);
+  overflow: hidden;
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1);
+}
+.nl-alien .mouth.open    { transform: scaleY(1.18) translateY(-4px); }
+.nl-alien .mouth.chomp   { animation: chomp .55s ease-out; }
+
+.nl-alien .tongue {
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  transform: translateX(-50%);
+  width: 61.1%;
+  height: 30.8%;
+  background: radial-gradient(60% 60% at 50% 30%, #ff9ab6 0%, #ff6b8e 70%);
+  border-radius: 60% 60% 50% 50% / 60% 60% 50% 50%;
+  box-shadow: inset 0 -4px 8px rgba(150,30,60,.3);
+}
+.nl-alien .tongue::after {
+  content: "";
+  position: absolute;
+  left: 50%; top: 15%;
+  transform: translateX(-50%);
+  width: 2px; height: 50%;
+  background: rgba(150,30,60,.3);
+  border-radius: 999px;
+}
+
+/* ── Speech bubble ── */
+.nl-bubble {
+  position: relative;
+  background: var(--nl-bubble-bg);
+  border: 2.5px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 12px 16px;
+  font-family: 'Nunito', 'Fredoka One', system-ui, sans-serif;
+  font-size: clamp(0.85rem, 2.5vw, 1.1rem);
+  color: #1e293b;
+  box-shadow: 0 4px 14px rgba(0,0,0,.08);
+  max-width: 200px;
+}
+/* Left-pointing tail */
+.nl-bubble::before {
+  content: "";
+  position: absolute;
+  left: -14px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 7px solid transparent;
+  border-right-color: #e2e8f0;
+}
+.nl-bubble::after {
+  content: "";
+  position: absolute;
+  left: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 6px solid transparent;
+  border-right-color: var(--nl-bubble-bg);
+}
+.nl-bubble-text strong {
+  color: var(--nl-accent);
+  font-size: 1.15em;
+}
+
+/* ═══════════════════════════════════════════════════════
+   NUMBER LINE
+   ═══════════════════════════════════════════════════════ */
+
+.nl-line-area {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.nl-track-wrap {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nl-track {
+  position: absolute;
+  left: 0; right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: var(--nl-track-h);
+  background: linear-gradient(90deg, #94a3b8 0%, #64748b 100%);
+  border-radius: 999px;
+  z-index: 0;
+}
+
+.nl-slots {
+  position: relative;
+  display: flex;
+  gap: 4px;
+  z-index: 1;
+  padding: 4px 0;
+}
+
+/* Individual slot bubbles */
+.nl-bubble-slot {
+  width: var(--nl-slot-size-sm);
+  height: var(--nl-slot-size-sm);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Fredoka One', 'Nunito', system-ui, sans-serif;
+  font-size: clamp(0.8rem, 2.5vw, 1rem);
+  font-weight: 700;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  transition: transform 0.2s ease, background 0.3s ease;
+}
+
+@media (min-width: 600px) {
+  .nl-bubble-slot {
+    width: var(--nl-slot-size-lg);
+    height: var(--nl-slot-size-lg);
+    font-size: 1.1rem;
+    gap: 6px;
+  }
+  .nl-slots { gap: 6px; }
+}
+
+/* Filled / visible number */
+.nl-bubble-slot--filled {
+  background: #fff;
+  border: 2.5px solid #cbd5e1;
+  color: #1e293b;
+  box-shadow: 0 2px 8px rgba(0,0,0,.07);
+}
+
+/* Slot that was a gap and just got placed by the child */
+.nl-bubble-slot--placed {
+  background: #dcfce7;
+  border-color: var(--nl-correct);
+  color: #166534;
+}
+
+/* Celebration pulse for a just-completed round */
+.nl-bubble-slot--celebrate {
+  animation: slotCelebrate 0.5s ease-out both;
+}
+
+@keyframes slotCelebrate {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.28); }
+  70%  { transform: scale(0.94); }
+  100% { transform: scale(1); }
+}
+
+/* Active drop target — pulsing purple dashed ring */
+.nl-bubble-slot--active {
+  background: rgba(124,58,237,0.08);
+  border: 3px dashed var(--nl-accent);
+  animation: slotPulse 1.1s ease-in-out infinite;
+}
+
+@keyframes slotPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(124,58,237,0.45); transform: scale(1); }
+  50%       { box-shadow: 0 0 0 8px rgba(124,58,237,0);  transform: scale(1.08); }
+}
+
+/* Future gap — dimmed dashed placeholder */
+.nl-bubble-slot--waiting {
+  background: rgba(148,163,184,0.12);
+  border: 2.5px dashed #94a3b8;
+  opacity: 0.55;
+}
+
+/* Round label */
+.nl-round-label {
+  font-family: 'Nunito', system-ui, sans-serif;
+  font-size: 0.78rem;
+  color: #64748b;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ═══════════════════════════════════════════════════════
+   TILE TRAY
+   ═══════════════════════════════════════════════════════ */
+
+.nl-tray {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  width: 100%;
+  max-width: 480px;
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 2px solid rgba(255,255,255,0.6);
+  border-radius: 20px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.08);
+  box-sizing: border-box;
+  transition: opacity 0.4s ease;
+}
+
+.nl-tile {
+  width: var(--nl-tile-size-sm);
+  height: var(--nl-tile-size-sm);
+  border-radius: 14px;
+  background: var(--nl-tile-bg);
+  color: var(--nl-tile-text);
+  font-family: 'Fredoka One', 'Nunito', system-ui, sans-serif;
+  font-size: clamp(1rem, 4vw, 1.3rem);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  box-shadow: 0 4px 10px rgba(249,115,22,.35), inset 0 2px 0 rgba(255,255,255,.25);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  flex-shrink: 0;
+}
+
+@media (min-width: 600px) {
+  .nl-tile {
+    width: var(--nl-tile-size-lg);
+    height: var(--nl-tile-size-lg);
+    font-size: 1.4rem;
+  }
+}
+
+.nl-tile:hover {
+  transform: translateY(-3px) scale(1.06);
+  box-shadow: 0 8px 18px rgba(249,115,22,.4), inset 0 2px 0 rgba(255,255,255,.25);
+}
+
+.nl-tile:active {
+  cursor: grabbing;
+}
+
+/* Ghost state while being dragged */
+.nl-tile--ghost {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/* Floating clone */
+.nl-tile--dragging {
+  cursor: grabbing !important;
+  box-shadow: 0 12px 30px rgba(249,115,22,.45), inset 0 2px 0 rgba(255,255,255,.25);
+  transform: scale(1.12) rotate(3deg);
+}
+
+/* ═══════════════════════════════════════════════════════
+   END SCREEN
+   ═══════════════════════════════════════════════════════ */
+
+.nl-end-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  width: 100%;
+  background: linear-gradient(135deg, #f0e6ff 0%, #e0f2fe 100%);
+}
+
+.nl-end-panel {
+  background: #fff;
+  border-radius: 28px;
+  padding: 40px 32px;
+  text-align: center;
+  max-width: 360px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0,0,0,.12);
+}
+
+.nl-end-panel h1 {
+  font-family: 'Fredoka One', system-ui, sans-serif;
+  font-size: clamp(1.6rem, 5vw, 2.2rem);
+  color: var(--nl-accent);
+  margin: 0 0 8px;
+}
+
+.nl-end-panel p {
+  font-family: 'Nunito', system-ui, sans-serif;
+  font-size: 1rem;
+  color: #475569;
+  margin: 0 0 20px;
+}
+
+.nl-end-stars {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-size: 2rem;
+}
+
+.nl-end-star { opacity: 0.25; transition: opacity 0.3s ease; }
+.nl-end-star.lit { opacity: 1; }
+
+.nl-end-accuracy {
+  font-family: 'Fredoka One', system-ui, sans-serif;
+  font-size: 1.4rem;
+  color: var(--nl-correct);
+  margin-bottom: 28px;
+}
+
+.nl-next-btn {
+  background: linear-gradient(135deg, var(--nl-accent) 0%, #4f46e5 100%);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 14px 32px;
+  font-family: 'Fredoka One', system-ui, sans-serif;
+  font-size: 1.05rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(124,58,237,.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.nl-next-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(124,58,237,.45);
+}
+
+/* ═══════════════════════════════════════════════════════
+   SHARED ALIEN KEYFRAMES
+   (Define here so number-line CSS is self-contained even
+    when loaded standalone; feed-alien-game.css defines
+    the same names, the cascade handles it fine.)
+   ═══════════════════════════════════════════════════════ */
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+
+@keyframes shadowPulse {
+  0%, 100% { transform: translateX(-50%) scale(1);    opacity: 0.9; }
+  50%       { transform: translateX(-50%) scale(0.88); opacity: 1;   }
+}
+
+@keyframes blink {
+  0%, 90%, 100% { box-shadow: inset -3px -6px 8px rgba(0,0,0,.2), 0 0 0 0 rgba(255,111,156,.6); }
+  95%           { box-shadow: inset -3px -6px 8px rgba(0,0,0,.2), 0 0 0 14px rgba(255,111,156,0); }
+}
+
+@keyframes armWiggleL {
+  0%, 100% { transform: rotate(-22deg); }
+  50%       { transform: rotate(-30deg); }
+}
+
+@keyframes armWiggleR {
+  0%, 100% { transform: rotate(22deg); }
+  50%       { transform: rotate(30deg); }
+}
+
+@keyframes chomp {
+  0%   { transform: scaleY(1.3)  scaleX(1.05); }
+  35%  { transform: scaleY(.4)   scaleX(1.1);  }
+  70%  { transform: scaleY(1.1)  scaleX(.97);  }
+  100% { transform: scaleY(1)    scaleX(1);    }
+}

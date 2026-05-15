@@ -1703,6 +1703,42 @@ Status:
 ## 2026-05-14 - Codex
 
 Prompt:
+> Can you review the code for the new line game for ABC's then push
+
+Actions Taken:
+- Reviewed the newly added line game files and registry wiring.
+- Found a product mismatch: the new game was implemented as a number line rather than an ABC/letter line.
+- Reworked the new game into a letter-line flow using A-J in early rounds and K-T in later rounds.
+- Added spoken prompt calls so the current target letter is announced through the shared audio system.
+- Fixed first-try accuracy tracking so a tile only counts as first-try correct if it was not previously dropped wrong.
+- Updated the registry label from `Number Line` to `Letter Line`.
+
+Files/Folders Changed:
+- `assets/js/games/number-line-game.js`
+- `assets/js/games/game-registry.js`
+- `assets/css/number-line-game.css`
+
+Verification:
+- `node --check assets/js/games/number-line-game.js`
+- `npm test`
+- `git diff --check -- assets/js/games/game-registry.js assets/js/games/number-line-game.js assets/css/number-line-game.css`
+- Desktop browser pass through Round 1 -> Round 2
+- Mobile browser pass through Round 1 -> Round 2
+
+Observed Results:
+- Desktop prompt rendered as letters, e.g. `Where does F go?`, and advanced to Round 2 cleanly.
+- Mobile prompt rendered as letters, e.g. `Where does E go?`, and advanced to Round 2 cleanly.
+- No runtime errors appeared in either browser pass.
+- Letter prompts currently use the shared audio fallback voice because there are no dedicated alphabet recordings yet.
+
+Status:
+- Letter-line update reviewed, corrected, and ready for push.
+
+---
+
+## 2026-05-14 - Codex
+
+Prompt:
 > Okay the tiles arent dragging is the only issue. You can click but you cannot move to the mouth
 
 Actions Taken:
