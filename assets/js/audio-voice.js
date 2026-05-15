@@ -50,13 +50,43 @@
         'easier colors': 'em-almost-there.m4a',
         'easier shapes': 'em-almost-there.m4a',
         'keep it up': 'em-keep-it-up.m4a',
-        funny: 'em-funny.m4a'
+        funny: 'em-funny.m4a',
+
+        // --- New Callouts (Generated via Local TTS) ---
+        'find b': 'em-find-b.wav',
+        'find c': 'em-find-c.wav',
+        'find d': 'em-find-d.wav',
+        'find f': 'em-find-f.wav',
+        'find h': 'em-find-h.wav',
+        'find l': 'em-find-l.wav',
+        'find m': 'em-find-m.wav',
+        'find r': 'em-find-r.wav',
+        'find s': 'em-find-s.wav',
+        'find p': 'em-find-p.wav',
+        'find t': 'em-find-t.wav',
+
+        'starts with the sound buh': 'em-fbs-b.wav',
+        'starts with the sound sss': 'em-fbs-s.wav',
+        'starts with the sound mmm': 'em-fbs-m.wav',
+        'starts with the sound fff': 'em-fbs-f.wav',
+        'starts with the sound puh': 'em-fbs-p.wav',
+        'starts with the sound duh': 'em-fbs-d.wav',
+
+        '1': 'em-num-1.wav',
+        '2': 'em-num-2.wav',
+        '3': 'em-num-3.wav',
+        '4': 'em-num-4.wav',
+        '5': 'em-num-5.wav',
+        '6': 'em-num-6.wav',
+        '7': 'em-num-7.wav',
+        '8': 'em-num-8.wav',
+        '9': 'em-num-9.wav',
+        '10': 'em-num-10.wav'
     };
 
     let currentAudio = null;
     let audioQueue = Promise.resolve();
     let unlocked = false;
-
     function normalize(text) {
         return String(text || '')
             .toLowerCase()
