@@ -89,8 +89,13 @@ class FeedAlienGame {
     this.renderProgress();
     this.updateInstruction();
 
-    this.context.speak(`Feed the alien ${this.requiredCount} items!`);
+    this.context.speak(this.getRoundPrompt());
     console.log(`[FeedAlien] Round ${this.currentRound + 1}: Need ${this.requiredCount}`);
+  }
+
+  getRoundPrompt() {
+    const noun = this.requiredCount === 1 ? 'piece' : 'pieces';
+    return `Feed the alien ${this.requiredCount} ${noun} of food from the basket!`;
   }
 
   getFoodEmoji() {
@@ -563,7 +568,7 @@ class FeedAlienGame {
 
   updateInstruction() {
     const instr = document.getElementById('feedInstruction');
-    if (instr) instr.textContent = `Feed the alien ${this.requiredCount} item${this.requiredCount !== 1 ? 's' : ''}!`;
+    if (instr) instr.textContent = this.getRoundPrompt();
 
     const level = document.getElementById('feedLevel');
     if (level) level.textContent = `Level ${this.difficulty}`;

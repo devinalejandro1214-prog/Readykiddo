@@ -2249,12 +2249,12 @@ Notes / Next Steps:
    - **ABC Match**: Letter prompts (B, C, D, F, H, L, M, R, S, P, T).
    - **Feed by Sound**: Phonics instruction prompts (buh, sss, mmm, fff, puh, duh).
    - **Number Counting**: Sequential numbers 1-10 for Feed Alien counting feedback.
-3. **Audio Mapping**: Updated ssets/js/audio-voice.js to map all new .wav files to their respective game strings.
+3. **Audio Mapping**: Updated assets/js/audio-voice.js to map all new .wav files to their respective game strings.
 4. **Mobile Optimization Sync**: Finalized Git push of mobile Safari/iOS "Tap-to-Start" interaction unlock and Round 2 gameplay logic.
 
 **Files Changed:**
-- ssets/js/audio-voice.js (Major update to AUDIO_MAP)
-- ssets/audio/voice/*.wav (30 new high-fidelity voice files)
+- assets/js/audio-voice.js (Major update to AUDIO_MAP)
+- assets/audio/voice/*.wav (30 new high-fidelity voice files)
 - AGENT_COLLAB_LOG.md (This entry)
 
 **Verification:**
@@ -2296,8 +2296,8 @@ umber-line
 
 **Findings / Blockers:**
 1. **Audio integration is not fully aligned yet.**
-   - Games call RKAudio.speak() through ssets/js/games/game-shell.js, which resolves against ssets/js/audio-manager.js.
-   - The new generated callouts were added to ssets/js/audio-voice.js, not ssets/js/audio-manager.js.
+   - Games call RKAudio.speak() through assets/js/games/game-shell.js, which resolves against assets/js/audio-manager.js.
+   - The new generated callouts were added to assets/js/audio-voice.js, not assets/js/audio-manager.js.
    - Result: the new ABC Match, Feed by Sound, and Feed Alien count prompts are not guaranteed to use the new recorded assets during real gameplay.
 2. **World reveal mobile header still clips.**
    - On phone, the welcome heading is visibly cut off on the right under the mute button.
@@ -2363,8 +2363,8 @@ GitHub/Netlify:
 ### Task: Integrate active audio path and clear final mobile blockers
 
 **Actions Taken:**
-1. Merged the new generated gameplay callouts into ssets/js/audio-manager.js, which is the active RKAudio runtime path used by games.
-2. Replaced placeholder shape mappings in the active path so ind star, ind rectangle, and ind diamond now resolve to their specific recorded .wav files.
+1. Merged the new generated gameplay callouts into assets/js/audio-manager.js, which is the active RKAudio runtime path used by games.
+2. Replaced placeholder shape mappings in the active path so find star, find rectangle, and find diamond now resolve to their specific recorded .wav files.
 3. Added normalized substring matching in RKAudio so long prompts like Feed by Sound instructions resolve to the correct recorded clips.
 4. Reviewed Code's local mobile/UI fixes:
    - cleaned duplicate top block in index.html
@@ -2406,3 +2406,17 @@ GitHub/Netlify:
 - Updated the Space world color-sort mapping so purple no longer uses the purple planet image.
 - Purple in Space now falls back to the solid purple tile, while blue keeps the blue planet asset.
 - Scope stayed intentionally narrow to avoid changing the other world/item mappings.
+
+## 2026-05-15 - Codex Color Audio Audit
+- Audited Jungle and the other worlds for color-audio routing.
+- All worlds launch the same color-sort game from world-reveal.js and use the same 	his.context.speak() flow through GameShell -> RKAudio.
+- The six color prompts (find red/blue/yellow/orange/green/purple) are defined in the active audio map for both Em and Amara paths.
+- Conclusion: there is no Jungle-only missing color-audio mapping in code.
+- Important product note: Round 1 of Color Sort only says match the colors; the individual find <color> callouts happen in Round 2. If Jungle sounds different in practice, the issue is likely browser/runtime state rather than a world-specific mapping gap.
+
+## 2026-05-15 - Codex Feed Alien Basket Prompt Update
+- Updated Feed the Alien so each round now says the full basket instruction phrase, e.g. Feed the alien 5 pieces of food from the basket!.
+- Kept the live number count on every successful feed; the game still speaks 1, 2, 3, and so on after each drop.
+- Generated dedicated recorded basket-prompt clips for counts 1-10 with the local Kokoro pipeline.
+- Wired the new basket-prompt clips into the active RKAudio map for both voice paths.
+- Validation passed: node --check assets/js/games/feed-alien-game.js, node --check assets/js/audio-manager.js, npm test, npm run build, git diff --check.
