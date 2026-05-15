@@ -550,11 +550,17 @@
 
 .food-drag-ghost {
   position: fixed;
+  left: 0;
+  top: 0;
   margin: 0;
-  z-index: 150;
+  z-index: 9999;
   pointer-events: none;
-  transform: scale(1.08) rotate(-4deg);
-  box-shadow: 0 16px 32px rgba(245, 158, 11, 0.38);
+  /* Kill food-item's animation and transition so they can't override transform */
+  animation: none !important;
+  transition: none !important;
+  will-change: transform;
+  box-shadow: 0 16px 32px rgba(245, 158, 11, 0.5);
+  filter: brightness(1.08);
 }
 
 body.feed-dragging .alien-thought-bubble {

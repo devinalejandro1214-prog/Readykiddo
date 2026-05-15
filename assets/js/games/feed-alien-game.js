@@ -269,18 +269,28 @@ class FeedAlienGame {
     foodEl.after(placeholder);
     foodEl.classList.add('food-source-hidden');
 
-    const ghost = foodEl.cloneNode(true);
-    ghost.classList.remove('food-source-hidden');
-    ghost.classList.add('food-drag-ghost');
+    // Clone the tile — strip food-item so its animation/transition can't fight us
+    const ghost = document.createElement('div');
+    ghost.className = 'food-drag-ghost';
+    ghost.textContent = foodEl.textContent;
     ghost.style.width = `${rect.width}px`;
     ghost.style.height = `${rect.height}px`;
-    ghost.style.left = `${rect.left}px`;
-    ghost.style.top = `${rect.top}px`;
-    ghost.style.transform = 'translate(0px, 0px) scale(1.08) rotate(-4deg)';
-    document.body.appendChild(ghost);
+    ghost.style.borderRadius = '20px';
+    ghost.style.background = 'linear-gradient(135deg, #fff8dc, #ffe4b5)';
+    ghost.style.border = '3px solid #f59e0b';
+    ghost.style.fontSize = foodEl.style.fontSize || window.getComputedStyle(foodEl).fontSize;
+    ghost.style.display = 'flex';
+    ghost.style.alignItems = 'center';
+    ghost.style.justifyContent = 'center';
 
     const offsetX = point.clientX - rect.left;
     const offsetY = point.clientY - rect.top;
+    const startX = rect.left;
+    const startY = rect.top;
+
+    // Position: fixed left:0 top:0, move entirely via transform — no CSS fighting
+    ghost.style.transform = `translate(${startX}px, ${startY}px) scale(1.1) rotate(-4deg)`;
+    document.body.appendChild(ghost);
 
     this.activeDrag = {
       foodId: foodEl.dataset.foodId,
@@ -290,12 +300,10 @@ class FeedAlienGame {
       pointerId: typeof event.pointerId === 'number' ? event.pointerId : null,
       offsetX,
       offsetY,
-      baseLeft: rect.left,
-      baseTop: rect.top,
       width: rect.width,
       height: rect.height,
-      currentLeft: rect.left,
-      currentTop: rect.top
+      currentLeft: startX,
+      currentTop: startY
     };
 
     if (typeof event.pointerId === 'number' && typeof foodEl.setPointerCapture === 'function') {
@@ -330,12 +338,13 @@ class FeedAlienGame {
     const point = this.getPoint(event);
     if (!point) return;
     if (event.cancelable) event.preventDefault();
-    const { ghostEl, offsetX, offsetY, baseLeft, baseTop } = this.activeDrag;
+    const { ghostEl, offsetX, offsetY } = this.activeDrag;
     const nextLeft = point.clientX - offsetX;
-    const nextTop = point.clientY - offsetY;
+    const nextTop  = point.clientY - offsetY;
     this.activeDrag.currentLeft = nextLeft;
-    this.activeDrag.currentTop = nextTop;
-    ghostEl.style.transform = `translate(${nextLeft - baseLeft}px, ${nextTop - baseTop}px) scale(1.08) rotate(-4deg)`;
+    this.activeDrag.currentTop  = nextTop;
+    // translate sets the viewport position directly (ghost has left:0, top:0)
+    ghostEl.style.transform = `translate(${nextLeft}px, ${nextTop}px) scale(1.1) rotate(-4deg)`;
 
     const mouthTarget = document.getElementById('alienMouthTarget');
     if (!mouthTarget) return;
@@ -366,7 +375,23 @@ class FeedAlienGame {
     this.fedFoods.add(foodId);
     this.selectedCount = this.fedFoods.size;
 
-    ghostEl.remove();
+    // Animate the ghost flying into the mouth, then vanish
+    const mouth = document.getElementById('alienMouth');
+    if (mouth && ghostEl) {
+      const mr = mouth.getBoundingClientRect();
+      const mouthCX = mr.left + mr.width  / 2;
+      const mouthCY = mr.top  + mr.height / 2;
+      const gw = ghostEl.offsetWidth  || this.activeDrag?.width  || 60;
+      const gh = ghostEl.offsetHeight || this.activeDrag?.height || 60;
+      // Enable transition just for this fly-in
+      ghostEl.style.transition = 'transform 0.22s cubic-bezier(0.5, 0, 1, 1), opacity 0.22s ease';
+      ghostEl.style.transform  = `translate(${mouthCX - gw / 2}px, ${mouthCY - gh / 2}px) scale(0.05) rotate(20deg)`;
+      ghostEl.style.opacity    = '0';
+      setTimeout(() => ghostEl.remove(), 240);
+    } else {
+      ghostEl?.remove();
+    }
+
     placeholderEl.remove();
     sourceEl.remove();
 

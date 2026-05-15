@@ -1633,6 +1633,76 @@ Status:
 ## 2026-05-14 - Codex
 
 Prompt:
+> Check the bug on the mobile for why it wont drag the item into the aliens mouth should move the tile into the mouth
+
+Actions Taken:
+- Audited the current Feed the Alien drag code path for touch input on mobile.
+- Verified the game is using the drag-safe food tile structure and overlap-based mouth target logic.
+- Ran a browser-based iPhone-sized touch simulation against `game-loader.html?game=feed-alien` with a seeded onboarding profile.
+
+Files/Folders Reviewed:
+- `assets/js/games/feed-alien-game.js`
+- `assets/css/feed-alien-game.css`
+- `assets/js/games/game-shell.js`
+
+Verification:
+- Local HTTP check on `http://127.0.0.1:8765`
+- Mobile browser audit with synthetic touch drag from tile center to mouth center
+
+Observed Results:
+- The mobile touch path succeeded: counter changed from `0 / 1` to `1 / 1`.
+- The thought bubble changed from `0` to `1`.
+- No drag ghost remained stuck after drop.
+- No runtime errors appeared during the test pass.
+
+Status:
+- Current local mobile drag behavior is functional.
+- If the phone still fails on the deployed site, the most likely causes are stale deployed JS or browser cache rather than a remaining local drag bug.
+
+---
+
+## 2026-05-14 - Codex
+
+Prompt:
+> Can you check what code updated. He fixed the isseus for our alien feeding game
+
+Actions Taken:
+- Reviewed Code's local changes for Feed the Alien.
+- Audited the drag-ghost implementation changes in the game JS and CSS.
+- Ran syntax, static validation, and browser-based desktop/mobile drag checks.
+
+Files/Folders Reviewed:
+- `assets/js/games/feed-alien-game.js`
+- `assets/css/feed-alien-game.css`
+- `assets/js/games/game-registry.js`
+
+Observed Code Changes:
+- Replaced the cloned `.food-item` ghost with a dedicated `food-drag-ghost` element so the drag visual no longer inherits competing tile animation/transition rules.
+- Switched ghost positioning to `left: 0; top: 0` plus direct viewport `transform: translate(...)`, which makes drag movement more stable on touch devices.
+- Raised drag ghost z-index and disabled animation/transition on the ghost in CSS.
+- Added a fly-into-mouth finish animation when a drop succeeds.
+
+Verification:
+- `node --check assets/js/games/feed-alien-game.js`
+- `npm test`
+- `git diff --check -- assets/js/games/feed-alien-game.js assets/css/feed-alien-game.css`
+- Browser drag audit on desktop
+- Browser touch-drag audit on mobile viewport
+
+Observed Results:
+- Desktop drag succeeded: counter changed from `0 / 3` to `1 / 3`, bubble changed from `0` to `1`.
+- Mobile drag succeeded: counter changed from `0 / 2` to `1 / 2`, bubble changed from `0` to `1`.
+- No runtime errors appeared in either pass.
+
+Status:
+- Feed the Alien drag fix looks good locally and behaves as intended in both desktop and mobile test passes.
+- There are unrelated local changes present in `game-registry.js` and new `number-line-game` files, but they were not part of this Feed the Alien audit.
+
+---
+
+## 2026-05-14 - Codex
+
+Prompt:
 > Okay the tiles arent dragging is the only issue. You can click but you cannot move to the mouth
 
 Actions Taken:
@@ -1699,3 +1769,116 @@ Observed Results:
 
 Status:
 - Local fix complete and ready for push when requested.
+
+---
+
+## 2026-05-14 - Claude Code
+
+Prompt:
+> Build the Number Line game to play after Feed the Alien. Alien asks child to fill in the missing numbers. Horizontal line 1-10 (or 11-20 at hard). Only the pulsing active gap is a valid drop target. Decoy tiles in the tray. Wrong drop springs back — no scolding. 6 rounds of increasing difficulty.
+
+Actions Taken:
+- Created `assets/js/games/number-line-game.js` — full `NumberLineGame` class:
+  - 6-round config: rounds 1-3 use 1-10, rounds 4-6 use 11-20; gaps increase from 1 to 3, decoys from 2 to 4
+  - `beginRound()` — builds sequence, picks random gap indices (never slot 0 or 9 so line always has anchor endpoints), resets activeGapIdx
+  - `_render()` — renders alien area + number line + tile tray in one pass
+  - `_alienHTML()` — full Gumblop alien markup (same structure as feed-alien) with speech bubble: "Where does N go?"
+  - `_numberLineHTML()` — 10 bubble slots: filled (white ring), active (pulsing purple dashed), waiting (dimmed dashed), placed (green)
+  - `_trayHTML()` — remaining correct tiles + decoy tiles, all shuffled
+  - `_setupAlienInteraction()` — pointermove pupil tracking (±6px), pointerenter/leave mouth open, animationend chomp cleanup; tears down previous listener between rounds
+  - `_triggerChomp()` — forces reflow to restart chomp animation
+  - `_setupDragDrop()` — pointer events on each `.nl-tile`
+  - `_startDrag()` — creates fixed-position clone, ghosts origin tile, captures pointer
+  - `_onDragMove` — moves clone to follow cursor
+  - `_onDragEnd` — checks rect overlap with `#nlActiveSlot`; correct placement calls `_handleCorrectPlacement()`, wrong springs back via CSS cubic-bezier transition (380ms)
+  - `_handleCorrectPlacement()` — triggers chomp, advances `activeGapIdx`, re-renders or calls `_completeRound()`
+  - `_completeRound()` — marks all slots celebrate (scale pop animation), shows "You got it! 🎉" in bubble, hides tray, advances round after 1800ms
+  - `end()` — cleans up pupil listener, saves session metrics, shows end screen
+  - `_generateDecoys()` — prioritises numbers just outside the sequence range (more educational), also includes visible in-range numbers as very tricky decoys; deduped Set
+  - `_pickGaps()` / `_shuffle()` utilities
+
+- Created `assets/css/number-line-game.css`:
+  - Full Gumblop alien CSS (percentage-based internals, same approach as feed-alien-game.css) for `.nl-alien`; self-contained so game works standalone
+  - `.nl-layout` — column flex layout with sky/ground gradient background
+  - `.nl-alien-area` — row flex (alien left, speech bubble right with left-pointing CSS tail)
+  - `.nl-bubble` — frosted-glass speech bubble, `::before`/`::after` left-pointing chevron tail
+  - `.nl-track-wrap` — relative positioned, `.nl-track` bar absolutely centered behind `.nl-slots`
+  - `.nl-bubble-slot` — 36px mobile / 48px desktop circles; variants: `--filled`, `--active` (pulsing `slotPulse` keyframe), `--waiting` (dimmed dashed), `--placed` (green), `--celebrate` (scale pop)
+  - `.nl-tray` — frosted-glass container, flex-wrap row
+  - `.nl-tile` — orange tiles, 52px mobile / 64px desktop, grab cursor, hover lift
+  - `.nl-tile--ghost` / `.nl-tile--dragging` — drag states
+  - End screen: `.nl-end-card`, `.nl-end-panel`, `.nl-end-stars`, `.nl-next-btn`
+  - All shared alien keyframes declared locally (`bob`, `shadowPulse`, `blink`, `armWiggleL/R`, `chomp`)
+
+- Updated `assets/js/games/game-registry.js`:
+  - Added `number-line` entry (order 7, isActive: true)
+  - Updated `getNextGameRecommendation('feed-alien')` → returns `'number-line'` (was `'world-reveal'`)
+  - Added `getNextGameRecommendation('number-line')` → returns `'world-reveal'`
+  - Feed the Alien's end screen now automatically shows "Continue Adventure" button pointing to `game-loader.html?game=number-line` (no changes needed to feed-alien-game.js — it reads from the registry dynamically)
+
+Files/Folders Changed:
+- `assets/js/games/number-line-game.js` (created)
+- `assets/css/number-line-game.css` (created)
+- `assets/js/games/game-registry.js` (modified — added entry, updated recommendation chain)
+- `AGENT_COLLAB_LOG.md` (this entry)
+
+GitHub/Netlify:
+- Local only. Ready for Codex to verify, commit, and push when ready.
+
+Notes / Next Steps:
+- Game sequence is now: Color Sort → Shape Recognition → Space Defender → Feed the Alien → Number Line → World Reveal
+- Decoy generation is intentional: numbers just outside the visible range (e.g. 0, 11 when playing 1-10) are the most educational wrong choices
+- Spring-back uses `cubic-bezier(0.34, 1.56, 0.64, 1)` for a satisfying elastic feel without being punishing
+- No scolding: wrong drops just spring back silently; alien expression doesn't change on wrong attempts
+- Per-gap flow: each gap filled → alien chomps → next gap becomes active → new tile set shown → repeat
+- Mobile test recommended at 390px viewport width — tray tiles should flex-wrap cleanly with 4-5 tiles visible without scrolling
+
+---
+
+## 2026-05-14 - Claude Code
+
+Prompt:
+> Tiles in the Feed the Alien game don't visually move. You can click-hold but the tile stays in place. The mouth still accepts the invisible food. Fix it so the tile moves with the finger/cursor and flies into the alien's mouth and disappears.
+
+Root Cause Found:
+- The drag ghost was created with `foodEl.cloneNode(true)`, which kept the `food-item` CSS class.
+- `food-item` has `animation: foodEnter 0.4s both` and `transition: all 0.2s ease`.
+- CSS animations override inline `style.transform` — so `onDragMove`'s `ghostEl.style.transform = ...` was being overridden by the running `foodEnter` animation. The ghost existed but its transform was locked by the animation.
+- Secondary: the `transition: all 0.2s ease` would have caused lag even if the animation wasn't blocking it.
+- Tertiary: ghost positioning used a `baseLeft/baseTop` delta calculation that added unnecessary complexity.
+
+Actions Taken:
+1. **`assets/css/feed-alien-game.css`** — Updated `.food-drag-ghost`:
+   - Added `animation: none !important` — kills the inherited `foodEnter` animation that was overriding transform
+   - Added `transition: none !important` — eliminates the 0.2s lag from `food-item` transition
+   - Changed `left: 0; top: 0` as the base position (transform does all movement)
+   - Bumped `z-index` to 9999
+   - Added `will-change: transform` for GPU-accelerated movement
+
+2. **`assets/js/games/feed-alien-game.js`** — Rewrote ghost creation in `startFoodDrag`:
+   - Creates a fresh `div.food-drag-ghost` instead of cloning the food tile — no inherited CSS baggage
+   - Applies explicit inline styles (background, border, font-size, border-radius) matching the food tile's appearance
+   - Ghost starts at `transform: translate(startX, startY)` where startX/startY are the tile's viewport position
+   - Removed `baseLeft`/`baseTop` from `activeDrag` — no longer needed
+
+3. **`assets/js/games/feed-alien-game.js`** — Fixed `onDragMove`:
+   - `transform: translate(clientX - offsetX, clientY - offsetY)` directly — viewport coordinates, no delta math
+   - Clear and unambiguous: ghost top-left corner tracks the cursor offset exactly
+
+4. **`assets/js/games/feed-alien-game.js`** — Added fly-into-mouth animation in `feedFood`:
+   - On correct drop: enables a short 0.22s transition, translates ghost to mouth center, scales to 0.05, fades opacity to 0
+   - Ghost element removed after 240ms (after animation completes)
+   - Falls back to `ghostEl.remove()` if mouth element isn't found
+
+Files/Folders Changed:
+- `assets/js/games/feed-alien-game.js`
+- `assets/css/feed-alien-game.css`
+- `AGENT_COLLAB_LOG.md` (this entry)
+
+GitHub/Netlify:
+- Local only. Ready for Codex to verify, commit, and push.
+
+Notes / Next Steps:
+- Root cause note for Codex: the original ghost used `cloneNode(true)` which copied the food-item animation. Creating a fresh div avoids all inherited CSS side effects.
+- The `isGhostOverMouth` collision check is unchanged — it still uses `currentLeft`/`currentTop` which now correctly represent viewport coordinates.
+- If Codex's version of the file has different drag code, this fix must be applied to whatever version is being deployed — the key invariants are: (1) ghost must NOT have food-item class or any animated class, (2) transform must not be blocked by animation.
