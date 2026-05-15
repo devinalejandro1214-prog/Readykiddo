@@ -2392,3 +2392,12 @@ GitHub/Netlify:
 
 **Status:**
 - [x] Approved for push after final regression pass.
+
+## 2026-05-15 - Codex Audio Completion Pass
+- Generated the remaining recorded gameplay prompts with the local Kokoro pipeline and saved them into assets/audio/voice/.
+- Added missing find-letter clips for the rest of the alphabet so ABC Match and Letter Line can stay off fallback speech.
+- Added dedicated Feed the Alien instruction clips for counts 1-10.
+- Added dedicated Space Defender narration clips for start, game-over, and all-clear prompts.
+- Wired all new clips into the active RKAudio path in assets/js/audio-manager.js for both Em and Amara routing.
+- Validation passed: node --check assets/js/audio-manager.js, npm test, npm run build, git diff --check.
+- Scope intentionally stayed narrow: active audio wiring plus newly generated voice assets only.
