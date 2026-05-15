@@ -7,8 +7,14 @@
    ───────────────────────────────────────────────────────── */
 (function () {
   const VOICE_BASE  = 'assets/audio/voice/';
+  const SFX_BASE    = 'assets/audio/sfx/';
   const THEME_PATH  = 'assets/audio/readykiddo-theme.mp3';
   const MUTE_KEY    = 'rk_muted';
+  const SFX_MAP = {
+    'space-shot':      { path: 'space-defender/laser-shot.mp3', volume: 0.28 },
+    'space-hit':       { path: 'space-defender/ship-hit.mp3', volume: 0.36 },
+    'space-destroyed': { path: 'space-defender/ship-destroyed.mp3', volume: 0.48 },
+  };
 
   /* ── Female characters use Amara's voice ────────────────── */
   // Aria, Trish, Amelia → Amara clips
@@ -328,6 +334,16 @@
       a.load();
       cache[path] = a;
     });
+
+    Object.values(SFX_MAP).forEach(({ path }) => {
+      const fullPath = SFX_BASE + path;
+      if (cache[fullPath]) return;
+      const a = new Audio();
+      a.preload = 'auto';
+      a.src = fullPath;
+      a.load();
+      cache[fullPath] = a;
+    });
   }
 
   /* ── Mute state ──────────────────────────────────────────── */
@@ -496,6 +512,28 @@
     }
   }
 
+  function playSfx(key) {
+    if (isMuted()) return false;
+    const config = SFX_MAP[key];
+    if (!config) return false;
+
+    const path = SFX_BASE + config.path;
+    let audio = cache[path];
+    if (!audio) {
+      audio = new Audio(path);
+      audio.preload = 'auto';
+      cache[path] = audio;
+    }
+
+    const instance = audio.cloneNode();
+    instance.volume = config.volume;
+    instance.muted = isMuted();
+    instance.play().catch(err => {
+      console.warn('[SFX] Playback failed:', path, err.message);
+    });
+    return true;
+  }
+
   /* ── Mute button factory ─────────────────────────────────── */
   function createMuteButton() {
     const btn = document.createElement('button');
@@ -531,6 +569,7 @@
     startTheme,
     stopTheme,
     speak,
+    playSfx,
     stopVoice,
     isMuted,
     setMuted,
@@ -544,6 +583,7 @@
     speak,
     stop: stopVoice,
     play: (path) => speak(path),
+    playSfx,
     unlock,
   };
 

@@ -398,6 +398,7 @@ class SpaceDefenderGame {
 
   shoot() {
     this.metrics.shotsFired++;
+    this.context.playSound('space-shot');
     const laserEl = document.createElement('div');
     laserEl.className = 'laser';
     laserEl.style.left = `${this.shipX}%`;
@@ -511,7 +512,7 @@ class SpaceDefenderGame {
     this.playArea.appendChild(exp);
     setTimeout(() => exp.remove(), 400);
 
-    this.context.playSound('correct');
+    this.context.playSound('space-hit');
     this.context.characterAnimation('thumbs-up');
     enemy.el.remove();
     this.enemies.splice(index, 1);
@@ -522,7 +523,7 @@ class SpaceDefenderGame {
     const livesEls = document.querySelectorAll('.life');
     if (livesEls[this.lives]) livesEls[this.lives].classList.add('lost');
 
-    this.context.playSound('wrong');
+    this.context.playSound('space-destroyed');
     this.context.characterAnimation('nod');
 
     this.container.style.boxShadow = 'inset 0 0 50px red';

@@ -79,6 +79,10 @@ class GameShell {
   playSound(soundKey) {
     if (!this.audioEnabled) return;
 
+    if (window.RKAudio && window.RKAudio.playSfx && window.RKAudio.playSfx(soundKey)) {
+      return;
+    }
+
     const soundMap = {
       correct: 'correct',
       wrong: 'try again',

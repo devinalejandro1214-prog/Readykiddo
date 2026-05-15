@@ -2427,3 +2427,14 @@ GitHub/Netlify:
 - Wired those new prompt clips into the active RKAudio map for both voice paths.
 - Updated round flow so the first two rounds stay guided (A-J, then K-T), and later rounds switch to randomized 10-letter windows.
 - Validation passed: node --check assets/js/games/number-line-game.js, node --check assets/js/audio-manager.js, npm test, npm run build, git diff --check.
+
+## 2026-05-15 - Codex Space Defender SFX Pass
+- Added real Space Defender sound effects instead of using the old spoken correct/wrong fallback path.
+- Installed three local SFX assets under assets/audio/sfx/space-defender/:
+  - laser-shot.mp3 for each shot
+  - ship-hit.mp3 for enemy hits
+  - ship-destroyed.mp3 for player ship destruction / life loss
+- Wired a dedicated playSfx path into RKAudio and updated GameShell to prefer real SFX when a mapped key exists.
+- Updated Space Defender to trigger space-shot, space-hit, and space-destroyed at the right gameplay moments.
+- Source set: Mixkit free sound effects categories and licensed-use library.
+- Validation passed: node --check assets/js/audio-manager.js, node --check assets/js/games/game-shell.js, node --check assets/js/games/space-defender-game.js, npm test, npm run build, git diff --check.
