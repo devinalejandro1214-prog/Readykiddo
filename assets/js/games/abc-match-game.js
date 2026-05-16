@@ -285,7 +285,7 @@ class ABCMatchGame {
   _correctResponse(tileEl) {
     tileEl.classList.add('am-tile--correct');
     this._triggerChomp();
-    this.context.speak('you got it');
+    this.context.randomEncouragement();
 
     // Flying chip animation
     this._flyChipToTile(tileEl, () => {
@@ -390,8 +390,7 @@ class ABCMatchGame {
     const stars = accuracy >= 0.9 ? 3 : accuracy >= 0.65 ? 2 : 1;
 
     // Celebration audio + character animation
-    const celebClips = ['yay', 'great job', 'impressive'];
-    this.context.speak(celebClips[stars - 1] || 'yay');
+    this.context.randomEncouragement();
     this.context.characterAnimation('celebrate');
     const nextGameType = typeof window.getNextGameRecommendation === 'function'
       ? window.getNextGameRecommendation('abc-match', 'normal', accuracy)

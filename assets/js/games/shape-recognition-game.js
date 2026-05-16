@@ -322,9 +322,7 @@ class ShapeRecognitionGame {
     if (isCorrect) {
       this.busy = true;
 
-      const correctPhrases = ['you got it', 'you found it', 'great job', 'yay'];
-      const pick = correctPhrases[Math.floor(Math.random() * correctPhrases.length)];
-      this.context.speak(pick);
+      this.context.randomEncouragement();
       this.context.characterAnimation('cheer');
 
       this.correctCount++;
@@ -404,9 +402,8 @@ class ShapeRecognitionGame {
     const gameArea = document.getElementById('gameArea');
     const stars = Math.min(3, Math.round(accuracy * 3));
 
-    // Celebration audio
-    const celebClips = ['yay', 'impressive', 'great job'];
-    this.context.speak(celebClips[Math.min(stars, celebClips.length) - 1] || 'yay');
+    // Celebration audio — random from full pool
+    this.context.randomEncouragement();
     this.context.characterAnimation('celebrate');
 
     gameArea.innerHTML = `

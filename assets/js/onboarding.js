@@ -183,11 +183,8 @@ function renderSetupForm() {
                     .forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
             userChoices.character = char.name;
-            // Play a random excitement clip on character pick
-            if (window.RKAudio) {
-                const picks = ['yay', 'you got it', 'wow'];
-                RKAudio.speak(picks[Math.floor(Math.random() * picks.length)]);
-            }
+            // Say "welcome to your world" when a character is chosen
+            if (window.RKAudio) RKAudio.speak('welcome');
         });
 
         grid.appendChild(card);
@@ -241,13 +238,7 @@ function renderOptionButtons(step) {
             btn.classList.add('selected');
             userChoices[step.id] = label;
 
-            // Play a short excitement clip on every option pick
-            if (window.RKAudio) {
-                const picks = ['great job', 'yay', 'you got it', 'impressive'];
-                RKAudio.speak(picks[Math.floor(Math.random() * picks.length)]);
-            }
-
-            // Auto-advance to next step after selection
+            // Auto-advance to next step after selection (music only — no voice clip)
             setTimeout(() => advanceFromOptionStep(step), 500);
         });
 

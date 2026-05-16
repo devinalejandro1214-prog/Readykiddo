@@ -538,7 +538,7 @@ class FeedAlienGame {
 
     this.renderAlienHappy();
     this.updateDifficulty();
-    this.context.speak('perfect');
+    this.context.randomEncouragement();
     this.renderCelebration();
 
     setTimeout(() => {
@@ -646,8 +646,7 @@ class FeedAlienGame {
     const stars    = this.performance.accuracy >= 0.8 ? 3 : this.performance.accuracy >= 0.6 ? 2 : 1;
 
     // Celebration audio + character animation
-    const celebClips = ['yay', 'great job', 'impressive'];
-    this.context.speak(celebClips[stars - 1] || 'yay');
+    this.context.randomEncouragement();
     this.context.characterAnimation('celebrate');
     const nextGameType = typeof window.getNextGameRecommendation === 'function'
       ? window.getNextGameRecommendation('feed-alien', 'easy', this.performance.accuracy)

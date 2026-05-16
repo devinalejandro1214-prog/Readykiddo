@@ -387,7 +387,7 @@ class FeedBySoundGame {
       }
     }
 
-    this.context.speak(this.correctRemaining > 0 ? 'you got it' : 'yay');
+    this.context.randomEncouragement();
 
     if (this.correctRemaining === 0) {
       setTimeout(() => this._completeRound(), 800);
@@ -449,7 +449,7 @@ class FeedBySoundGame {
     const alien = document.getElementById('fbsAlienChar');
     if (alien) alien.classList.add('fbs-alien--happy');
 
-    this.context.speak('yay');
+    this.context.randomEncouragement();
 
     setTimeout(() => {
       this.currentRound++;
@@ -496,8 +496,7 @@ class FeedBySoundGame {
     const stars  = accuracy >= 0.9 ? 3 : accuracy >= 0.65 ? 2 : 1;
 
     // Celebration audio + character animation
-    const celebClips = ['yay', 'great job', 'impressive'];
-    this.context.speak(celebClips[stars - 1] || 'yay');
+    this.context.randomEncouragement();
     this.context.characterAnimation('celebrate');
 
     const nextGameType = typeof window.getNextGameRecommendation === 'function'

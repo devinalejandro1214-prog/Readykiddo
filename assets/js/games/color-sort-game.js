@@ -394,9 +394,7 @@ class ColorSortGame {
 
       if (zoneEl) zoneEl.classList.add('matched');
       if (itemEl) itemEl.classList.add('correct');
-      const correctPhrases = ['you got it', 'you found it', 'great job', 'yay'];
-      const pick = correctPhrases[Math.floor(Math.random() * correctPhrases.length)];
-      this.context.speak(pick);
+      this.context.randomEncouragement();
       this.renderScore();
       this.renderProgress();
 
@@ -470,9 +468,8 @@ class ColorSortGame {
     const gameArea = document.getElementById('gameArea');
     const stars = Math.min(3, Math.round(accuracy * 3));
 
-    // Celebration audio — pick by star count
-    const celebClips = ['yay', 'impressive', 'great job'];
-    this.context.speak(celebClips[Math.min(stars, celebClips.length) - 1] || 'yay');
+    // Celebration audio — random from full pool
+    this.context.randomEncouragement();
     this.context.characterAnimation('celebrate');
 
     gameArea.innerHTML = `

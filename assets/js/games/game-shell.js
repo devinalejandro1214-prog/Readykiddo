@@ -57,7 +57,8 @@ class GameShell {
       speak: (text) => this.speak(text),
       characterAnimation: (type) => this.characterAnimation(type),
       saveSession: (data) => this.saveSession(data),
-      goToNextGame: (nextGameType) => this.goToNextGame(nextGameType)
+      goToNextGame: (nextGameType) => this.goToNextGame(nextGameType),
+      randomEncouragement: () => this.randomEncouragement()
     };
   }
 
@@ -319,6 +320,27 @@ class GameShell {
         resolve();
       }, { once: true });
     });
+  }
+
+  /* ─────────────────────────────────────────────────────────
+     Random Encouragement — pulls from full recorded clip pool
+     ───────────────────────────────────────────────────────── */
+
+  randomEncouragement() {
+    const pool = [
+      'you got it',
+      'you found it',
+      'great job',
+      'good job',
+      'yay',
+      'impressive',
+      'i cant believe it',
+      'laugh',
+      'wow',
+      'keep it up'
+    ];
+    const key = pool[Math.floor(Math.random() * pool.length)];
+    this.speak(key);
   }
 
   /* ─────────────────────────────────────────────────────────

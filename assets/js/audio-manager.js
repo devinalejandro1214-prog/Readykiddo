@@ -365,6 +365,7 @@
   }
 
   /* ── Theme song ──────────────────────────────────────────── */
+  const THEME_POS_KEY = 'rk_theme_pos';
   let themeAudio = null;
   let themeStarted = false;
 
@@ -380,6 +381,14 @@
   function startTheme() {
     if (themeStarted) return;
     initTheme();
+
+    // Restore position from previous page so song plays continuously
+    const savedPos = parseFloat(sessionStorage.getItem(THEME_POS_KEY) || '0');
+    if (savedPos > 0) {
+      themeAudio.currentTime = savedPos;
+      sessionStorage.removeItem(THEME_POS_KEY);
+    }
+
     themeAudio.play().catch(() => {
       // Autoplay blocked — will start on first user interaction
       const startOnce = () => {
@@ -399,6 +408,13 @@
     themeAudio.pause();
     themeAudio.currentTime = 0;
   }
+
+  // Save theme position before navigating away so it resumes on next page
+  window.addEventListener('beforeunload', () => {
+    if (themeAudio && !themeAudio.paused && themeAudio.currentTime > 0) {
+      sessionStorage.setItem(THEME_POS_KEY, String(themeAudio.currentTime));
+    }
+  });
 
   /* ── Voice playback ──────────────────────────────────────── */
   let currentVoice = null;
