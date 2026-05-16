@@ -7,10 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (window.RKAudio) {
                 RKAudio.startTheme();
             }
-            // Small delay so the music actually starts before the page navigates
-            setTimeout(() => {
-                window.location.href = 'onboarding.html';
-            }, 150);
+            window.location.href = 'onboarding.html';
         });
     }
 
@@ -21,9 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
         resumeWorldButton.querySelector('span').textContent = `Resume ${savedProfile.theme || 'World'}`;
         resumeWorldButton.addEventListener('click', function () {
             if (window.RKAudio) RKAudio.startTheme();
-            setTimeout(() => {
-                window.location.href = 'world-reveal.html';
-            }, 150);
+            window.location.href = 'world-reveal.html';
         });
     }
 });

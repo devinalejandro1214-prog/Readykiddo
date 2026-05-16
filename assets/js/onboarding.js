@@ -183,8 +183,6 @@ function renderSetupForm() {
                     .forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
             userChoices.character = char.name;
-            // Say "welcome to your world" when a character is chosen
-            if (window.RKAudio) RKAudio.speak('welcome');
         });
 
         grid.appendChild(card);
