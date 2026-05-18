@@ -53,14 +53,20 @@ async function startGameWithWelcome(profile) {
     startButton.disabled = true;
     startButton.querySelector('span:last-child').textContent = 'Starting...';
 
-    // Unlock audio context on press (needed for iOS), then navigate.
-    // Do NOT re-speak 'welcome' here — it already played on page load.
+    // Unlock audio context on press (needed for iOS).
     if (window.RKAudio) RKAudio.unlock();
+
+    // If welcome was blocked on page load, play it now and wait for it to finish
+    // before navigating — so the clip is never cut off mid-play.
+    if (window._rkWelcomePending) {
+        window._rkWelcomePending = false;
+        await RKAudio.speakAndWait('welcome');
+    }
 
     localStorage.setItem('gameProfile', JSON.stringify(profile));
     setTimeout(() => {
         window.location.href = 'game-loader.html?game=color-sort';
-    }, 900);
+    }, 300);
 }
 
 function setupResumeButton(profile) {

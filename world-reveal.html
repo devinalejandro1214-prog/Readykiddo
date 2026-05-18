@@ -58,8 +58,12 @@
         // Stop theme song when reaching world reveal
         RKAudio.stopTheme();
         RKAudio.injectMuteButton('body');
-        // Play welcome voice clip after a short delay
-        setTimeout(() => RKAudio.speak('welcome'), 800);
+        // Try to play welcome immediately. If the browser blocks it (iOS autoplay policy),
+        // set a flag so startGameWithWelcome() can speakAndWait before navigating,
+        // guaranteeing the full clip plays on the user's gesture instead of getting cut off.
+        RKAudio.speak('welcome').then(played => {
+          if (!played) window._rkWelcomePending = true;
+        });
       });
     </script>
 </body>

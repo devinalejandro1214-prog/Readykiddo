@@ -2513,3 +2513,70 @@ All clips referenced by the new triggers exist on disk:
   - dropped the overlay's auto intro-speak because it could double-play with game-level start prompts
   - removed the expanded resume-from-lastGameSession logic because those extra games do not actually persist mid-round resume state yet
 - Validation passed after the audit trim: node --check assets/js/games/game-shell.js, node --check assets/js/world-reveal.js, npm test, npm run build, git diff --check.
+
+---
+
+## 2026-05-17 - Claude Code
+
+Prompt:
+> Full site debug audit — no commits. Run every section, confirm audio triggers, report bugs and enhancements needed for maximum educational value. Then check every option and every pathway to confirm the list is complete.
+
+Actions Taken:
+- Read AGENT_COLLAB_LOG.md to review all Codex commits since last session. Identified two commits of concern:
+  - `7f5ee45` ("Refine gameplay audio sequencing") — added `speakAndWait` to audio-manager and game-shell, switched color/shape Round 2 to `speakAndWait` chain, split feed-alien prompt into `getRoundSpokenPrompt()`/`getRoundVisualText()`, added `speak('aww man')` on Space Defender game-over.
+  - `b6f612f` ("Remove extra manager follow-up changes") — removed the `speak('aww man')` that `7f5ee45` had added. This silenced game-over entirely.
+  - `73dce98` — removed `speak('welcome')` from character card click in onboarding.
+- Ran full audit of all 4 pages × all 6 characters × all 3 worlds × all 3 vibes × all 3 styles, plus every game flow, every wrong/correct/end state, and every audio trigger point.
+- Read and cross-referenced: `audio-manager.js` (EM_MAP 121 keys, AMARA_MAP 125 keys), `space-defender-game.js`, `onboarding.js`, `world-reveal.html`, `world-reveal.js`, `game-shell.js`, all 7 game JS files.
+- Confirmed asset completeness: 137 audio files, 36 character images, 30 world/vibe backgrounds, 19 intro videos, 6 shape images, all ABC Match letter chips present on disk — zero missing referenced files.
+- Identified 7 confirmed code bugs (see Notes).
+- Corrected one false positive from initial report: Shape Recognition DOES have wrong-answer audio `['try again', 'aww man']` — was incorrectly flagged as missing.
+
+Files/Folders Changed:
+- None — audit only, no commits made per user instruction.
+
+GitHub/Netlify:
+- No push or deploy from this session.
+
+Notes / Next Steps:
+- **7 confirmed bugs identified by audit:**
+  1. `space-defender-game.js` `shoot()` — `playSound('space-shot')` fires every 400ms (laser SFX present when user wanted silent auto-shoot).
+  2. `space-defender-game.js` `loseLife()` — `playSound('space-destroyed')` and `characterAnimation('nod')` fire on each life lost (user wanted only red screen flash).
+  3. `space-defender-game.js` `showScreen('gameOver')` — speaks `"Great effort, [name]!"` instead of `speak('aww man')` (removed by Codex commit `b6f612f`).
+  4. `space-defender-game.js` win condition — `speak('Amazing! You cleared all 5 levels!')` has no map key → TTS fallback (key `'cleared all 5 levels'` exists in both maps and was unused).
+  5. `onboarding.js` character card click — silent after Codex commit `73dce98` removed `speak('welcome')`.
+  6. `world-reveal.html` inline script — `setTimeout(() => RKAudio.speak('welcome'), 800)` fires 800ms before any user interaction → always blocked by browser autoplay policy.
+  7. `audio-manager.js` AMARA_MAP — missing `'i cant believe it'` and `'laugh'` keys → female chars get TTS for ~20% of `randomEncouragement()` calls.
+
+---
+
+## 2026-05-17 - Claude Code
+
+Prompt:
+> Everything is good to be fixed, except welcome to your world on the onboarding screen. I want to keep that recorded voice out. Music should start on landing page and stop at world reveal. At world reveal that's when we say welcome to your world.
+
+Actions Taken:
+- **Bug 1 fixed** — `space-defender-game.js` `shoot()`: removed `this.context.playSound('space-shot')`. Auto-shoot is now fully silent.
+- **Bug 2 fixed** — `space-defender-game.js` `loseLife()`: removed `this.context.playSound('space-destroyed')` and `this.context.characterAnimation('nod')` block. Life loss now shows only the red screen flash, no SFX or animation.
+- **Bug 3 fixed** — `space-defender-game.js` `showScreen('gameOver')`: removed `this.context.characterAnimation('nod')`, replaced `speak('Great effort, ${childName}! You made it through ${this.level} levels!')` with `this.context.speak('aww man')`. Updated visual text to "Nice try, [name]!..." to match the audio tone.
+- **Bug 4 fixed** — `space-defender-game.js` win condition: changed `speak('Amazing! You cleared all 5 levels!')` to `speak('cleared all 5 levels')`, which resolves to `em-sd-all-clear.wav` / `em-sd-all-clear.wav` via existing map entries in both EM_MAP and AMARA_MAP.
+- **Bug 5 (onboarding welcome speak) — SKIPPED per user direction.** Character click stays silent. Music plays through landing → onboarding as-is.
+- **Bug 6 fixed** — `world-reveal.html` inline script: removed `setTimeout(() => RKAudio.speak('welcome'), 800)`. Replaced with a try-then-defer pattern: `RKAudio.speak('welcome').then(played => { if (!played) { document.addEventListener('pointerdown', () => RKAudio.speak('welcome'), { once: true }); } })`. Welcome clip plays immediately on page load if audio context is active (user came from onboarding where they clicked), or defers to first touch if blocked (iOS). Either way it plays before or as the user presses Play.
+- **Bug 6 stale comment fixed** — `world-reveal.js` `startGameWithWelcome()`: removed stale comment "Do NOT re-speak 'welcome' here — it already played on page load."
+- **Bug 7 fixed** — `audio-manager.js` AMARA_MAP: added `'i cant believe it': 'Amara-Wow.m4a'` and `'laugh': 'Amara-Yay.m4a'`. Female characters now have full `randomEncouragement()` coverage — zero TTS fallback.
+
+Files/Folders Changed:
+- `assets/js/games/space-defender-game.js` (shoot, loseLife, showScreen gameOver, win speak)
+- `world-reveal.html` (inline script — welcome audio timing fix)
+- `assets/js/world-reveal.js` (removed stale comment)
+- `assets/js/audio-manager.js` (AMARA_MAP — added 2 missing encouragement keys)
+
+GitHub/Netlify:
+- Local only. Ready for Codex to verify, commit, and push when ready.
+
+Notes / Next Steps:
+- Music flow confirmed: starts on landing → plays through onboarding → `stopTheme()` on world-reveal load → `speak('welcome')` fires → Play button navigates to games.
+- Space Defender SFX summary after fix: only `space-hit` (on enemy kill) remains. All other SFX removed.
+- Space Defender audio summary after fix: `speak('ready for action')` on start screen, `speak('aww man')` on game-over, `speak('cleared all 5 levels')` on win, `randomEncouragement()` on enemy kill (same as other games).
+- Onboarding character click intentionally kept silent per user preference — recorded welcome clip belongs only on world-reveal.
+- Codex: no asset changes needed for this session. All audio files referenced already exist on disk.

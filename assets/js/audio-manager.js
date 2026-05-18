@@ -290,8 +290,10 @@
     'good job':     'Amara-You so smart .m4a',
     'perfect':      'Amara-You so smart .m4a',
     'yay':          'Amara-Yay.m4a',
-    'impressive':   'Amara-You look so cool.m4a',
-    'wow':          'Amara-Wow.m4a',
+    'impressive':        'Amara-You look so cool.m4a',
+    'i cant believe it': 'Amara-Wow.m4a',
+    'laugh':             'Amara-Yay.m4a',
+    'wow':               'Amara-Wow.m4a',
 
     // Wrong feedback — Amara's voice
     'try again':    'Amara-Itâ€™s okay, try again!.m4a',

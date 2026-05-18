@@ -204,11 +204,10 @@ class SpaceDefenderGame {
       this.context.speak(`Ready for action, ${this.context.childName}? Enemies are coming!`);
       this.context.characterAnimation('wave');
     } else if (type === 'gameOver') {
-      this.context.characterAnimation('nod');
-      this.context.speak(`Great effort, ${this.context.childName}! You made it through ${this.level} levels!`);
+      this.context.speak('aww man');
       html = `
         <div class="overlay-title">Game Over</div>
-        <div class="overlay-text">Great effort, ${this.context.childName}! You made it through ${this.level} levels!</div>
+        <div class="overlay-text">Nice try, ${this.context.childName}! You made it through ${this.level} levels!</div>
         <button class="btn-primary" id="sdBtnSummary">See What You Accomplished</button>
       `;
     } else if (type === 'summary') {
@@ -384,7 +383,7 @@ class SpaceDefenderGame {
       if (this.level >= this.maxLevels) {
         this.showLevelFlash('All levels cleared!');
         this.context.characterAnimation('celebrate');
-        this.context.speak('Amazing! You cleared all 5 levels!');
+        this.context.speak('cleared all 5 levels');
         setTimeout(() => this.showScreen('summary'), 900);
       } else {
         this.showLevelFlash(`Level ${this.level} clear!`);
@@ -399,7 +398,6 @@ class SpaceDefenderGame {
 
   shoot() {
     this.metrics.shotsFired++;
-    this.context.playSound('space-shot');
     const laserEl = document.createElement('div');
     laserEl.className = 'laser';
     laserEl.style.left = `${this.shipX}%`;
@@ -523,14 +521,6 @@ class SpaceDefenderGame {
     this.lives--;
     const livesEls = document.querySelectorAll('.life');
     if (livesEls[this.lives]) livesEls[this.lives].classList.add('lost');
-
-    const now = Date.now();
-    if (now - this._lastLossSoundAt > 2500) {
-      this.context.playSound('space-destroyed');
-      this._lastLossSoundAt = now;
-    }
-
-    this.context.characterAnimation('nod');
 
     this.container.style.boxShadow = 'inset 0 0 50px red';
     setTimeout(() => {
