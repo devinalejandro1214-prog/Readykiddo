@@ -89,13 +89,19 @@ class FeedAlienGame {
     this.renderProgress();
     this.updateInstruction();
 
-    this.context.speak(this.getRoundPrompt());
+    this.context.speak(this.getRoundSpokenPrompt());
     console.log(`[FeedAlien] Round ${this.currentRound + 1}: Need ${this.requiredCount}`);
   }
 
-  getRoundPrompt() {
-    const noun = this.requiredCount === 1 ? 'piece' : 'pieces';
-    return `Feed the alien ${this.requiredCount} ${noun} of food from the basket!`;
+  getRoundSpokenPrompt() {
+    // Matches the pre-recorded audio keys: 'feed the alien N item(s)'
+    const noun = this.requiredCount === 1 ? 'item' : 'items';
+    return `feed the alien ${this.requiredCount} ${noun}`;
+  }
+
+  getRoundVisualText() {
+    const treats = this.requiredCount === 1 ? 'treat' : 'treats';
+    return `Feed the alien ${this.requiredCount} ${treats}! Drag the food from the basket to feed him.`;
   }
 
   getFoodEmoji() {
@@ -568,7 +574,7 @@ class FeedAlienGame {
 
   updateInstruction() {
     const instr = document.getElementById('feedInstruction');
-    if (instr) instr.textContent = this.getRoundPrompt();
+    if (instr) instr.textContent = this.getRoundVisualText();
 
     const level = document.getElementById('feedLevel');
     if (level) level.textContent = `Level ${this.difficulty}`;

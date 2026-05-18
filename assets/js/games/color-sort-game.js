@@ -171,8 +171,11 @@ class ColorSortGame {
     }
 
     if (isRound2) {
-      this.context.speak('match the colors');
-      setTimeout(() => this.callOutNextColor(), 1200);
+      // Wait for 'match the colors' to finish, then call out the specific color.
+      // speakAndWait resolves on clip-end so the callout never overlaps or drops.
+      this.context.speakAndWait('match the colors').then(() => {
+        if (!this.ended) this.callOutNextColor();
+      });
     } else {
       this.context.speak('match the colors');
     }

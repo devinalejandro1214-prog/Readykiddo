@@ -43,7 +43,7 @@ class SpaceDefenderGame {
     this.enemyLowerBound = 84;
 
     this.keysDown = new Set();
-    this._lastLossSoundAt = 0;  // cooldown guard for loseLife audio
+    this._lastLossSoundAt = 0;
   }
 
   async startGame() {
@@ -524,7 +524,6 @@ class SpaceDefenderGame {
     const livesEls = document.querySelectorAll('.life');
     if (livesEls[this.lives]) livesEls[this.lives].classList.add('lost');
 
-    // Throttle audio so rapid multi-enemy breaches don't overlap (min 2.5s between plays)
     const now = Date.now();
     if (now - this._lastLossSoundAt > 2500) {
       this.context.playSound('space-destroyed');
@@ -541,6 +540,8 @@ class SpaceDefenderGame {
     if (this.lives <= 0) {
       this.isPlaying = false;
       this.transitioningLevel = true;
+      // Play a losing voice clip when all hearts are gone
+      this.context.speak('aww man');
       setTimeout(() => this.showScreen('gameOver'), 1000);
     }
   }

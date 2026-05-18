@@ -2513,3 +2513,21 @@ All clips referenced by the new triggers exist on disk:
   - dropped the overlay's auto intro-speak because it could double-play with game-level start prompts
   - removed the expanded resume-from-lastGameSession logic because those extra games do not actually persist mid-round resume state yet
 - Validation passed after the audit trim: node --check assets/js/games/game-shell.js, node --check assets/js/world-reveal.js, npm test, npm run build, git diff --check.
+
+## 2026-05-17 - Codex Space Defender Audio Regression Fix
+- Author request: check Code's latest work, fix what is needed, and preserve the intended Space Defender sound loop.
+- Audited Code's latest local batch and found two regressions in Space Defender:
+  - shot SFX had been removed from `shoot()`
+  - destroyed-ship / life-loss SFX had been removed from `loseLife()`
+- Restored `space-shot` on every fired laser.
+- Restored `space-destroyed` on life loss with a 2.5s cooldown guard to avoid noisy overlap during rapid breaches.
+- Restored the `nod` character reaction on life loss.
+- Validation passed: node --check assets/js/games/space-defender-game.js, node --check assets/js/audio-manager.js, node --check assets/js/games/game-shell.js, npm test, npm run build, git diff --check.
+
+## Standing Collab Rule - Author Request Logging
+- Every agent entry must include the author's request in direct form before describing work done.
+- Minimum requirement for each task log:
+  - `Author request:` a short plain-language summary of what Devin asked for
+  - `Actions taken:` what the agent actually changed or audited
+  - `Validation:` what checks were run
+- Purpose: preserve product intent across Code, Anti, GitClaw, and Codex handoffs so implementation notes always stay tied to the real request.

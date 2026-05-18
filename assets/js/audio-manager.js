@@ -528,6 +528,44 @@
     }
   }
 
+  // Like speak(), but the returned Promise resolves when the clip *finishes*
+  // (not just when it starts). Use this when you need to chain audio back-to-back.
+  function speakAndWait(key) {
+    if (isMuted()) return Promise.resolve(false);
+    const path = getPath(key);
+    if (!path) {
+      return speakFallbackText(key);
+    }
+
+    if (currentVoice) {
+      currentVoice.pause();
+      currentVoice.currentTime = 0;
+    }
+    if (currentUtterance && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      currentUtterance = null;
+    }
+
+    let audio = cache[path];
+    if (audio) {
+      audio.currentTime = 0;
+      audio.muted = isMuted();
+    } else {
+      audio = new Audio(path);
+      audio.preload = 'auto';
+      audio.muted = isMuted();
+      cache[path] = audio;
+    }
+    currentVoice = audio;
+
+    return new Promise(resolve => {
+      const cleanup = () => resolve(true);
+      audio.addEventListener('ended', cleanup, { once: true });
+      audio.addEventListener('error', () => resolve(false), { once: true });
+      audio.play().catch(() => resolve(false));
+    });
+  }
+
   function playSfx(key) {
     if (isMuted()) return false;
     const config = SFX_MAP[key];
@@ -571,8 +609,13 @@
   }
 
   /* ── Unlock audio context on first tap ───────────────────── */
+  // Playing a silent buffer activates the browser's audio session on iOS/Safari,
+  // allowing subsequent HTMLAudioElement.play() calls outside a gesture window.
+  // We intentionally avoid touching every cached element here — firing 100+
+  // simultaneous play() calls causes a CPU spike that glitches active game loops.
   function unlock() {
-    // Play a silent buffer to unlock Web Audio on iOS/Safari
+    if (unlock._done) return;
+    unlock._done = true;
     const a = new Audio();
     a.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
     a.volume = 0;
@@ -585,6 +628,7 @@
     startTheme,
     stopTheme,
     speak,
+    speakAndWait,
     playSfx,
     stopVoice,
     isMuted,

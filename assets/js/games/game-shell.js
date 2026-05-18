@@ -55,6 +55,7 @@ class GameShell {
       // Utilities (passed to game instance)
       playSound: (soundKey) => this.playSound(soundKey),
       speak: (text) => this.speak(text),
+      speakAndWait: (text) => this.speakAndWait(text),
       characterAnimation: (type) => this.characterAnimation(type),
       saveSession: (data) => this.saveSession(data),
       goToNextGame: (nextGameType) => this.goToNextGame(nextGameType),
@@ -75,6 +76,16 @@ class GameShell {
       return;
     }
     console.log(`[Audio] ${text}`);
+  }
+
+  // Returns a Promise that resolves when the clip *finishes* playing.
+  // Use when you need to chain audio back-to-back without overlapping.
+  async speakAndWait(text) {
+    if (window.RKAudio && window.RKAudio.speakAndWait) {
+      return RKAudio.speakAndWait(text);
+    }
+    // Fallback: regular speak + small buffer
+    return this.speak(text);
   }
 
   playSound(soundKey) {

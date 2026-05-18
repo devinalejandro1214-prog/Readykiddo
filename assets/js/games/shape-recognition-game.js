@@ -106,8 +106,9 @@ class ShapeRecognitionGame {
     this.updateInstruction(isRound2 ? 'Listen for the shape to match!' : 'Drag each shape to its matching outline!');
 
     if (isRound2) {
-      this.context.speak('match the shapes');
-      setTimeout(() => this.callOutNextShape(), 1200);
+      this.context.speakAndWait('match the shapes').then(() => {
+        if (!this.ended) this.callOutNextShape();
+      });
     } else {
       this.context.speak('match the shapes');
     }
