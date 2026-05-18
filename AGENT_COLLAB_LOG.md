@@ -613,15 +613,15 @@ Actions Taken:
 - Enhanced `assets/css/onboarding.css`:
   - Added detailed 768px tablet breakpoint with adjusted spacing, grids, and font sizes
   - Added detailed 480px mobile breakpoint with single-column forms, 2-column character grid, optimized typography
-  - Character grid responsiveness: 6 columns (desktop) → 3 columns (tablet) → 2 columns (mobile)
+  - Character grid responsiveness: 6 columns (desktop) â†’ 3 columns (tablet) â†’ 2 columns (mobile)
   - Button layout optimized for smaller screens
   - All spacing, padding, and margins adjusted progressively for smaller viewports
 - Enhanced `assets/css/world-reveal.css`:
   - Added 768px tablet breakpoint
   - Added 480px mobile breakpoint with compact layouts
   - Added 360px extra-small phone breakpoint
-  - Character image sizes optimized (220px → 180px → 130px → 110px)
-  - Details grid responsive (2 columns → 1 column)
+  - Character image sizes optimized (220px â†’ 180px â†’ 130px â†’ 110px)
+  - Details grid responsive (2 columns â†’ 1 column)
   - Font sizes progressively reduced
 - Verified all HTML files have proper viewport meta tag: `<meta name="viewport" content="width=device-width, initial-scale=1.0">`
 
@@ -642,11 +642,11 @@ Notes / Next Steps:
   - **360px**: Extra-small phone optimization (world-reveal page only, very compact layout)
 - **Desktop layout preserved**: All changes use CSS media queries, no HTML modifications. Desktop experience unchanged.
 - **Responsive features**:
-  - Character selection grid scales from 6→3→2 columns
+  - Character selection grid scales from 6â†’3â†’2 columns
   - Form inputs and buttons scale appropriately for touch interaction
   - Text sizes adjusted for readability at all screen sizes
   - Padding and margins reduced on mobile for compact layout
-  - Character images scale down to fit small screens (220px → 110px)
+  - Character images scale down to fit small screens (220px â†’ 110px)
   - World details layout converts from 2-column grid to single-column on mobile
 - Next step: Create `game.html` for the first learning game (referenced by world-reveal.html button).
 
@@ -792,11 +792,11 @@ Prompt:
 Actions Taken:
 - Rewrote `assets/js/onboarding.js`:
   - Added `slugify()` helper (matches world-reveal.js)
-  - Added `getVibeOptions()` — dynamically builds vibe buttons from the selected world's actual backgrounds: `assets/images/world-backgrounds/{worldSlug}/vibes/{vibeSlug}/background.png`
-  - Added `getStyleOptions()` — dynamically builds style buttons from the selected character's actual costume PNGs: `assets/images/characters/{charSlug}/{style}.png`
-  - Added `resolveOptions(step)` — returns dynamic options for vibe/style steps, static options for theme
+  - Added `getVibeOptions()` â€” dynamically builds vibe buttons from the selected world's actual backgrounds: `assets/images/world-backgrounds/{worldSlug}/vibes/{vibeSlug}/background.png`
+  - Added `getStyleOptions()` â€” dynamically builds style buttons from the selected character's actual costume PNGs: `assets/images/characters/{charSlug}/{style}.png`
+  - Added `resolveOptions(step)` â€” returns dynamic options for vibe/style steps, static options for theme
   - Subtitle personalizes per step: "Choose the feeling for your Beach world" / "Pick an outfit for Trish"
-  - Simplified `renderOptionButtons()` — all picture steps use same image-card renderer
+  - Simplified `renderOptionButtons()` â€” all picture steps use same image-card renderer
 - Rewrote `world-reveal.html`:
   - New two-panel layout: character panel (left 42%) + game panel (right 58%)
   - Left: character image full-height, anchored to bottom
@@ -809,7 +809,7 @@ Actions Taken:
   - Mobile (<768px): stacks vertically, character top, cards below, scrollable
   - Phone (<480px) and small phone (<360px) compact breakpoints
 - Rewrote `assets/js/world-reveal.js`:
-  - No manifest fetch — uses direct predictable paths
+  - No manifest fetch â€” uses direct predictable paths
   - Character: `assets/images/characters/{charSlug}/{styleSlug}.png`
   - Background: `assets/images/world-backgrounds/{worldSlug}/vibes/{vibeSlug}/background.png`
   - Applies vibe theme color to card backgrounds
@@ -826,44 +826,44 @@ GitHub/Netlify:
 
 Notes / Next Steps:
 - Verified in preview (Beach+Silly+Trish and Space+Magical+Mica+Hero flows):
-  - Vibe step shows selected world's actual vibe background images ✓
-  - Style step shows selected character's actual costume PNGs ✓
-  - Subtitles personalize to chosen world/character ✓
-  - World reveal: correct background, character in costume on left, game window on right ✓
-  - Vibe color applied to card backgrounds (purple for Magical, etc.) ✓
-  - Mobile layout stacks correctly ✓
-- Next code step: `game.html` — waiting on Devin confirmation this flow looks good.
+  - Vibe step shows selected world's actual vibe background images âœ“
+  - Style step shows selected character's actual costume PNGs âœ“
+  - Subtitles personalize to chosen world/character âœ“
+  - World reveal: correct background, character in costume on left, game window on right âœ“
+  - Vibe color applied to card backgrounds (purple for Magical, etc.) âœ“
+  - Mobile layout stacks correctly âœ“
+- Next code step: `game.html` â€” waiting on Devin confirmation this flow looks good.
 
 ---
 
 ## 2026-05-09 - Claude Code
 
 Prompt:
-> Character needs an outline on the world-reveal screen — they blend into the background. Fix mobile so the experience matches desktop: landing button overlaps "A shared adventure" text, and users can't reach the whole page on phone.
+> Character needs an outline on the world-reveal screen â€” they blend into the background. Fix mobile so the experience matches desktop: landing button overlaps "A shared adventure" text, and users can't reach the whole page on phone.
 
 Actions Taken:
 - **Character outline** (`world-reveal.css`):
   - Replaced single drop-shadow with a 4-layer filter stack:
-    - `drop-shadow(0 0 3px white)` — crisp solid edge
-    - `drop-shadow(0 0 6px rgba(white, 0.95))` — close glow
-    - `drop-shadow(0 0 12px rgba(white, 0.7))` — outer glow
-    - `drop-shadow(0 8px 24px rgba(black, 0.45))` — depth shadow
+    - `drop-shadow(0 0 3px white)` â€” crisp solid edge
+    - `drop-shadow(0 0 6px rgba(white, 0.95))` â€” close glow
+    - `drop-shadow(0 0 12px rgba(white, 0.7))` â€” outer glow
+    - `drop-shadow(0 8px 24px rgba(black, 0.45))` â€” depth shadow
   - Works on all backgrounds because drop-shadow follows the PNG's transparent edge exactly
   - Desktop layout and sizing untouched
 - **Landing page button** (`style.css`):
   - Problem: `margin-top: 180px` from flex-center causes button to ride up into the background image text at small screen widths (image scales differently with `object-fit: cover`)
-  - Fix: At ≤768px, switch `.landing-page` from `align-items: center` → `align-items: flex-end` with `padding-bottom: 52px`; zero out `margin-top` on button
-  - Button now anchors to the bottom of the viewport on mobile — always below the image text, always reachable
-  - Desktop (>768px) untouched — still uses center + 180px offset
+  - Fix: At â‰¤768px, switch `.landing-page` from `align-items: center` â†’ `align-items: flex-end` with `padding-bottom: 52px`; zero out `margin-top` on button
+  - Button now anchors to the bottom of the viewport on mobile â€” always below the image text, always reachable
+  - Desktop (>768px) untouched â€” still uses center + 180px offset
   - Added 480px and 360px sub-breakpoints for progressively smaller padding
   - Used `height: 100dvh` (dynamic viewport height) so button clears the mobile browser chrome bar
 - **Full-page scroll on mobile** (`onboarding.css`, `world-reveal.css`):
   - Problem: `overflow: hidden` on `html, body` locked scroll everywhere; on small phones the card content was cut off with no way to reach the bottom
-  - Fix: At ≤768px media query, override to `overflow-y: auto; height: auto` on `html, body` for both onboarding and world-reveal
+  - Fix: At â‰¤768px media query, override to `overflow-y: auto; height: auto` on `html, body` for both onboarding and world-reveal
   - `.onboarding-page` gets `height: auto; min-height: 100dvh; align-items: flex-start; padding` so card starts at top and page scrolls naturally
-  - `.question-card` gets `max-height: none; overflow-y: visible` — card grows to full height, page scrolls instead of card inner-scrolling (much more natural on touch)
-  - World-reveal mobile panel gets `padding-bottom: 32–36px` so "Let's Go!" button never hides behind phone navigation bar
-  - Desktop `overflow: hidden` preserved on all pages — single-viewport full-screen experience unchanged
+  - `.question-card` gets `max-height: none; overflow-y: visible` â€” card grows to full height, page scrolls instead of card inner-scrolling (much more natural on touch)
+  - World-reveal mobile panel gets `padding-bottom: 32â€“36px` so "Let's Go!" button never hides behind phone navigation bar
+  - Desktop `overflow: hidden` preserved on all pages â€” single-viewport full-screen experience unchanged
 
 Files/Folders Changed:
 - `C:\Users\Devin\OneDrive - SNHU\Desktop\ReadyKiddo2.0\assets\css\world-reveal.css`
@@ -875,10 +875,10 @@ GitHub/Netlify:
 
 Notes / Next Steps:
 - All fixes verified in preview (984px desktop and 440px mobile viewport):
-  - Character white outline filter confirmed applied via getComputedStyle ✓
-  - Mobile landing rules confirmed: align-items flex-end, padding-bottom 52px, margin-top 0 ✓
-  - Page scroll enabled on mobile for onboarding and world-reveal ✓
-  - Desktop styles completely unaffected ✓
+  - Character white outline filter confirmed applied via getComputedStyle âœ“
+  - Mobile landing rules confirmed: align-items flex-end, padding-bottom 52px, margin-top 0 âœ“
+  - Page scroll enabled on mobile for onboarding and world-reveal âœ“
+  - Desktop styles completely unaffected âœ“
 - Next code step: `game.html`
 ## 2026-05-09 - Codex
 
@@ -1180,49 +1180,49 @@ Actions Taken:
 - Completely rewrote `color-sort-game.js` from scratch:
   - `totalItems = 12` (6 Round-1 + 6 Round-2 matches)
   - All 6 color tiles + all 6 containers shown simultaneously from the start
-  - Round 1: free matching — drag any tile to its correct container
-  - Round 2: callout enforced — game announces a specific color, only that one scores
+  - Round 1: free matching â€” drag any tile to its correct container
+  - Round 2: callout enforced â€” game announces a specific color, only that one scores
   - Tiles shuffled randomly on every render so they never align with containers
   - Correct/wrong feedback with visual flash + voice clips
-  - No audio blocking — all `context.speak()` calls use preloaded clips
+  - No audio blocking â€” all `context.speak()` calls use preloaded clips
 - Completely rewrote `shape-recognition-game.js` from scratch with identical round structure:
   - All 6 shape tiles + all 6 outline targets shown simultaneously
   - Round 1: free match; Round 2: callout enforced
   - Tiles shuffled on every render
 
-**Audio System (`assets/js/audio-manager.js` — new file):**
+**Audio System (`assets/js/audio-manager.js` â€” new file):**
 - Built centralized `RKAudio` audio manager replacing the old `ReadyKiddoAudio`:
-  - **Theme song**: `readykiddo-theme.mp3` — plays once from start, no loop, no stutter
+  - **Theme song**: `readykiddo-theme.mp3` â€” plays once from start, no loop, no stutter
   - **Voice clips**: All clips preloaded into memory on page load for zero-lag playback
-  - **Mute button**: Fixed-position 🔊/🔇 toggle, state persisted in `localStorage`, injected on all pages
-  - **Character-aware routing**: Aria, Trish, Amelia → Amara voice clips; Mica, Steven, Emmett → Em voice clips
+  - **Mute button**: Fixed-position ðŸ”Š/ðŸ”‡ toggle, state persisted in `localStorage`, injected on all pages
+  - **Character-aware routing**: Aria, Trish, Amelia â†’ Amara voice clips; Mica, Steven, Emmett â†’ Em voice clips
   - Backward-compatible with old `ReadyKiddoAudio.speak()` interface
 
 **Voice Clip Mapping:**
 - Game intros: `em-match-colors`, `em-match-shapes`
-- Color Round 2 callouts: `em-find-{color}` for all 6 colors ✅
+- Color Round 2 callouts: `em-find-{color}` for all 6 colors âœ…
 - Shape Round 2 callouts: `em-circle/square/triangle` + Amara fallbacks for star/rectangle/diamond
 - Correct feedback (random): `you got it`, `you found it`, `great job`, `yay` (+ Amara equivalents for female chars)
 - Wrong feedback (random): `try again`, `aww man` (+ Amara equivalents)
 
 **Theme Song Flow:**
-- `index.html`: starts on "Start your journey" button click (guaranteed user gesture — always works cross-browser)
+- `index.html`: starts on "Start your journey" button click (guaranteed user gesture â€” always works cross-browser)
 - `onboarding.html`: resumes on first button tap; also tries autoplay on page load for Chrome
 - `world-reveal.html`: stops theme, plays `em-welcome-world.m4a`
 - Removed position-tracking (was causing 1-second stutter on onboarding page nav)
 
 **Audio Files Committed to Repo:**
-- `assets/audio/readykiddo-theme.mp3` — ReadyKiddo theme song ✅
-- `assets/audio/voice/Amara-*.m4a` — 15 Amara voice clips ✅
-- `assets/audio/voice/Em-Good job.m4a`, `Em-impressive.m4a`, `Em-Laugh.m4a`, `Em-I can't believe it.m4a` ✅
+- `assets/audio/readykiddo-theme.mp3` â€” ReadyKiddo theme song âœ…
+- `assets/audio/voice/Amara-*.m4a` â€” 15 Amara voice clips âœ…
+- `assets/audio/voice/Em-Good job.m4a`, `Em-impressive.m4a`, `Em-Laugh.m4a`, `Em-I can't believe it.m4a` âœ…
 - All 43 audio files now live in the GitHub repo and on Netlify
 
 **Pages Updated:**
-- `index.html` — audio.css + audio-manager.js + theme start on CTA click
-- `onboarding.html` — audio.css + audio-manager.js + theme start on first interaction
-- `world-reveal.html` — audio-manager.js + stopTheme + welcome clip on load
-- `game-loader.html` — audio-manager.js + audio.css for game voice clips
-- `assets/css/audio.css` — new mute button styles (frosted glass, fixed top-right)
+- `index.html` â€” audio.css + audio-manager.js + theme start on CTA click
+- `onboarding.html` â€” audio.css + audio-manager.js + theme start on first interaction
+- `world-reveal.html` â€” audio-manager.js + stopTheme + welcome clip on load
+- `game-loader.html` â€” audio-manager.js + audio.css for game voice clips
+- `assets/css/audio.css` â€” new mute button styles (frosted glass, fixed top-right)
 
 Files/Folders Changed:
 - `assets/js/audio-manager.js` (new)
@@ -1246,14 +1246,14 @@ Verification:
 
 GitHub/Netlify:
 - Commits pushed to `main`:
-  - `6cbcf87` — Game rewrites (12 rounds, all 6 shown, R2 callout)
-  - `ec81ad9` — Shuffle tiles
-  - `1eadea8` — Full audio system + mute button
-  - `0c8b1ac` — Theme song on landing CTA click
-  - `38987a4` — Theme song on onboarding first tap
-  - `214a90c` — Audio files committed to repo
-  - `44550af` — Character-aware voice routing
-  - `latest`  — Remove theme song position tracking (fix stutter)
+  - `6cbcf87` â€” Game rewrites (12 rounds, all 6 shown, R2 callout)
+  - `ec81ad9` â€” Shuffle tiles
+  - `1eadea8` â€” Full audio system + mute button
+  - `0c8b1ac` â€” Theme song on landing CTA click
+  - `38987a4` â€” Theme song on onboarding first tap
+  - `214a90c` â€” Audio files committed to repo
+  - `44550af` â€” Character-aware voice routing
+  - `latest`  â€” Remove theme song position tracking (fix stutter)
 - Netlify auto-deploys from `main` on each push.
 
 ---
@@ -1284,7 +1284,7 @@ Actions Taken:
 
 GitHub/Netlify:
 - Commits pushed to `main`:
-  - `3d734e4` — Add Space Defender game files from local collab update
+  - `3d734e4` â€” Add Space Defender game files from local collab update
 - Netlify auto-deploys from `main` on each push.
 
 ---
@@ -1447,8 +1447,8 @@ Key Findings:
 
 5. **Audio still has missing-file 404s during gameplay startup.**
    - Browser audit logged:
-     - `assets/audio/voice/Em-I can’t believe it.m4a`
-     - `assets/audio/voice/Amara-It’s okay, try again!.m4a`
+     - `assets/audio/voice/Em-I canâ€™t believe it.m4a`
+     - `assets/audio/voice/Amara-Itâ€™s okay, try again!.m4a`
    - These filenames are still present in the audio map and do not resolve in the local runtime audit.
    - References:
      - `assets/js/audio-manager.js:58`
@@ -1532,12 +1532,12 @@ Prompt:
 Actions Taken:
 - Replaced the simple 3-element alien (head, torso, eyes) with the full Gumblop character from Codex's isolated standalone file.
 - New character includes: gumdrop body with specular highlights, belly, cheeks, antenna (with pulsing pink bead), arms (wiggle animation), feet, shadow (synchronized pulse), white eyes with dark pupils.
-- Added `setupAlienInteraction()` method — wires up pointer-move pupil tracking and mouth open/close based on cursor proximity.
-- Added `triggerChomp()` method — fires squash-stretch chomp animation on every food item click.
+- Added `setupAlienInteraction()` method â€” wires up pointer-move pupil tracking and mouth open/close based on cursor proximity.
+- Added `triggerChomp()` method â€” fires squash-stretch chomp animation on every food item click.
 - Updated `renderAlienHappy()` to target the new `#alienChar` element instead of the removed `#alienBody`.
 - Added `_pupilHandler` property to constructor for proper listener cleanup between rounds and on game end.
 - Updated `end()` to remove the pointermove listener when the game ends.
-- Resized alien container: mobile 160×195px, desktop 260×317px (both preserve the 23:28 aspect ratio from the reference).
+- Resized alien container: mobile 160Ã—195px, desktop 260Ã—317px (both preserve the 23:28 aspect ratio from the reference).
 - All alien internals use percentage-based positioning so the character scales cleanly at any size.
 - All existing game mechanics (6 rounds, difficulty progression, accuracy tracking, food grid, end screen) are unchanged.
 
@@ -1763,7 +1763,7 @@ Verification:
 
 Observed Results:
 - Wrong drop on all viewports dimmed the decoy and showed the expected gentle hint.
-- Correct drop on all viewports fed the item, reduced remaining correct items from `3` to `2`, and kept the progress text stable as `2 more to find! Keep going! 🌟`.
+- Correct drop on all viewports fed the item, reduced remaining correct items from `3` to `2`, and kept the progress text stable as `2 more to find! Keep going! ðŸŒŸ`.
 - No runtime errors appeared in phone, tablet, or desktop passes after the pointer-capture safeguard was added.
 - Sound prompts still rely partly on fallback speech for the custom phonics lines because dedicated recorded phoneme prompts do not exist yet.
 
@@ -1847,63 +1847,63 @@ Status:
 ## 2026-05-14 - Claude Code
 
 Prompt:
-> Build the Number Line game to play after Feed the Alien. Alien asks child to fill in the missing numbers. Horizontal line 1-10 (or 11-20 at hard). Only the pulsing active gap is a valid drop target. Decoy tiles in the tray. Wrong drop springs back — no scolding. 6 rounds of increasing difficulty.
+> Build the Number Line game to play after Feed the Alien. Alien asks child to fill in the missing numbers. Horizontal line 1-10 (or 11-20 at hard). Only the pulsing active gap is a valid drop target. Decoy tiles in the tray. Wrong drop springs back â€” no scolding. 6 rounds of increasing difficulty.
 
 Actions Taken:
-- Created `assets/js/games/number-line-game.js` — full `NumberLineGame` class:
+- Created `assets/js/games/number-line-game.js` â€” full `NumberLineGame` class:
   - 6-round config: rounds 1-3 use 1-10, rounds 4-6 use 11-20; gaps increase from 1 to 3, decoys from 2 to 4
-  - `beginRound()` — builds sequence, picks random gap indices (never slot 0 or 9 so line always has anchor endpoints), resets activeGapIdx
-  - `_render()` — renders alien area + number line + tile tray in one pass
-  - `_alienHTML()` — full Gumblop alien markup (same structure as feed-alien) with speech bubble: "Where does N go?"
-  - `_numberLineHTML()` — 10 bubble slots: filled (white ring), active (pulsing purple dashed), waiting (dimmed dashed), placed (green)
-  - `_trayHTML()` — remaining correct tiles + decoy tiles, all shuffled
-  - `_setupAlienInteraction()` — pointermove pupil tracking (±6px), pointerenter/leave mouth open, animationend chomp cleanup; tears down previous listener between rounds
-  - `_triggerChomp()` — forces reflow to restart chomp animation
-  - `_setupDragDrop()` — pointer events on each `.nl-tile`
-  - `_startDrag()` — creates fixed-position clone, ghosts origin tile, captures pointer
-  - `_onDragMove` — moves clone to follow cursor
-  - `_onDragEnd` — checks rect overlap with `#nlActiveSlot`; correct placement calls `_handleCorrectPlacement()`, wrong springs back via CSS cubic-bezier transition (380ms)
-  - `_handleCorrectPlacement()` — triggers chomp, advances `activeGapIdx`, re-renders or calls `_completeRound()`
-  - `_completeRound()` — marks all slots celebrate (scale pop animation), shows "You got it! 🎉" in bubble, hides tray, advances round after 1800ms
-  - `end()` — cleans up pupil listener, saves session metrics, shows end screen
-  - `_generateDecoys()` — prioritises numbers just outside the sequence range (more educational), also includes visible in-range numbers as very tricky decoys; deduped Set
+  - `beginRound()` â€” builds sequence, picks random gap indices (never slot 0 or 9 so line always has anchor endpoints), resets activeGapIdx
+  - `_render()` â€” renders alien area + number line + tile tray in one pass
+  - `_alienHTML()` â€” full Gumblop alien markup (same structure as feed-alien) with speech bubble: "Where does N go?"
+  - `_numberLineHTML()` â€” 10 bubble slots: filled (white ring), active (pulsing purple dashed), waiting (dimmed dashed), placed (green)
+  - `_trayHTML()` â€” remaining correct tiles + decoy tiles, all shuffled
+  - `_setupAlienInteraction()` â€” pointermove pupil tracking (Â±6px), pointerenter/leave mouth open, animationend chomp cleanup; tears down previous listener between rounds
+  - `_triggerChomp()` â€” forces reflow to restart chomp animation
+  - `_setupDragDrop()` â€” pointer events on each `.nl-tile`
+  - `_startDrag()` â€” creates fixed-position clone, ghosts origin tile, captures pointer
+  - `_onDragMove` â€” moves clone to follow cursor
+  - `_onDragEnd` â€” checks rect overlap with `#nlActiveSlot`; correct placement calls `_handleCorrectPlacement()`, wrong springs back via CSS cubic-bezier transition (380ms)
+  - `_handleCorrectPlacement()` â€” triggers chomp, advances `activeGapIdx`, re-renders or calls `_completeRound()`
+  - `_completeRound()` â€” marks all slots celebrate (scale pop animation), shows "You got it! ðŸŽ‰" in bubble, hides tray, advances round after 1800ms
+  - `end()` â€” cleans up pupil listener, saves session metrics, shows end screen
+  - `_generateDecoys()` â€” prioritises numbers just outside the sequence range (more educational), also includes visible in-range numbers as very tricky decoys; deduped Set
   - `_pickGaps()` / `_shuffle()` utilities
 
 - Created `assets/css/number-line-game.css`:
   - Full Gumblop alien CSS (percentage-based internals, same approach as feed-alien-game.css) for `.nl-alien`; self-contained so game works standalone
-  - `.nl-layout` — column flex layout with sky/ground gradient background
-  - `.nl-alien-area` — row flex (alien left, speech bubble right with left-pointing CSS tail)
-  - `.nl-bubble` — frosted-glass speech bubble, `::before`/`::after` left-pointing chevron tail
-  - `.nl-track-wrap` — relative positioned, `.nl-track` bar absolutely centered behind `.nl-slots`
-  - `.nl-bubble-slot` — 36px mobile / 48px desktop circles; variants: `--filled`, `--active` (pulsing `slotPulse` keyframe), `--waiting` (dimmed dashed), `--placed` (green), `--celebrate` (scale pop)
-  - `.nl-tray` — frosted-glass container, flex-wrap row
-  - `.nl-tile` — orange tiles, 52px mobile / 64px desktop, grab cursor, hover lift
-  - `.nl-tile--ghost` / `.nl-tile--dragging` — drag states
+  - `.nl-layout` â€” column flex layout with sky/ground gradient background
+  - `.nl-alien-area` â€” row flex (alien left, speech bubble right with left-pointing CSS tail)
+  - `.nl-bubble` â€” frosted-glass speech bubble, `::before`/`::after` left-pointing chevron tail
+  - `.nl-track-wrap` â€” relative positioned, `.nl-track` bar absolutely centered behind `.nl-slots`
+  - `.nl-bubble-slot` â€” 36px mobile / 48px desktop circles; variants: `--filled`, `--active` (pulsing `slotPulse` keyframe), `--waiting` (dimmed dashed), `--placed` (green), `--celebrate` (scale pop)
+  - `.nl-tray` â€” frosted-glass container, flex-wrap row
+  - `.nl-tile` â€” orange tiles, 52px mobile / 64px desktop, grab cursor, hover lift
+  - `.nl-tile--ghost` / `.nl-tile--dragging` â€” drag states
   - End screen: `.nl-end-card`, `.nl-end-panel`, `.nl-end-stars`, `.nl-next-btn`
   - All shared alien keyframes declared locally (`bob`, `shadowPulse`, `blink`, `armWiggleL/R`, `chomp`)
 
 - Updated `assets/js/games/game-registry.js`:
   - Added `number-line` entry (order 7, isActive: true)
-  - Updated `getNextGameRecommendation('feed-alien')` → returns `'number-line'` (was `'world-reveal'`)
-  - Added `getNextGameRecommendation('number-line')` → returns `'world-reveal'`
-  - Feed the Alien's end screen now automatically shows "Continue Adventure" button pointing to `game-loader.html?game=number-line` (no changes needed to feed-alien-game.js — it reads from the registry dynamically)
+  - Updated `getNextGameRecommendation('feed-alien')` â†’ returns `'number-line'` (was `'world-reveal'`)
+  - Added `getNextGameRecommendation('number-line')` â†’ returns `'world-reveal'`
+  - Feed the Alien's end screen now automatically shows "Continue Adventure" button pointing to `game-loader.html?game=number-line` (no changes needed to feed-alien-game.js â€” it reads from the registry dynamically)
 
 Files/Folders Changed:
 - `assets/js/games/number-line-game.js` (created)
 - `assets/css/number-line-game.css` (created)
-- `assets/js/games/game-registry.js` (modified — added entry, updated recommendation chain)
+- `assets/js/games/game-registry.js` (modified â€” added entry, updated recommendation chain)
 - `AGENT_COLLAB_LOG.md` (this entry)
 
 GitHub/Netlify:
 - Local only. Ready for Codex to verify, commit, and push when ready.
 
 Notes / Next Steps:
-- Game sequence is now: Color Sort → Shape Recognition → Space Defender → Feed the Alien → Number Line → World Reveal
+- Game sequence is now: Color Sort â†’ Shape Recognition â†’ Space Defender â†’ Feed the Alien â†’ Number Line â†’ World Reveal
 - Decoy generation is intentional: numbers just outside the visible range (e.g. 0, 11 when playing 1-10) are the most educational wrong choices
 - Spring-back uses `cubic-bezier(0.34, 1.56, 0.64, 1)` for a satisfying elastic feel without being punishing
 - No scolding: wrong drops just spring back silently; alien expression doesn't change on wrong attempts
-- Per-gap flow: each gap filled → alien chomps → next gap becomes active → new tile set shown → repeat
-- Mobile test recommended at 390px viewport width — tray tiles should flex-wrap cleanly with 4-5 tiles visible without scrolling
+- Per-gap flow: each gap filled â†’ alien chomps â†’ next gap becomes active â†’ new tile set shown â†’ repeat
+- Mobile test recommended at 390px viewport width â€” tray tiles should flex-wrap cleanly with 4-5 tiles visible without scrolling
 
 ---
 
@@ -1915,29 +1915,29 @@ Prompt:
 Root Cause Found:
 - The drag ghost was created with `foodEl.cloneNode(true)`, which kept the `food-item` CSS class.
 - `food-item` has `animation: foodEnter 0.4s both` and `transition: all 0.2s ease`.
-- CSS animations override inline `style.transform` — so `onDragMove`'s `ghostEl.style.transform = ...` was being overridden by the running `foodEnter` animation. The ghost existed but its transform was locked by the animation.
+- CSS animations override inline `style.transform` â€” so `onDragMove`'s `ghostEl.style.transform = ...` was being overridden by the running `foodEnter` animation. The ghost existed but its transform was locked by the animation.
 - Secondary: the `transition: all 0.2s ease` would have caused lag even if the animation wasn't blocking it.
 - Tertiary: ghost positioning used a `baseLeft/baseTop` delta calculation that added unnecessary complexity.
 
 Actions Taken:
-1. **`assets/css/feed-alien-game.css`** — Updated `.food-drag-ghost`:
-   - Added `animation: none !important` — kills the inherited `foodEnter` animation that was overriding transform
-   - Added `transition: none !important` — eliminates the 0.2s lag from `food-item` transition
+1. **`assets/css/feed-alien-game.css`** â€” Updated `.food-drag-ghost`:
+   - Added `animation: none !important` â€” kills the inherited `foodEnter` animation that was overriding transform
+   - Added `transition: none !important` â€” eliminates the 0.2s lag from `food-item` transition
    - Changed `left: 0; top: 0` as the base position (transform does all movement)
    - Bumped `z-index` to 9999
    - Added `will-change: transform` for GPU-accelerated movement
 
-2. **`assets/js/games/feed-alien-game.js`** — Rewrote ghost creation in `startFoodDrag`:
-   - Creates a fresh `div.food-drag-ghost` instead of cloning the food tile — no inherited CSS baggage
+2. **`assets/js/games/feed-alien-game.js`** â€” Rewrote ghost creation in `startFoodDrag`:
+   - Creates a fresh `div.food-drag-ghost` instead of cloning the food tile â€” no inherited CSS baggage
    - Applies explicit inline styles (background, border, font-size, border-radius) matching the food tile's appearance
    - Ghost starts at `transform: translate(startX, startY)` where startX/startY are the tile's viewport position
-   - Removed `baseLeft`/`baseTop` from `activeDrag` — no longer needed
+   - Removed `baseLeft`/`baseTop` from `activeDrag` â€” no longer needed
 
-3. **`assets/js/games/feed-alien-game.js`** — Fixed `onDragMove`:
-   - `transform: translate(clientX - offsetX, clientY - offsetY)` directly — viewport coordinates, no delta math
+3. **`assets/js/games/feed-alien-game.js`** â€” Fixed `onDragMove`:
+   - `transform: translate(clientX - offsetX, clientY - offsetY)` directly â€” viewport coordinates, no delta math
    - Clear and unambiguous: ghost top-left corner tracks the cursor offset exactly
 
-4. **`assets/js/games/feed-alien-game.js`** — Added fly-into-mouth animation in `feedFood`:
+4. **`assets/js/games/feed-alien-game.js`** â€” Added fly-into-mouth animation in `feedFood`:
    - On correct drop: enables a short 0.22s transition, translates ghost to mouth center, scales to 0.05, fades opacity to 0
    - Ghost element removed after 240ms (after animation completes)
    - Falls back to `ghostEl.remove()` if mouth element isn't found
@@ -1952,8 +1952,8 @@ GitHub/Netlify:
 
 Notes / Next Steps:
 - Root cause note for Codex: the original ghost used `cloneNode(true)` which copied the food-item animation. Creating a fresh div avoids all inherited CSS side effects.
-- The `isGhostOverMouth` collision check is unchanged — it still uses `currentLeft`/`currentTop` which now correctly represent viewport coordinates.
-- If Codex's version of the file has different drag code, this fix must be applied to whatever version is being deployed — the key invariants are: (1) ghost must NOT have food-item class or any animated class, (2) transform must not be blocked by animation.
+- The `isGhostOverMouth` collision check is unchanged â€” it still uses `currentLeft`/`currentTop` which now correctly represent viewport coordinates.
+- If Codex's version of the file has different drag code, this fix must be applied to whatever version is being deployed â€” the key invariants are: (1) ghost must NOT have food-item class or any animated class, (2) transform must not be blocked by animation.
 
 ---
 
@@ -1967,43 +1967,43 @@ Game Mechanics Extracted from File:
 - Child sees a tray of items (emoji + written label for passive print exposure)
 - Drag items that start with that sound into Gumblop's mouth
 - Correct: flies into mouth with chomp animation, eaten
-- Wrong: dims with gentle hint ("Hmm, that starts with /k/!") — no buzzer, no penalty
+- Wrong: dims with gentle hint ("Hmm, that starts with /k/!") â€” no buzzer, no penalty
 - Gumblop's mouth shape mirrors the sound: pursed for /b/ /p/ /m/, wide for vowels
 - 6 rounds covering sounds: /b/ /s/ /m/ /f/ /p/ /d/
 
 Actions Taken:
-- Created `assets/js/games/feed-by-sound-game.js` — full `FeedBySoundGame` class:
+- Created `assets/js/games/feed-by-sound-game.js` â€” full `FeedBySoundGame` class:
   - 6 phoneme rounds with correct items + labeled decoys (decoys carry their own sound for hints)
-  - `beginRound()` — shuffles correct + decoys into tray, speaks prompt after 500ms paint delay
-  - `_alienHTML()` — full Gumblop with `mouth--pursed`, `mouth--wide`, `mouth--default` classes for resting shape
-  - `_trayHTML()` — grid of item cards, each with emoji + written label (passive print exposure)
-  - `_setupAlienInteraction()` — pointermove pupil tracking (±6px), pointerenter/leave mouth, chomp cleanup
-  - `_startDrag()` — fresh ghost div (no class baggage), position via `translate(x,y)` on `left:0;top:0` base
-  - `_onMove` / `_onEnd` — pointer-captured drag, checks overlap with alien body rect
-  - `_handleCorrect()` — fly-into-mouth animation, removes tile, updates bubble counter
-  - `_handleWrong()` — spring-back ghost, dims tile (pointer-events:none), shows sound hint in bubble, alien head-shake
-  - `_springBack()` — elastic return via `cubic-bezier(0.34,1.56,0.64,1)`
-  - `_completeRound()` — all correct items eaten → celebration → next round after 1800ms
-  - `end()` — saves session metrics, shows end screen
-  - Drop target is the entire alien body (generous hit area — child is learning, not competing)
+  - `beginRound()` â€” shuffles correct + decoys into tray, speaks prompt after 500ms paint delay
+  - `_alienHTML()` â€” full Gumblop with `mouth--pursed`, `mouth--wide`, `mouth--default` classes for resting shape
+  - `_trayHTML()` â€” grid of item cards, each with emoji + written label (passive print exposure)
+  - `_setupAlienInteraction()` â€” pointermove pupil tracking (Â±6px), pointerenter/leave mouth, chomp cleanup
+  - `_startDrag()` â€” fresh ghost div (no class baggage), position via `translate(x,y)` on `left:0;top:0` base
+  - `_onMove` / `_onEnd` â€” pointer-captured drag, checks overlap with alien body rect
+  - `_handleCorrect()` â€” fly-into-mouth animation, removes tile, updates bubble counter
+  - `_handleWrong()` â€” spring-back ghost, dims tile (pointer-events:none), shows sound hint in bubble, alien head-shake
+  - `_springBack()` â€” elastic return via `cubic-bezier(0.34,1.56,0.64,1)`
+  - `_completeRound()` â€” all correct items eaten â†’ celebration â†’ next round after 1800ms
+  - `end()` â€” saves session metrics, shows end screen
+  - Drop target is the entire alien body (generous hit area â€” child is learning, not competing)
 
 - Created `assets/css/feed-by-sound-game.css`:
   - Full Gumblop CSS (percentage-based, self-contained)
   - `.mouth--pursed` (scaleX 0.65, scaleY 0.55 resting) for lip consonants
   - `.mouth--wide` (scaleY 1.1 resting) for open vowels
   - `.mouth.open !important` overrides resting shape during drag
-  - `.fbs-item` — square cards with emoji + label, aspect-ratio:1, auto-fit grid
-  - `.fbs-item--ghost` — opacity 0.25 while being dragged
-  - `.fbs-item--dim` — opacity 0.32, grayscale, pointer-events:none (wrong picks stay visible but locked)
-  - `.fbs-item-ghost` — fixed-position drag clone with `animation:none !important; transition:none !important`
-  - `.fbs-alien--shake` / `.fbs-alien--happy` — state animations
+  - `.fbs-item` â€” square cards with emoji + label, aspect-ratio:1, auto-fit grid
+  - `.fbs-item--ghost` â€” opacity 0.25 while being dragged
+  - `.fbs-item--dim` â€” opacity 0.32, grayscale, pointer-events:none (wrong picks stay visible but locked)
+  - `.fbs-item-ghost` â€” fixed-position drag clone with `animation:none !important; transition:none !important`
+  - `.fbs-alien--shake` / `.fbs-alien--happy` â€” state animations
   - `.fbs-bubble` with left-pointing CSS tail (same pattern as number-line bubble)
-  - `.fbs-sound-badge` — purple pill showing the phoneme prompt (e.g. "/b/ like in Ball")
+  - `.fbs-sound-badge` â€” purple pill showing the phoneme prompt (e.g. "/b/ like in Ball")
   - Shared keyframes: bob, shadowPulse, blink, armWiggleL/R, chomp (self-contained)
 
 - Updated `assets/js/games/game-registry.js`:
   - Added `feed-by-sound` entry (order 8, isActive: true)
-  - Updated chain: `number-line` → `feed-by-sound` → `world-reveal`
+  - Updated chain: `number-line` â†’ `feed-by-sound` â†’ `world-reveal`
 
 Files/Folders Changed:
 - `assets/js/games/feed-by-sound-game.js` (created)
@@ -2016,8 +2016,8 @@ GitHub/Netlify:
 
 Notes / Next Steps:
 - Test URL: `game-loader.html?game=feed-by-sound`
-- Full game chain is now: Color Sort → Shape Recognition → Space Defender → Feed the Alien → Letter Line → Feed by Sound → World Reveal
-- Drop target is the alien body (generous) rather than just the mouth — more forgiving for young children learning drag mechanics
+- Full game chain is now: Color Sort â†’ Shape Recognition â†’ Space Defender â†’ Feed the Alien â†’ Letter Line â†’ Feed by Sound â†’ World Reveal
+- Drop target is the alien body (generous) rather than just the mouth â€” more forgiving for young children learning drag mechanics
 - Wrong picks dim permanently per round (educational: child sees the item + label + hears its actual sound)
 - Each decoy has a `sound` property so the alien can say exactly what sound that item starts with
 
@@ -2030,11 +2030,11 @@ Prompt:
 > Build it the items are in download 5 file folder in the downloads
 
 Task:
-Build the ABC Match game � a tap-based letter-matching game where the alien holds up a letter chip image and the child taps the emoji tile that starts with that letter.
+Build the ABC Match game — a tap-based letter-matching game where the alien holds up a letter chip image and the child taps the emoji tile that starts with that letter.
 
 Actions Taken:
 - Discovered 25 letter chip JPEG images in `C:\Users\Devin\Downloads\download (5)\`.
-- Created `assets/images/abc-match/letters/` directory and copied all 25 chip images with clean names (`a.jpeg` through `z.jpeg`). Note: P was not in the source folder so `p.jpeg` is absent � all other letters present.
+- Created `assets/images/abc-match/letters/` directory and copied all 25 chip images with clean names (`a.jpeg` through `z.jpeg`). Note: P was not in the source folder so `p.jpeg` is absent — all other letters present.
 - Created `assets/js/games/abc-match-game.js` (`ABCMatchGame` class):
   - 10 rounds covering letters B, C, D, F, H, L, M, R, S, T
   - Each round: alien holds up the letter chip image + 4 emoji picture tiles (1 correct, 3 distractors)
@@ -2045,11 +2045,11 @@ Actions Taken:
   - End screen with star rating and accuracy %, calls `context.saveSession()` and `context.goToNextGame()`
 - Created `assets/css/abc-match-game.css`:
   - `.am-` prefix throughout
-  - `.am-letter-chip` � 80px/96px letter image in bubble
-  - `.am-grid` � 2�2 emoji tile grid
-  - `.am-tile--correct` � green border + pop scale animation
-  - `.am-tile--shake` � red border + shake keyframe for wrong answers
-  - `.am-chip-ghost` � flying chip animation element
+  - `.am-letter-chip` — 80px/96px letter image in bubble
+  - `.am-grid` — 2×2 emoji tile grid
+  - `.am-tile--correct` — green border + pop scale animation
+  - `.am-tile--shake` — red border + shake keyframe for wrong answers
+  - `.am-chip-ghost` — flying chip animation element
   - Full Gumblop CSS (body, eyes, pupils, mouth, arms, feet, antenna, cheeks, chomp keyframe)
   - End card with star system and CTA button
 - Updated `game-registry.js`:
@@ -2057,19 +2057,19 @@ Actions Taken:
   - Updated `getNextGameRecommendation` chain: `feed-by-sound` ? `abc-match` ? `world-reveal`
 
 Files/Folders Changed:
-- `assets/images/abc-match/letters/` (new directory � 25 JPEG files a�z, except p)
+- `assets/images/abc-match/letters/` (new directory — 25 JPEG files a–z, except p)
 - `assets/js/games/abc-match-game.js` (new)
 - `assets/css/abc-match-game.css` (new)
-- `assets/js/games/game-registry.js` (updated � added entry + updated chain)
+- `assets/js/games/game-registry.js` (updated — added entry + updated chain)
 - `AGENT_COLLAB_LOG.md` (this entry)
 
 GitHub/Netlify:
 - Local only. Not pushed from this prompt.
 
 Notes / Next Steps:
-- P chip image is absent from the source folder � rounds do not use letter P. If Codex can source or generate `p.jpeg`, it can be added to `assets/images/abc-match/letters/` and a P round can be appended to `this.rounds` in the JS.
+- P chip image is absent from the source folder — rounds do not use letter P. If Codex can source or generate `p.jpeg`, it can be added to `assets/images/abc-match/letters/` and a P round can be appended to `this.rounds` in the JS.
 - The game is ready to test at: `game-loader.html?game=abc-match`
-- The user can customize emoji items per world (Option A agreed) � the round data at the top of `abc-match-game.js` is the easy edit point.
+- The user can customize emoji items per world (Option A agreed) — the round data at the top of `abc-match-game.js` is the easy edit point.
 - Codex: please push to GitHub and verify Netlify deploys the new files when ready.
 
 
@@ -2513,21 +2513,3 @@ All clips referenced by the new triggers exist on disk:
   - dropped the overlay's auto intro-speak because it could double-play with game-level start prompts
   - removed the expanded resume-from-lastGameSession logic because those extra games do not actually persist mid-round resume state yet
 - Validation passed after the audit trim: node --check assets/js/games/game-shell.js, node --check assets/js/world-reveal.js, npm test, npm run build, git diff --check.
-
-## 2026-05-17 - Codex Space Defender Audio Regression Fix
-- Author request: check Code's latest work, fix what is needed, and preserve the intended Space Defender sound loop.
-- Audited Code's latest local batch and found two regressions in Space Defender:
-  - shot SFX had been removed from `shoot()`
-  - destroyed-ship / life-loss SFX had been removed from `loseLife()`
-- Restored `space-shot` on every fired laser.
-- Restored `space-destroyed` on life loss with a 2.5s cooldown guard to avoid noisy overlap during rapid breaches.
-- Restored the `nod` character reaction on life loss.
-- Validation passed: node --check assets/js/games/space-defender-game.js, node --check assets/js/audio-manager.js, node --check assets/js/games/game-shell.js, npm test, npm run build, git diff --check.
-
-## Standing Collab Rule - Author Request Logging
-- Every agent entry must include the author's request in direct form before describing work done.
-- Minimum requirement for each task log:
-  - `Author request:` a short plain-language summary of what Devin asked for
-  - `Actions taken:` what the agent actually changed or audited
-  - `Validation:` what checks were run
-- Purpose: preserve product intent across Code, Anti, GitClaw, and Codex handoffs so implementation notes always stay tied to the real request.

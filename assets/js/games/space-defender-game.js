@@ -540,8 +540,6 @@ class SpaceDefenderGame {
     if (this.lives <= 0) {
       this.isPlaying = false;
       this.transitioningLevel = true;
-      // Play a losing voice clip when all hearts are gone
-      this.context.speak('aww man');
       setTimeout(() => this.showScreen('gameOver'), 1000);
     }
   }
