@@ -104,16 +104,23 @@ class FeedAlienGame {
     return `Feed the alien ${this.requiredCount} ${treats}! Drag the food from the basket to feed him.`;
   }
 
-  getFoodEmoji() {
+  getFoodSVG() {
+    // Map each world to its primary item + a warm colour that reads well
+    // on the cream ghost tile and the basket peeks.
     const worldFoods = {
-      space:        '🪐',
-      beach:        '🐚',
-      jungle:       '🍃',
-      studio:       '🎨',
-      castle:       '👑',
-      'candy-land': '🍭'
+      space:        { item: 'star',      color: 'yellow'  },
+      beach:        { item: 'starfish',  color: 'orange'  },
+      jungle:       { item: 'fruit',     color: 'red'     },
+      studio:       { item: 'paintblob', color: 'purple'  },
+      castle:       { item: 'gem',       color: 'blue'    },
+      'candy-land': { item: 'lollipop',  color: 'red'     },
     };
-    return worldFoods[this.worldSlug] || '🍎';
+    const { item, color } = worldFoods[this.worldSlug] || { item: 'star', color: 'yellow' };
+    if (typeof ITEM_GENERATORS !== 'undefined' && ITEM_GENERATORS[item]) {
+      return ITEM_GENERATORS[item](color);
+    }
+    // Final fallback — shouldn't occur if item-data.js is loaded
+    return '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="#f4c83b"/></svg>';
   }
 
   /* ─── Shell HTML ─────────────────────────────────────── */
@@ -242,15 +249,15 @@ class FeedAlienGame {
     const area = document.getElementById('feedBasketArea');
     if (!area) return;
 
-    const emoji = this.getFoodEmoji();
+    const svg = this.getFoodSVG();
     area.innerHTML = `
       <div class="feed-basket" id="feedBasket"
            role="button" tabindex="0"
            aria-label="Food basket — hold and drag to feed the alien">
         <div class="basket-peeks">
-          <span class="basket-peek" style="animation-delay:0s">${emoji}</span>
-          <span class="basket-peek" style="animation-delay:.25s">${emoji}</span>
-          <span class="basket-peek" style="animation-delay:.5s">${emoji}</span>
+          <div class="basket-peek" style="animation-delay:0s">${svg}</div>
+          <div class="basket-peek" style="animation-delay:.25s">${svg}</div>
+          <div class="basket-peek" style="animation-delay:.5s">${svg}</div>
         </div>
         <div class="basket-body">🧺</div>
       </div>
@@ -281,19 +288,19 @@ class FeedAlienGame {
     const startX   = bRect.left + bRect.width  / 2 - ghostSize / 2;
     const startY   = bRect.top  + bRect.height / 2 - ghostSize / 2;
 
-    // Build ghost tile
+    // Build ghost tile — SVG item centred in a cream rounded tile
     const ghost = document.createElement('div');
     ghost.className = 'food-drag-ghost';
-    ghost.textContent = this.getFoodEmoji();
+    ghost.innerHTML = this.getFoodSVG();
     ghost.style.width        = `${ghostSize}px`;
     ghost.style.height       = `${ghostSize}px`;
     ghost.style.borderRadius = '20px';
     ghost.style.background   = 'linear-gradient(135deg, #fff8dc, #ffe4b5)';
     ghost.style.border       = '3px solid #f59e0b';
-    ghost.style.fontSize     = '40px';
     ghost.style.display      = 'flex';
     ghost.style.alignItems   = 'center';
     ghost.style.justifyContent = 'center';
+    ghost.style.padding      = '8px';
     // Start at basket, small → pop into full size
     ghost.style.transform    = `translate(${startX}px, ${startY}px) scale(0.5) rotate(-6deg)`;
     document.body.appendChild(ghost);
@@ -547,8 +554,10 @@ class FeedAlienGame {
     this.context.randomEncouragement();
     this.renderCelebration();
 
-    setTimeout(() => {
+    setTimeout(async () => {
       this.currentRound++;
+      // Report progress after increment so current = completed rounds
+      await this.context.reportProgress(this.currentRound, this.totalItems);
       if (this.currentRound < this.totalItems) {
         this.beginRound();
       } else {
@@ -605,10 +614,11 @@ class FeedAlienGame {
 
   /* ─── End ────────────────────────────────────────────── */
 
-  end() {
+  async end() {
     this.ended = true;
     this.cancelDrag();
 
+    // Cleanup listener first — no interaction possible after this
     if (this._pupilHandler) {
       document.removeEventListener('pointermove', this._pupilHandler);
       this._pupilHandler = null;
@@ -627,10 +637,12 @@ class FeedAlienGame {
       this.performance.opportunityAreas = ['Number recognition', 'Counting practice'];
     }
 
-    const nextGameRecommendation = typeof window.getNextGameRecommendation === 'function'
+    // Resolve next game once for both parent data and child button
+    const nextGameType = typeof window.getNextGameRecommendation === 'function'
       ? window.getNextGameRecommendation('feed-alien', 'easy', this.performance.accuracy)
       : 'world-reveal';
 
+    // Parent-only summary — hidden from child-facing celebration
     this.context.saveSession({
       metrics: {
         accuracy: Math.round(this.performance.accuracy * 100),
@@ -640,43 +652,16 @@ class FeedAlienGame {
           : 0,
         highestDifficulty: this.difficulty
       },
-      nextGameRecommendation
+      nextGameRecommendation: nextGameType   // matches onContinue below
     });
 
-    this.showEndScreen();
-  }
-
-  showEndScreen() {
-    const gameArea = document.getElementById('gameArea');
-    const accuracy = Math.round(this.performance.accuracy * 100);
-    const stars    = this.performance.accuracy >= 0.8 ? 3 : this.performance.accuracy >= 0.6 ? 2 : 1;
-
-    // Celebration audio + character animation
+    // characterAnimation not called here — celebration overlay (z-index 9200)
+    // fully covers the character (z-index 5), so it would be invisible.
     this.context.randomEncouragement();
-    this.context.characterAnimation('celebrate');
-    const nextGameType = typeof window.getNextGameRecommendation === 'function'
-      ? window.getNextGameRecommendation('feed-alien', 'easy', this.performance.accuracy)
-      : 'world-reveal';
-    const nextLabel = nextGameType === 'world-reveal' ? 'Back to World' : 'Continue Adventure';
 
-    gameArea.innerHTML = `
-      <div class="feed-end-card">
-        <div class="feed-end-panel">
-          <h1>Alien Satisfied!</h1>
-          <p>Great job feeding your new friend!</p>
-          <div class="feed-stars">
-            ${Array(3).fill(0).map((_, i) =>
-              `<div class="feed-star ${i < stars ? 'lit' : ''}">⭐</div>`
-            ).join('')}
-          </div>
-          <div class="feed-accuracy">${accuracy}% Accurate</div>
-          <button class="feed-next-btn" id="feedNextBtn">▶ ${nextLabel.toUpperCase()}</button>
-        </div>
-      </div>
-    `;
-
-    document.getElementById('feedNextBtn')?.addEventListener('click', () => {
-      this.context.goToNextGame(nextGameType);
+    await this.context.showCelebration({
+      accuracy: this.performance.accuracy,
+      onContinue: () => this.context.goToNextGame(nextGameType)
     });
   }
 

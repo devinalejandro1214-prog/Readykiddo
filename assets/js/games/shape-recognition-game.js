@@ -74,6 +74,8 @@ class ShapeRecognitionGame {
       const shouldResume = resumeRequested || await this.showResumePrompt(saved);
       if (shouldResume) {
         this.restoreProgress(saved);
+        // Advance badge silently to match saved position (no stale overlays)
+        this.context.syncPhase(this.itemsShown);
       } else {
         this.clearProgress();
       }
@@ -337,7 +339,9 @@ class ShapeRecognitionGame {
       if (targetEl) targetEl.classList.add('matched');
       this.renderProgress();
 
-      setTimeout(() => {
+      setTimeout(async () => {
+        // Report progress first — holds busy=true through any phase transition overlay
+        await this.context.reportProgress(this.itemsShown, this.totalItems);
         this.busy = false;
 
         if (this.itemsShown >= this.totalItems) {
@@ -393,37 +397,16 @@ class ShapeRecognitionGame {
       shapesCorrect:   this.performance.shapesCorrect,
       strengthAreas:    this.performance.strengthAreas,
       opportunityAreas: this.performance.opportunityAreas,
-      nextGameRecommendation: 'color-sort'
+      nextGameRecommendation: 'space-defender'   // matches onContinue below
     });
 
-    await this.showEndScreen(accuracy);
-  }
-
-  async showEndScreen(accuracy) {
-    const gameArea = document.getElementById('gameArea');
-    const stars = Math.min(3, Math.round(accuracy * 3));
-
-    // Celebration audio — random from full pool
+    // characterAnimation not called here — celebration overlay (z-index 9200)
+    // fully covers the character (z-index 5), so it would be invisible.
     this.context.randomEncouragement();
-    this.context.characterAnimation('celebrate');
 
-    gameArea.innerHTML = `
-      <div class="shape-end-card">
-        <div class="shape-end-panel">
-          <h1>🎉 Amazing!</h1>
-          <p>You matched all the shapes!</p>
-          <div class="shape-stars">
-            ${[0,1,2].map(i=>`<svg class="shape-star${i<stars?' lit':''}" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-            </svg>`).join('')}
-          </div>
-          <p class="shape-accuracy">${Math.round(accuracy*100)}% Correct</p>
-          <button class="shape-next-btn" id="nextGameBtn">Next Game ▶</button>
-        </div>
-      </div>
-    `;
-    document.getElementById('nextGameBtn').addEventListener('click', () => {
-      this.context.goToNextGame('space-defender');
+    await this.context.showCelebration({
+      accuracy,
+      onContinue: () => this.context.goToNextGame('space-defender')
     });
   }
 

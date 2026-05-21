@@ -752,6 +752,33 @@ const ITEM_GENERATORS = {
       <path d="M46 18l38 8" stroke="white" stroke-width="1.2" opacity="0.3"/>
       ${sparkle(88, 16, 4.5)}${sparkle(16, 30, 3.5)}${sparkle(84, 70, 3)}
     </svg>`,
+
+  /* ── NUMBERS ──────────────────────────────────────────────
+     Curried: ITEM_GENERATORS.number(5)('blue')
+     Returns a coloured disc with the numeral centred on it.
+     ─────────────────────────────────────────────────────── */
+  number: n => c => `
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="50" cy="92" rx="30" ry="3" fill="#000" opacity="0.12"/>
+      <circle cx="50" cy="50" r="38" fill="${COLOR_HEX[c]}" stroke="${DARK[c]}" stroke-width="3"/>
+      <path d="M50 12a38 38 0 0 1 0 76 38 38 0 0 0 0-76z" fill="${DARK[c]}" opacity="0.2"/>
+      <ellipse cx="38" cy="30" rx="16" ry="7" fill="white" opacity="0.45" transform="rotate(-25 38 30)"/>
+      <ellipse cx="32" cy="26" rx="5" ry="2.5" fill="white" opacity="0.8" transform="rotate(-25 32 26)"/>
+      <circle cx="50" cy="50" r="32" fill="none" stroke="${LIGHT[c]}" stroke-width="1.5" opacity="0.7"/>
+      <text x="50" y="${n >= 10 ? 71 : 70}" text-anchor="middle"
+            font-family="Fredoka, sans-serif" font-weight="700"
+            font-size="${n >= 10 ? 44 : 58}"
+            fill="${DARK[c]}" opacity="0.55">${n}</text>
+      <text x="50" y="${n >= 10 ? 69 : 68}" text-anchor="middle"
+            font-family="Fredoka, sans-serif" font-weight="700"
+            font-size="${n >= 10 ? 44 : 58}"
+            fill="white" stroke="${DARK[c]}" stroke-width="2.5"
+            stroke-linejoin="round" paint-order="stroke">${n}</text>
+      ${sparkle(20, 20, 4)}
+      ${sparkle(82, 80, 3)}
+      ${dot(86, 24, 1.5, 'white', 0.85)}
+      ${dot(16, 78, 1.2, 'white', 0.7)}
+    </svg>`,
 };
 
 /* ─────────────────────────────────────────────────────────

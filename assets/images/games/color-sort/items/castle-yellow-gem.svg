@@ -1,0 +1,34 @@
+<svg viewBox="0 0 100 100">
+      <!-- glow -->
+      <circle cx="50" cy="50" r="44" fill="#f4c83b" opacity="0.10"/>
+      <circle cx="50" cy="50" r="32" fill="#ffe590" opacity="0.10"/>
+      <!-- gem body -->
+      <path d="M22 36L40 14h20l18 22L50 92z"
+            fill="#f4c83b" stroke="#c8a000" stroke-width="3" stroke-linejoin="round"/>
+      <!-- top facet division line -->
+      <path d="M22 36h56" stroke="#c8a000" stroke-width="3"/>
+      <!-- facet edges -->
+      <path d="M40 14L34 36L50 92M60 14l6 22L50 92M22 36L50 92M78 36L50 92M40 14h20"
+            stroke="#c8a000" stroke-width="2.5" fill="none"/>
+      <!-- top-left facet brightest -->
+      <path d="M40 14L34 36h-12z" fill="#ffe590" opacity="0.85"/>
+      <path d="M40 14h20l-10 22z" fill="#ffe590" opacity="0.95"/>
+      <path d="M40 14h20l-3 4-7 14-7-14z" fill="white" opacity="0.6"/>
+      <!-- top-right -->
+      <path d="M60 14l6 22h12z" fill="#ffe590" opacity="0.55"/>
+      <!-- bottom-left facet -->
+      <path d="M22 36l28 56-16-56z" fill="#c8a000" opacity="0.25"/>
+      <!-- bottom-right -->
+      <path d="M78 36l-28 56 16-56z" fill="#c8a000" opacity="0.18"/>
+      <!-- bottom-center brightest stripe -->
+      <path d="M34 36h32l-16 56z" fill="#f4c83b" opacity="0.8"/>
+      <path d="M40 36h20l-10 36z" fill="#ffe590" opacity="0.5"/>
+      <!-- internal shine -->
+      <path d="M44 18l3-2 3 4-3 12-4-2z" fill="white" opacity="0.85"/>
+      <path d="M50 44l-3 14 5 8 5-8z" fill="white" opacity="0.35"/>
+      <!-- sparkles -->
+      <path d="M72 18L73.33333333333333 20.666666666666668L76 22L73.33333333333333 23.333333333333332L72 26L70.66666666666667 23.333333333333332L68 22L70.66666666666667 20.666666666666668z" fill="white" opacity="0.9"/>
+      <path d="M28 57L29 59L31 60L29 61L28 63L27 61L25 60L27 59z" fill="white" opacity="0.9"/>
+      <path d="M82 57.5L82.83333333333333 59.166666666666664L84.5 60L82.83333333333333 60.833333333333336L82 62.5L81.16666666666667 60.833333333333336L79.5 60L81.16666666666667 59.166666666666664z" fill="white" opacity="0.9"/>
+      <path d="M18 25.5L18.833333333333332 27.166666666666668L20.5 28L18.833333333333332 28.833333333333332L18 30.5L17.166666666666668 28.833333333333332L15.5 28L17.166666666666668 27.166666666666668z" fill="white" opacity="0.9"/>
+    </svg>

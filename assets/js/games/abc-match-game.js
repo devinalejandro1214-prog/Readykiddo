@@ -349,10 +349,13 @@ class ABCMatchGame {
 
   /* ─── Round Completion ───────────────────────────────────── */
 
-  _completeRound() {
+  async _completeRound() {
     this.currentRound++;
+    // Report progress after increment so `current` = completed rounds.
+    // Any phase overlay holds here before the next letter appears.
+    await this.context.reportProgress(this.currentRound, this.rounds.length);
     if (this.currentRound >= this.rounds.length) {
-      this._end();
+      await this._end();
     } else {
       this._beginRound();
     }
@@ -360,7 +363,8 @@ class ABCMatchGame {
 
   /* ─── End ────────────────────────────────────────────────── */
 
-  _end() {
+  async _end() {
+    // Cleanup listener first — no interaction possible after this
     if (this._pupilHandler) {
       document.removeEventListener('pointermove', this._pupilHandler);
       this._pupilHandler = null;
@@ -369,6 +373,12 @@ class ABCMatchGame {
     const total = this.performance.correct + this.performance.wrong;
     const accuracy = total > 0 ? this.performance.correct / total : 1;
 
+    // Resolve next game consistently for both parent data and child button
+    const nextGameType = typeof window.getNextGameRecommendation === 'function'
+      ? window.getNextGameRecommendation('abc-match', 'normal', accuracy)
+      : 'world-reveal';
+
+    // Parent-only summary — hidden from child-facing celebration
     this.context.saveSession({
       metrics: {
         accuracy: Math.round(accuracy * 100),
@@ -376,45 +386,16 @@ class ABCMatchGame {
         correctAnswers: this.performance.correct,
         wrongAttempts: this.performance.wrong
       },
-      nextGameRecommendation: typeof window.getNextGameRecommendation === 'function'
-        ? window.getNextGameRecommendation('abc-match', 'normal', accuracy)
-        : 'world-reveal'
+      nextGameRecommendation: nextGameType   // matches onContinue below
     });
 
-    this._showEndScreen(accuracy);
-  }
-
-  _showEndScreen(accuracy) {
-    const gameArea = document.getElementById('gameArea');
-    const pct = Math.round(accuracy * 100);
-    const stars = accuracy >= 0.9 ? 3 : accuracy >= 0.65 ? 2 : 1;
-
-    // Celebration audio + character animation
+    // characterAnimation not called here — celebration overlay (z-index 9200)
+    // fully covers the character (z-index 5), so it would be invisible.
     this.context.randomEncouragement();
-    this.context.characterAnimation('celebrate');
-    const nextGameType = typeof window.getNextGameRecommendation === 'function'
-      ? window.getNextGameRecommendation('abc-match', 'normal', accuracy)
-      : 'world-reveal';
-    const nextLabel = nextGameType === 'world-reveal' ? 'Back to World' : 'Continue Adventure';
 
-    gameArea.innerHTML = `
-      <div class="am-end-card">
-        <div class="am-end-panel">
-          <h1>Letter Champion! 🔤</h1>
-          <p>You matched every letter!</p>
-          <div class="am-end-stars">
-            ${Array(3).fill(0).map((_, i) =>
-              `<span class="am-end-star ${i < stars ? 'lit' : ''}">⭐</span>`
-            ).join('')}
-          </div>
-          <div class="am-end-accuracy">${pct}% Accurate</div>
-          <button class="am-next-btn" id="amNextBtn">▶ ${nextLabel.toUpperCase()}</button>
-        </div>
-      </div>
-    `;
-
-    document.getElementById('amNextBtn')?.addEventListener('click', () => {
-      this.context.goToNextGame(nextGameType);
+    await this.context.showCelebration({
+      accuracy,
+      onContinue: () => this.context.goToNextGame(nextGameType)
     });
   }
 

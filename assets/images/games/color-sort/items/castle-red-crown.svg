@@ -1,0 +1,36 @@
+<svg viewBox="0 0 100 100">
+      <ellipse cx="50" cy="92" rx="32" ry="2.5" fill="#000" opacity="0.15"/>
+      <!-- crown peaks with rounded jewel tips -->
+      <path d="M12 38l16 28h44l16-28-18 14-14-24-6 20-6-20-14 24z"
+            fill="#e23b3b" stroke="#a32424" stroke-width="3" stroke-linejoin="round"/>
+      <!-- shading on right -->
+      <path d="M50 18l6 20 14-24 18 14-16 28H50z" fill="#a32424" opacity="0.18"/>
+      <!-- valley highlights -->
+      <path d="M14 40l14 24M86 40L72 64M50 22v44" stroke="#ff7a7a" stroke-width="2" fill="none" opacity="0.4"/>
+      <!-- band -->
+      <rect x="20" y="64" width="60" height="16" rx="3" fill="#e23b3b" stroke="#a32424" stroke-width="3"/>
+      <!-- band top bevel -->
+      <rect x="20" y="64" width="60" height="4" fill="#ff7a7a" opacity="0.55"/>
+      <!-- band bottom shadow -->
+      <rect x="20" y="76" width="60" height="4" fill="#a32424" opacity="0.3"/>
+      <!-- band decorative line -->
+      <path d="M20 72h60" stroke="#a32424" stroke-width="1.5" opacity="0.5"/>
+      <!-- top jewels (red, blue, green) -->
+      <circle cx="12" cy="38" r="7" fill="#e23b3b" stroke="#a32424" stroke-width="2"/>
+      <circle cx="10" cy="36" r="2.5" fill="#ff7a7a"/>
+      <circle cx="50" cy="20" r="7" fill="#2a7fd9" stroke="#a32424" stroke-width="2"/>
+      <circle cx="48" cy="18" r="2.5" fill="#7fb6f0"/>
+      <circle cx="88" cy="38" r="7" fill="#4aaf5a" stroke="#a32424" stroke-width="2"/>
+      <circle cx="86" cy="36" r="2.5" fill="#88d796"/>
+      <!-- band gems -->
+      <ellipse cx="32" cy="72" rx="4" ry="3" fill="#f4c83b" stroke="#a32424" stroke-width="1.5"/>
+      <ellipse cx="50" cy="72" rx="4" ry="3" fill="#9558c4" stroke="#a32424" stroke-width="1.5"/>
+      <ellipse cx="68" cy="72" rx="4" ry="3" fill="#f08a2c" stroke="#a32424" stroke-width="1.5"/>
+      <ellipse cx="31" cy="71" rx="1.5" ry="1" fill="white" opacity="0.8"/>
+      <ellipse cx="49" cy="71" rx="1.5" ry="1" fill="white" opacity="0.8"/>
+      <ellipse cx="67" cy="71" rx="1.5" ry="1" fill="white" opacity="0.8"/>
+      <!-- top sparkles -->
+      <path d="M10 29L11 31L13 32L11 33L10 35L9 33L7 32L9 31z" fill="white" opacity="0.9"/>
+      <path d="M48 11L49 13L51 14L49 15L48 17L47 15L45 14L47 13z" fill="white" opacity="0.9"/>
+      <path d="M86 29L87 31L89 32L87 33L86 35L85 33L83 32L85 31z" fill="white" opacity="0.9"/>
+    </svg>

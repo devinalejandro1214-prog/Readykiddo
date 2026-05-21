@@ -1,0 +1,37 @@
+<svg viewBox="0 0 100 100">
+      <!-- shadow -->
+      <ellipse cx="50" cy="92" rx="20" ry="2.5" fill="#000" opacity="0.12"/>
+      <!-- stem -->
+      <path d="M50 92 Q52 78 56 70" stroke="#5a3818" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <path d="M50 92 Q52 78 56 70" stroke="#a07636" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/>
+      <!-- symmetric pointed leaf body (almond shape) -->
+      <path d="M50 10 C76 24 76 56 56 72 C54 74 52 74 50 74 C48 74 46 74 44 72 C24 56 24 24 50 10 Z"
+            fill="#4aaf5a" stroke="#2f8541" stroke-width="3" stroke-linejoin="round"/>
+      <!-- darker right half -->
+      <path d="M50 10 C76 24 76 56 56 72 C54 74 52 74 50 74 Z"
+            fill="#2f8541" opacity="0.22"/>
+      <!-- lighter left half highlight -->
+      <path d="M50 14 C32 26 32 54 46 68"
+            fill="#88d796" stroke="none" opacity="0"/>
+      <ellipse cx="40" cy="32" rx="7" ry="14" fill="#88d796" opacity="0.55" transform="rotate(-15 40 32)"/>
+      <ellipse cx="36" cy="40" rx="3" ry="8" fill="white" opacity="0.45" transform="rotate(-15 36 40)"/>
+      <!-- midrib (main vein) -->
+      <path d="M50 12 Q50 44 50 72" stroke="#2f8541" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <!-- side veins (symmetric, curving outward) -->
+      <path d="M50 22 Q42 26 34 30" stroke="#2f8541" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.55"/>
+      <path d="M50 22 Q58 26 66 30" stroke="#2f8541" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.55"/>
+      <path d="M50 34 Q40 38 30 44" stroke="#2f8541" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.55"/>
+      <path d="M50 34 Q60 38 70 44" stroke="#2f8541" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.55"/>
+      <path d="M50 48 Q42 52 34 58" stroke="#2f8541" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.55"/>
+      <path d="M50 48 Q58 52 66 58" stroke="#2f8541" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.55"/>
+      <path d="M50 60 Q44 64 40 68" stroke="#2f8541" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.5"/>
+      <path d="M50 60 Q56 64 60 68" stroke="#2f8541" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.5"/>
+      <!-- midrib highlight -->
+      <path d="M50 14 Q50 40 50 68" stroke="#88d796" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.6"/>
+      <!-- dewdrop -->
+      <ellipse cx="42" cy="50" rx="3" ry="4" fill="white" opacity="0.9"/>
+      <ellipse cx="42" cy="51" rx="1.8" ry="2.8" fill="#88d796" opacity="0.55"/>
+      <circle cx="41" cy="49" r="1" fill="white"/>
+      <path d="M72 19L73 21L75 22L73 23L72 25L71 23L69 22L71 21z" fill="white" opacity="0.9"/>
+      <path d="M28 67.5L28.833333333333332 69.16666666666667L30.5 70L28.833333333333332 70.83333333333333L28 72.5L27.166666666666668 70.83333333333333L25.5 70L27.166666666666668 69.16666666666667z" fill="white" opacity="0.9"/>
+    </svg>

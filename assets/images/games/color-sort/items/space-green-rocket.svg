@@ -1,0 +1,34 @@
+<svg viewBox="0 0 100 100">
+      <!-- flame trail glow -->
+      <ellipse cx="50" cy="92" rx="14" ry="3" fill="#c66a18" opacity="0.2"/>
+      <!-- exhaust flame -->
+      <path d="M40 78h20l-3 8h-14z" fill="#f08a2c" stroke="#c66a18" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M43 84h14l-2 8h-10z" fill="#f4c83b"/>
+      <path d="M46 88h8l-1 6h-6z" fill="white" opacity="0.9"/>
+      <!-- left fin -->
+      <path d="M34 60L20 78l2 4h12z" fill="#2f8541" stroke="#2f8541" stroke-width="2" stroke-linejoin="round"/>
+      <!-- right fin -->
+      <path d="M66 60l14 18-2 4H66z" fill="#2f8541" stroke="#2f8541" stroke-width="2" stroke-linejoin="round"/>
+      <!-- body -->
+      <path d="M50 6c10 6 16 22 16 38v34H34V44c0-16 6-32 16-38z"
+            fill="#4aaf5a" stroke="#2f8541" stroke-width="3" stroke-linejoin="round"/>
+      <!-- shading down left side -->
+      <path d="M50 6c-10 6-16 22-16 38v34l14-6V6z" fill="#2f8541" opacity="0.16"/>
+      <!-- highlight strip -->
+      <path d="M52 12c5 6 9 18 9 32v32" stroke="#88d796" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.65"/>
+      <!-- band -->
+      <rect x="34" y="58" width="32" height="5" fill="#2f8541" opacity="0.25"/>
+      <rect x="34" y="58" width="32" height="1.5" fill="#88d796" opacity="0.6"/>
+      <!-- bolts -->
+      <circle cx="38" cy="60.5" r="1" fill="#2f8541" opacity="0.55"/>
+      <circle cx="62" cy="60.5" r="1" fill="#2f8541" opacity="0.55"/>
+      <!-- window -->
+      <circle cx="50" cy="38" r="10" fill="#dfeeff" stroke="#2f8541" stroke-width="3"/>
+      <!-- window reflection bands -->
+      <path d="M42 36a10 10 0 0 1 12-4" stroke="white" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M44 44a10 10 0 0 0 10 2" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/>
+      <!-- inner shadow on right of window -->
+      <path d="M50 28a10 10 0 0 1 0 20" fill="none" stroke="#2f8541" stroke-width="3" opacity="0.18"/>
+      <path d="M20 18.5L21.166666666666668 20.833333333333332L23.5 22L21.166666666666668 23.166666666666668L20 25.5L18.833333333333332 23.166666666666668L16.5 22L18.833333333333332 20.833333333333332z" fill="white" opacity="0.9"/>
+      <path d="M82 29L83 31L85 32L83 33L82 35L81 33L79 32L81 31z" fill="white" opacity="0.9"/>
+    </svg>

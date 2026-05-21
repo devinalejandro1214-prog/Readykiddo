@@ -1,0 +1,32 @@
+<svg viewBox="0 0 100 100">
+      <!-- back shadow -->
+      <path d="M50 12c14 4 24 6 34 6 0 28-4 54-34 70-30-16-34-42-34-70 10 0 20-2 34-6z"
+            fill="#c66a18" opacity="0.2" transform="translate(2 2)"/>
+      <!-- shield body -->
+      <path d="M50 10c14 4 24 6 34 6 0 28-4 54-34 70-30-16-34-42-34-70 10 0 20-2 34-6z"
+            fill="#f08a2c" stroke="#c66a18" stroke-width="3" stroke-linejoin="round"/>
+      <!-- left half darker -->
+      <path d="M50 10c-14 4-24 6-34 6 0 28 4 54 34 70z"
+            fill="#ffc080" opacity="0.45"/>
+      <!-- right half deeper -->
+      <path d="M50 10c14 4 24 6 34 6 0 28-4 54-34 70z"
+            fill="#c66a18" opacity="0.15"/>
+      <!-- inner bevel -->
+      <path d="M50 20c10 2 18 4 26 4 0 22-4 42-26 56-22-14-26-34-26-56 8 0 16-2 26-4z"
+            fill="none" stroke="#ffc080" stroke-width="2" opacity="0.7"/>
+      <!-- diagonal banner stripe -->
+      <path d="M22 24l52 52" stroke="#ffc080" stroke-width="6" stroke-linecap="round" opacity="0.35"/>
+      <!-- central star emblem -->
+      <path d="M50 28l4 10 11 1-8 7 3 11-10-6-10 6 3-11-8-7 11-1z"
+            fill="#c8a000" stroke="#c66a18" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M50 32l3 7 7 1-5 5 2 7-7-4-7 4 2-7-5-5 7-1z"
+            fill="#f4c83b" opacity="0.7"/>
+      <!-- bottom point shadow -->
+      <path d="M30 70q20 18 40 0q-10 12-20 16q-10-4-20-16z" fill="#c66a18" opacity="0.2"/>
+      <!-- rivets -->
+      <circle cx="20" cy="22" r="2" fill="#c66a18" opacity="1"/>
+      <circle cx="80" cy="22" r="2" fill="#c66a18" opacity="1"/>
+      <circle cx="20" cy="22" r="0.8" fill="white" opacity="0.9"/>
+      <circle cx="80" cy="22" r="0.8" fill="white" opacity="0.9"/>
+      <path d="M76 33L77 35L79 36L77 37L76 39L75 37L73 36L75 35z" fill="white" opacity="0.9"/>
+    </svg>

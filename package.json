@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "dev": "npx serve . -l 5500",
     "test": "node scripts/validate-static.js",
     "test:js": "node scripts/validate-static.js",
     "build": "npm test"

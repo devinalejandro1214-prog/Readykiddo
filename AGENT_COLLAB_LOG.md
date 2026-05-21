@@ -1,5 +1,152 @@
 # ReadyKiddo Agent Collaboration Log
 
+---
+
+## 2026-05-20 — Full Site Bug Test + session-manager PHASE_CHECKPOINTS Fix (Claude Code)
+
+### Author Request
+"Run a full bug test of the website. We need to know every path works and there isn't any glitches on the page. Every character every path every world every game."
+
+### Actions Taken
+
+**session-manager.js** — PHASE_CHECKPOINTS['pattern-next'] updated
+- Old entry had `afterItem:1` only (calibrated for the old 2-round game).
+- Updated for the 8-round unified game: added `{ phaseIdx: 3, afterItem: 6 }` → "Almost There" badge fires with 2 rounds left.
+- New arc: Warm Up → Explore (round 1 done) → Almost There (round 6 done, badge only) → Celebration.
+
+### Full Bug Test Results
+
+**Games tested (all at localhost:3000):**
+
+| Game | Status | Notes |
+|---|---|---|
+| color-sort | ✅ PASS | 6 items, 6 zones, drag mechanic, badge, instruction text |
+| shape-recognition | ✅ PASS | 7 SVGs, shape choices/outline/stage, badge |
+| space-defender | ✅ PASS | Ship, play-area, lives/score counters, badge |
+| feed-alien | ✅ PASS | Alien rendered, 2 baskets, counter "0/2", instruction text |
+| number-line | ✅ PASS | nl-layout, tiles, track, bubble slots, badge |
+| feed-by-sound | ✅ PASS | Alien, fbs-sound-badge, tray, items |
+| abc-match | ✅ PASS | Letter chip = `<img>` (256px loaded), 4 tiles, "Round 1 of 11" |
+| pattern-next | ✅ PASS | 8 dots, 3 answers, lq-v3+lq-v3--top, 28 particles, all themes |
+| coming-soon-1 | ✅ PASS | Graceful redirect to world-reveal |
+| space-pattern | ✅ PASS | Graceful redirect to world-reveal (deprecated, isActive:false) |
+
+**Game routing chain — all correct:**
+color-sort → shape-recognition → space-defender → feed-alien → number-line → feed-by-sound → abc-match → pattern-next → world-reveal
+
+**World themes (pattern-next):**
+- space ✅ — star/planet/rocket items, ✦ particles
+- candy-land ✅ — lollipop/cupcake/candycane items, ♥ particles
+- jungle ✅ — fruit/leaf/flower (ITEM_GENERATORS confirmed)
+- beach ✅ — starfish/shell/beachball (ITEM_GENERATORS confirmed)
+- castle ✅ — gem/shield/crown (ITEM_GENERATORS confirmed)
+- studio ✅ — paintblob/brush/note (ITEM_GENERATORS confirmed)
+
+**Asset inventory:**
+- Characters: 36/36 ✅ — all 6 chars (amelia/aria/emmett/mica/steven/trish) × 6 styles (artist/explorer/hero/plain/scientist/wizard)
+- Backgrounds: 30/30 ✅ — 6 worlds × 5 vibes (brave/cozy/exciting/magical/silly)
+
+**Edge cases:**
+- Empty localStorage profile → shell auto-creates with space/mica/plain defaults, game runs normally ✅
+- SessionMgr._busy after transition → resolves correctly, no deadlock (fix from previous session confirmed in live gameplay) ✅
+
+**Pages:**
+- onboarding.html ✅ — all 6 characters shown, 5 inputs, Next button, no JS errors
+- world-reveal ✅ — renders with world greeting, no errors
+
+### Issues Found
+
+**🟡 Minor — Audio filename encoding (cosmetic, not functional):**
+- File on disk: `assets/audio/voice/Amara-Itâ€™s okay, try again!.m4a`
+- Map entry in audio-manager.js line 299 uses same corrupted string.
+- Since both sides match, audio **plays correctly** — this is purely cosmetic.
+- Root cause: UTF-8 curly apostrophe `'` (U+2019) was stored/read as Latin-1 → `â€™`.
+- Fix when convenient: rename file to `Amara-It's okay, try again!.m4a` and update audio-manager.js map key to match.
+
+### Remaining Gaps
+- The lq-v3 question-panel `rgba(6,18,44,0.70)` BG is still hardcoded (space-dark for all themes). Low priority — world background image provides the theme feel.
+- Demo URLs with `?variation=` param no longer work (param removed in v2.0). Any saved QA links should be updated to `?game=pattern-next`.
+
+### GitHub / Netlify
+Local only. Not pushed. Changes in this session: `session-manager.js` only.
+
+---
+
+## 2026-05-19 — Pattern Quest v2 Unification (Claude Code)
+
+### Author Request
+Refine the new pattern game direction so it feels like one smooth learning experience, preserves the real game chain, and is truly world-aware for the child.
+
+Specifically:
+1. Merge the 2 warm-up rounds and 6 item pattern rounds into one coherent game flow — no double celebration, no fragmented arc.
+2. Restore correct overall game routing — shape-recognition was regressed to route back to coming-soon-1 or color-sort; fix forward progression.
+3. Make the pattern game world-aware for ALL 6 active ReadyKiddo worlds, not just Space and Jungle.
+4. Keep the reusable lq-* learning-screen system but align content with the world system.
+5. Keep the child experience smooth — no overlapping audio, no duplicate celebrations.
+
+### Actions Taken
+
+**pattern-next-game.js** — complete rewrite (v2.0)
+- Merged former pattern-next (2 warm-up emoji rounds) and space-pattern (6 item pattern rounds) into one unified 8-round class.
+- 2 intro rounds: 3-item sequences [A,B,A] and [B,A,B] — lower cognitive load, establishes tap mechanic. Fixed answer correctness (A,B,A → next is B; B,A,B → next is A).
+- 6 main rounds: 4-item sequences covering all item-pair combinations (AB, BC, AC, CB, BA, CA) — identical logic to the former space-pattern-game.js rounds.
+- ONE saveSession + randomEncouragement + showCelebration at the end only. No mid-session celebration between intro and main rounds.
+- World-aware: resolves theme via THEME_MAP { space, candy-land, jungle, forest→jungle, beach, castle, studio }.
+- World items: calls getWorldItems(worldSlug) from item-data.js; uses ITEM_GENERATORS for inline SVG rendering.
+- World particle decorations: 28 floating glyph particles generated per render, world-specific (_PQ_WORLD_PARTICLES map).
+- Layout: lq-v3 (immersive glassmorphic) with new lq-v3--top modifier for topstrip.
+- Topstrip: absolute-positioned top bar containing 8 progress dots + hint button — visible throughout the entire session without competing with the panels.
+- character management: hides #gameCharacter on startGame(), restores in _end(). Same pattern as all other games.
+- saveSession and onContinue both use the same nextGameType (pattern-next → world-reveal). No drift.
+- Removed: URL variation param, URL theme override, emoji sequence items, all references to coming-soon pattern.
+
+**adventure-screen.css** — appended new section
+- .lq-particles / .lq-particle / @keyframes lqParticleFloat — world particle decoration layer (z-index 0, pointer-events none).
+- .lq-topstrip — absolute top bar (progress + hint), backdrop-filter blur, z-index 3.
+- .lq-topstrip .lq-progress — flex:1, justified center, gap 5px.
+- .lq-topstrip .lq-dot — 9px diameter (vs 11px base) so 8 dots fit comfortably on narrow phones.
+- .lq-v3.lq-v3--top { padding-top: 54px } — clears content below the topstrip.
+- NEW WORLD THEMES: candy-land (pink/rose), beach (teal/coral), castle (purple/gold), studio (orange/sky-blue). Each adds themed tile BG, blank border color, answer card BG, hover tint, prompt color, hint-btn color, and v3 dot colors.
+
+**game-registry.js** — three targeted edits
+- shape-recognition routing: removed regressed logic (was branching to coming-soon-1 or color-sort); now always returns 'space-defender' — correct forward progression.
+- pattern-next routing: changed from 'space-pattern' to 'world-reveal' — Pattern Quest is now the final game.
+- space-pattern: marked isActive: false; description updated to "Deprecated — merged into Pattern Quest (pattern-next) v2.0." File preserved, not deleted.
+
+**space-pattern-game.js** — NOT modified. File kept as-is for Codex audit reference. Deprecated via registry only.
+
+### Final Game Chain (restored)
+Color Sort → Shape Recognition → Space Defender → Feed the Alien →
+Number Line → Feed by Sound → ABC Match → Pattern Quest → World Reveal
+
+### Primary Pattern-Game File
+`assets/js/games/pattern-next-game.js` (PatternNextGame v2.0)
+
+### Deprecated / Merged
+`assets/js/games/space-pattern-game.js` (SpacePatternGame) — registry isActive: false.
+Content absorbed into PatternNextGame v2.0 (6 main rounds).
+
+### Validation Checklist
+- [ ] Phone first: 8 dots fit in topstrip at 360px width (9px dots × 8 + 5px gap × 7 = 107px; hint ~76px; padding 28px → ~211px of 360 ✓)
+- [ ] Tablet second: sequence tiles at clamp(58px–88px) with 4 items + blank = ~5 tiles; fits 500px+ without wrap ✓
+- [ ] Desktop third: max-width 560px panels centre on widescreen ✓
+- [ ] One session arc: no showCelebration until _end() at round 8 ✓
+- [ ] No route regression: shape-recognition → space-defender ✓; pattern-next → world-reveal ✓
+- [ ] World themes: space ✓ candy-land ✓ jungle ✓ beach ✓ castle ✓ studio ✓
+- [ ] saveSession + onContinue use same nextGameType ✓
+- [ ] Audio: randomEncouragement fires once per correct answer; only in _correctResponse and _end (no double-fire) ✓
+- [ ] No duplicate celebration: showCelebration called once only ✓
+
+### Remaining UX Gaps Before Codex Audit
+- Session-manager.js PHASE_CHECKPOINTS for pattern-next was set for 6 rounds (afterItem 2, afterItem 5). Now the game has 8 rounds. The checkpoint triggers should be reviewed — afterItem 2 still makes sense (end of intro), afterItem 5 could become afterItem 6 (halfway through main rounds). Recommend Codex verify session-manager.js PHASE_CHECKPOINTS['pattern-next'].
+- The lq-v3 question-panel has `background: rgba(6, 18, 44, 0.70)` hardcoded. For candy-land/beach/castle/studio this panel will still look space-dark. A follow-up could theme the panel BG per world. Low priority — background image from GameShell sets the world feel; panel just needs to be readable.
+- Demo URLs for variation param no longer work (variation param removed). If there are any QA links that use ?variation=1/2/3, they should be updated to just ?game=pattern-next.
+
+### GitHub / Netlify
+Local only. Not pushed. Codex to verify, commit, and push when ready.
+
+---
+
 This file is the shared handoff space for Codex and Claude Code.
 
 ## Agreed Roles
@@ -2580,3 +2727,380 @@ Notes / Next Steps:
 - Space Defender audio summary after fix: `speak('ready for action')` on start screen, `speak('aww man')` on game-over, `speak('cleared all 5 levels')` on win, `randomEncouragement()` on enemy kill (same as other games).
 - Onboarding character click intentionally kept silent per user preference — recorded welcome clip belongs only on world-reveal.
 - Codex: no asset changes needed for this session. All audio files referenced already exist on disk.
+
+## 2026-05-17 — Claude Code
+
+Prompt:
+> Design and implement a session-mode UX layer for ReadyKiddo. Phase arc (Warm Up → Explore → Challenge → Almost There), phase transition overlays, child-facing celebration screen, themed start card ("Today's Adventure" + topic icon/name/subline), parent summary stays behind the scenes in saveSession only. Mobile-first, no UI clutter, reuse existing systems. Then: Fix the P1 welcome-audio cut-off bug (pointerdown approach could cut clip mid-play). Also update AGENT_COLLAB_LOG in the new format.
+
+Actions Taken:
+- Created `session-manager.js` — IIFE singleton (`window.SessionMgr`). Defines `SESSION_TOPICS` map (7 game types → name/icon/subline) and `PHASES` array (4 phases; only Explore + Challenge show full overlays). `SessionManager` class provides: `getTopic()`, `init()`, `injectBadge()`, `reportProgress()`, `showCelebration()`, `_updateBadge()`, `_showTransition()`, `_sparklesHTML()`.
+- Created `session-manager.css` — all styles scoped to `.sm-*`. Phase badge (`.sm-badge`) fixed top-right below mute button; 4 colour variants + `smBadgePop` animation. Phase transition overlay (`.sm-transition`) with blur backdrop and spring slide-in/out. Celebration card (`.sm-celebration`) with dark gradient, 16 CSS sparkle dots (CSS `--i` custom property), star row (emoji via `::before` content), animated "Keep Going" button. Mobile breakpoints for `max-width: 480px` and landscape-phone `max-height: 580px`.
+- `game-loader.html` — added `<link rel="stylesheet" href="assets/css/session-manager.css">` in `<head>` and `<script src="assets/js/games/session-manager.js"></script>` immediately before `game-shell.js`.
+- `game-shell.js` — added `reportProgress` and `showCelebration` delegates to `createGameContext()`; added `async reportProgress(current, total)` and `async showCelebration(opts)` methods that proxy to `window.SessionMgr`; rewrote `requireInteraction()` start card to show "Today's Adventure" pill badge, large topic icon, topic name, and subline (from `SessionMgr.getTopic()`); click handler now calls `SessionMgr.init(gameType)` + `SessionMgr.injectBadge(document.body)` before `resolve()`.
+- `color-sort-game.js` — success `setTimeout` converted to `async`, adds `await this.context.reportProgress(...)` before releasing `this.busy`; `end()` now calls `characterAnimation('celebrate')` + `randomEncouragement()` + `await context.showCelebration({ accuracy, onContinue })` instead of `showEndScreen()`. Old `showEndScreen()` method remains but is no longer called.
+- `shape-recognition-game.js` — same pattern: async success timeout with `reportProgress`; `end()` replaced with `showCelebration`. `onContinue` navigates to `space-defender`.
+- P1 fix (welcome audio cut-off): Replaced `pointerdown` deferral approach in `world-reveal.html` with `_rkWelcomePending` flag. `startGameWithWelcome()` in `world-reveal.js` now calls `speakAndWait('welcome')` before navigating if flag is set; navigation delay reduced from 900 ms to 300 ms since `speakAndWait` handles timing.
+- AGENT_COLLAB_LOG: Two prior entries appended (P1/P2 assessment session; bug fixes session). This entry appended now.
+
+Files/Folders Changed:
+- `assets/js/games/session-manager.js` (NEW)
+- `assets/css/session-manager.css` (NEW)
+- `game-loader.html` (added CSS link + JS script tag)
+- `assets/js/games/game-shell.js` (context delegates, two new methods, requireInteraction rewrite)
+- `assets/js/games/color-sort-game.js` (async reportProgress in handleDrop; showCelebration in end)
+- `assets/js/games/shape-recognition-game.js` (same pattern as color-sort)
+- `world-reveal.html` (P1 fix — _rkWelcomePending flag)
+- `assets/js/world-reveal.js` (P1 fix — speakAndWait before navigation)
+- `AGENT_COLLAB_LOG.md` (this entry)
+
+GitHub/Netlify:
+- Local only. Not pushed. Codex to verify, commit, and push when ready.
+
+Notes / Next Steps:
+- Phase arcs fire at 30% (Explore) and 65% (Challenge) of total correct items. "Almost There" badge-only (no overlay) at 90%. Celebration fires after all items complete.
+- `showEndScreen()` still exists in color-sort and shape-recognition but is dead code — safe to remove in a future cleanup pass.
+- Other games (space-defender, feed-alien, number-line, feed-by-sound, abc-match) do NOT call `reportProgress` or `showCelebration` — they keep their existing end screens. No regressions expected.
+- Codex: no new image/audio assets needed. All clip keys and image paths already exist.
+
+## 2026-05-17 — Claude Code
+
+Prompt:
+> Refine the session workflow based on audit feedback. Replace percentage-based phase triggers with designed checkpoints. Keep session-manager foundation, start-card concept, celebration concept. Fix next-step routing consistency. Remove dead showEndScreen paths. Validate UX flow across phone / tablet / desktop. Do not push automatically.
+
+Actions Taken:
+- **Checkpoint-based phases (session-manager.js)**: Removed `threshold` fields from PHASES. Added `PHASE_CHECKPOINTS` table — a per-game-type array of `{ phaseIdx, afterItem }` objects that fire at specific correct-item counts, not raw percentages. Both color-sort and shape-recognition use identical checkpoints aligned to their shared 12-item, 2-round structure: afterItem 3 → Explore (mid Round 1), afterItem 6 → Challenge (Round 1 complete / Round 2 about to begin), afterItem 10 → Almost There (badge only, 2 items left). Unknown game types return early — no phase advances, no regressions to other games.
+- **Resume safety**: `reportProgress` uses `Math.max` across all matching checkpoints so a resumed session jumps directly to the highest applicable phase in one step (no stacked overlays).
+- **Audio collision fix (session-manager.js)**: Set `audioKey: null` on Explore and Challenge phases. Both transitions fire 500 ms after `randomEncouragement()` already played on the same correct match — a second clip at that delay was a near-certain audio collision. The overlay visual (large emoji + spring animation + character animation) is engaging without audio.
+- **Routing consistency (shape-recognition-game.js)**: Fixed `nextGameRecommendation: 'color-sort'` → `'space-defender'` to match the `onContinue` callback. Now both the parent-data path and the child-facing path agree on the next game.
+- **Dead code removed (color-sort-game.js, shape-recognition-game.js)**: Deleted `showEndScreen()` / `showEndScreen()` methods entirely. Neither game calls them — the celebration screen replaced both.
+
+UX Flow Validation (traced manually — code logic review):
+- **Phone first (375 px)**: Celebration card `min(420px, 90vw)` → 337 px. Stars `clamp(30px, 10vw, 44px)` → 37.5 px × 3 + gaps = ~125 px row. Card height ~380 px on 667 px phone → 57% of viewport. ✓ Clean.
+- **Landscape phone (max-height 580 px)**: CSS breakpoint already reduces padding, icon, title, star, and button sizes. No scroll needed. ✓
+- **Tablet / desktop**: Card caps at 420 px wide. Celebration and transitions are centred `position: fixed`. Badge sits `top: 52px; right: 12px` — below the mute button's 44 px + 8 px gap. No overlap. ✓
+- **Phase transition timing**: Explore fires after item 3 (mid Round 1) — child has mastered the drag mechanic. Challenge fires after item 6 (end of Round 1) — overlay completes, THEN `beginRound()` kicks off Round 2. The transition serves as a natural round-break gate. Almost There at item 10 is badge-only — no interruption during the final sprint. ✓
+- **No mid-action overlay**: `_busy` guard on SessionMgr + game-level `this.busy = true` both held during transitions. No new drops accepted while overlay is shown. ✓
+- **Celebration → Continue routing**: color-sort → shape-recognition ✓, shape-recognition → space-defender ✓ (both `saveSession` and `onContinue` now agree).
+- **Star floor**: `Math.max(1, ...)` — child always sees at least 1 star. Intentionally warm. ✓
+
+Files/Folders Changed:
+- `assets/js/games/session-manager.js` (PHASES: removed threshold fields + audioKey on overlaid phases; replaced reportProgress logic with PHASE_CHECKPOINTS table)
+- `assets/js/games/color-sort-game.js` (removed dead showEndScreen method)
+- `assets/js/games/shape-recognition-game.js` (removed dead showEndScreen method; fixed nextGameRecommendation to 'space-defender')
+- `AGENT_COLLAB_LOG.md` (this entry)
+
+GitHub/Netlify:
+- Local only. Not pushed. Codex to verify, commit, and push when ready.
+
+Notes / Next Steps:
+- **Remaining UX gap — resume + phase badge**: When a saved game is resumed at e.g. item 8, the first correct answer triggers one Challenge overlay (the highest uncleared checkpoint). This is acceptable but not ideal. A future `syncPhase(itemsShown)` public method on SessionMgr could silently advance the badge to the correct phase immediately after restoreProgress() without showing any overlay.
+- **Other games not yet integrated**: space-defender, feed-alien, number-line, feed-by-sound, abc-match all use their own `_showEndScreen` / `showEndScreen` — untouched, zero regressions. When integrating a new game: (1) add its entry to `PHASE_CHECKPOINTS` in session-manager.js, (2) make its success timeout async + call `reportProgress`, (3) replace its `showEndScreen` call in `end()` with `showCelebration`.
+- **Codex**: no asset or file-structure changes in this session. All referenced clip keys exist. No push needed from Claude side.
+
+## 2026-05-17 — Claude Code
+
+Prompt:
+> Continue the session workflow rollout carefully from the refined checkpoint-based version. (1) Validate/refine the Explore checkpoint at afterItem 3 for color-sort and shape-recognition. (2) Add silent resume-phase syncing so stale overlays do not re-fire on resume. (3) Expand the session system to ONE additional game only — pick the best fit. (4) Wire that game with intentional checkpoints, reportProgress, showCelebration. (5) Keep all other games untouched. Validate UX flow phone-first. Update AGENT_COLLAB_LOG. Do not push.
+
+Actions Taken:
+
+**Explore checkpoint validated — stays at afterItem 3:**
+Reviewed afterItem 3 vs 4 vs 5 for both games. Item 3 is the exact midpoint of Round 1 (3/6). At this point the child has consistently demonstrated the drag mechanic. Three items remain in Round 1 after the overlay, giving the Explore phase room to breathe before Challenge (at item 6). Moving to 4 would compress the space; 5 would be too late. Item 3 confirmed intentional. No code change needed.
+
+**Silent resume sync added (session-manager.js, game-shell.js):**
+Added `syncPhase(itemsShown)` public method to SessionMgr. Iterates PHASE_CHECKPOINTS for the current game type, finds the highest checkpoint already surpassed by itemsShown, silently advances `_phaseIdx` and calls `_updateBadge()`. No overlay fires. Added `syncPhase` delegate to `createGameContext()` and `GameShell.syncPhase()` method in game-shell.js.
+
+**Resume sync wired in opted-in games (color-sort-game.js, shape-recognition-game.js):**
+After `this.restoreProgress(saved)`, added `this.context.syncPhase(this.itemsShown)`. Badge now reflects the correct phase immediately on resume without stale overlays.
+
+**Next game chosen: abc-match:**
+Why abc-match over the alternatives:
+- 11 identical rounds (letter chip → tap the matching picture). Linear, one-correct-answer-per-round. Cleanest structure of the four candidates.
+- No save/resume complexity. No structural difficulty shift (unlike color-sort). No audio-dependency risk (unlike feed-by-sound which requires clear listening conditions). No gap-count ambiguity (unlike number-line with 1-3 gaps per round).
+- Checkpoints map naturally: afterItem 3 (mechanic established), afterItem 6 (midgame), afterItem 9 (2 rounds left).
+- feed-alien rejected: only 6 rounds → compressed checkpoints (2, 4, 5), and the 1400ms round transition adds to overlay delay making the pacing feel heavy.
+- number-line rejected: progress tracked by gap fills (not round completes), round 0 has 1 gap, others 2-3 — no clean afterItem boundary.
+- feed-by-sound rejected: audio-listening game; character animations and phase overlays fire on top of listening mechanics — collision risk.
+
+**abc-match wired (abc-match-game.js):**
+- `_completeRound` made async. After `currentRound++`, calls `await this.context.reportProgress(this.currentRound, this.rounds.length)`. Any phase overlay holds before `_beginRound()` is called — next letter appears only after overlay exits. `await this._end()` called when game complete.
+- `_end` made async. Computes `nextGameType` once (from `getNextGameRecommendation` or fallback 'world-reveal'). Uses same value for both `saveSession.nextGameRecommendation` (parent data) and `onContinue` callback (child button) — routing consistent.
+- `_showEndScreen` method removed entirely (dead code).
+- Session topic already defined in SESSION_TOPICS: `{ name: 'Letter Hunt', icon: '🔤', subline: 'Match each letter to the picture!' }`.
+
+**abc-match PHASE_CHECKPOINTS added (session-manager.js):**
+```
+{ phaseIdx: 1, afterItem: 3 }   // Explore: child has the tap mechanic (3/11)
+{ phaseIdx: 2, afterItem: 6 }   // Challenge: midgame, still going strong (6/11)
+{ phaseIdx: 3, afterItem: 9 }   // Almost There: 2 rounds left (9/11)
+```
+
+UX Flow Validation (logic trace):
+- **Phone first (375 px)**: abc-match chip fly animation is 380ms. After that, 600ms delay, then `_completeRound()` → reportProgress overlay (1.87s) → next letter. Total between letters at phase checkpoint: ~2.85s. Acceptable and natural on mobile — longer than a blink, shorter than a yawn. Badge at top-right 52px below mute button, `pointer-events: none`. ✓
+- **Tablet / desktop**: Same phase logic. Card and badge sizing unchanged from prior session. ✓
+- **Resume path**: `syncPhase(itemsShown)` fires immediately after restoreProgress, before any round starts. Badge shows correct phase instantly. First correct answer only triggers NEW phase advances. No stale overlays. ✓
+- **Audio**: `randomEncouragement()` fires on correct tap (inside `_correctResponse`). `_completeRound` fires ~980ms later (chip fly + delay). `reportProgress` overlay appears after that. No concurrent audio since randomEncouragement and phase overlay are separated by ~980ms — encouragement clip typically 0.5-1.5s, usually complete before overlay. ✓
+- **Celebration routing**: `nextGameType` computed once, used in both `saveSession` and `onContinue`. No split-path routing. ✓
+- **No overlapping overlays**: SessionMgr `_busy` flag prevents re-entrant transitions. `_locked = true` in abc-match after correct tap prevents any tile input during overlay. ✓
+
+Files/Folders Changed:
+- `assets/js/games/session-manager.js` (added syncPhase method; added abc-match to PHASE_CHECKPOINTS)
+- `assets/js/games/game-shell.js` (added syncPhase to context + class method)
+- `assets/js/games/color-sort-game.js` (syncPhase call after restoreProgress)
+- `assets/js/games/shape-recognition-game.js` (syncPhase call after restoreProgress)
+- `assets/js/games/abc-match-game.js` (_completeRound async + reportProgress; _end async + showCelebration; removed _showEndScreen)
+- `AGENT_COLLAB_LOG.md` (this entry)
+
+GitHub/Netlify:
+- Local only. Not pushed. Codex to verify, commit, and push when ready.
+
+Notes / Next Steps:
+- Opted-in games now: color-sort, shape-recognition, abc-match (3 of 7).
+- Remaining: space-defender, feed-alien, number-line, feed-by-sound — untouched, zero regressions.
+- feed-by-sound is the most complex remaining candidate (audio-dependent game; phase overlays need careful timing so they do not interfere with audio playback mid-prompt). Recommend validating abc-match in production before expanding further.
+- feed-alien is next easiest after abc-match (6 rounds, clear end state). But compressed checkpoints (afterItem 2, 4, 5) — validate pacing by watching the game live before wiring.
+- Resume sync works for color-sort and shape-recognition. abc-match has no save/load, so no sync needed.
+- Codex: no asset or routing changes. All clip keys and image paths already exist.
+
+## 2026-05-17 — Claude Code
+
+Prompt:
+> Polish pass on the 3 integrated games (color-sort, shape-recognition, abc-match). No large redesign, no new games. Make the session experience feel premium, intentional, smooth, and emotionally right on mobile first. Focus: phase timing, transition feel, celebration quality, cross-game consistency, mobile-first polish. Keep future audio layering in mind. Do not push.
+
+Actions Taken:
+
+**abc-match: Challenge checkpoint removed**
+There is no structural mechanic shift at item 6 in abc-match — all 11 rounds are identical. A "Challenge" overlay at the midpoint is a pacing lie. Arc refined to: Warm Up → Explore (afterItem 3, mechanic established) → Almost There (afterItem 9, badge only). `{ phaseIdx: 2, afterItem: 6 }` removed from PHASE_CHECKPOINTS. Comment updated to explain the reasoning. Color-sort and shape-recognition Challenge checkpoints unchanged — they have a genuine Round 2 mechanic shift at item 6.
+
+**Phase transition timing tightened (session-manager.js)**
+Hold time: 1550 ms → 1100 ms. Exit wait: 320 ms → 260 ms. Total overlay duration: ~1870 ms → ~1360 ms (510 ms faster). Animation completes at ~640 ms; 460 ms of peak stillness follows — enough to read the label and feel the moment without feeling paused. Exit overlay `transition` also tightened to 0.22 s (inner card, backdrop).
+
+**Transition overlay lightened (session-manager.css)**
+Backdrop opacity: 0.80 → 0.72. Blur: 10px → 6px (removed `saturate(1.25)`). Feels like a lens flash rather than a hard stop — game remains partially readable behind overlay, reducing the sense of interruption.
+
+**Transition emoji larger (session-manager.css)**
+`clamp(56px, 16vw, 88px)` → `clamp(72px, 20vw, 108px)`. Bigger emoji means the moment hits harder in the shorter hold time. More visual impact per second.
+
+**Phantom characterAnimation calls removed (all 3 game files + session-manager.js)**
+The phase transition overlay has z-index 9100 and the celebration overlay has z-index 9200 — both fully cover the character at z-index 5. All `context.characterAnimation()` calls during transitions and celebration ends were invisible. Removed from: `_showTransition` (session-manager.js), `color-sort-game.js end()`, `shape-recognition-game.js end()`, `abc-match-game.js _end()`. Comments explain why for future developers. `phase.animation` field kept in PHASES for future extensibility (e.g. character avatar inside overlay).
+
+**Celebration title changed (session-manager.js)**
+"Adventure complete!" → "You did it!" — more direct, personal, emotionally landing. Aria-label updated to match.
+
+**Celebration card polish (session-manager.css)**
+- Card width: `min(420px, 90vw)` → `min(440px, 92vw)` — 2% more presence on mobile
+- Card entry: `translateY(38px) scale(0.92)` → `translateY(24px) scale(0.94)` — floats up rather than dropping in; spring curve overshoot increased from 1.56 to 1.72 for more energy
+- Icon pop: added 60% keyframe `scale(1.18) translateY(-6px)` — bounces past 1× then settles; more satisfying than linear in-to-final
+- Star delays tightened: 0.74/0.88/1.02 s → 0.62/0.76/0.90 s — stars appear sooner after card settles; star spring overshoot bumped to 1.64
+- Star glow: single drop-shadow → double drop-shadow for richer golden glow
+- Button: added `min-height: 48px` for iOS touch target compliance
+- Button FadeUp delay aligned to new star timing: 0.94 s → 1.02 s
+
+**Badge breathing gap (session-manager.css)**
+`top: 52px` → `top: 56px` (desktop/tablet). Adds 4 px gap between mute button bottom edge and badge top. Mobile: `top: 48px` → `top: 52px` for same visual separation.
+
+UX Flow Validation (logic trace):
+
+Phone first (375 px):
+- Transition overlay: emoji now 72 px on a 375 px screen (20vw = 75px, capped at 108px → 75px on phone). Card of 344px (92vw). Touch target 48px on button. Badge at 52px, safely below mute button. ✓
+- abc-match flow: items 1-3 warm up → item 3 → Explore overlay (1360ms) → items 4-9 in Explore → item 9 → Almost There badge (no overlay) → items 10-11 → celebration. Clean, no false Challenge interruption. ✓
+- color-sort/shape-recognition unchanged: Explore at 3, Challenge at 6 (between rounds = natural gate), Almost There at 10. ✓
+
+Tablet (768 px+):
+- Emoji: 20vw = 153px, capped to 108px. Card: 440px (narrower than viewport). Badge visible without overlap. ✓
+
+Desktop:
+- Emoji 108px max, card 440px max. All proportions good. ✓
+
+Cross-game consistency check:
+- All 3 games: same end() structure (saveSession → randomEncouragement → showCelebration). ✓
+- All 3 games: no characterAnimation in end(). ✓
+- All 3 games: routing consistent between saveSession.nextGameRecommendation and onContinue. ✓
+- Celebration screen identical (same CSS class, same JS template). ✓
+
+Audio:
+- Phase transitions: no audioKey on any phase. randomEncouragement fires at t=0 on correct match; transition fires 500ms+ later. Encouragement clip typically 0.5-1.5s — mostly complete before overlay starts. Safe window maintained.
+- Celebration: randomEncouragement fires, then overlay fades in over 380ms. Audio plays naturally underneath the fade-in — intentional and warm.
+- No new audio complexity added. Room for future sound design left open.
+
+Files/Folders Changed:
+- `assets/js/games/session-manager.js` (v1.1: abc-match checkpoints, hold/exit timing, characterAnimation removed, celebration title)
+- `assets/css/session-manager.css` (badge top, overlay blur/opacity, emoji size, exit transition, card entry spring, icon pop keyframe, star timing/glow, button touch target, card width)
+- `assets/js/games/color-sort-game.js` (removed characterAnimation from end)
+- `assets/js/games/shape-recognition-game.js` (removed characterAnimation from end)
+- `assets/js/games/abc-match-game.js` (removed characterAnimation from _end)
+- `AGENT_COLLAB_LOG.md` (this entry)
+
+GitHub/Netlify:
+- Local only. Not pushed. Codex to verify, commit, and push when ready.
+
+Notes / Next Steps:
+- Most improved: transition feel (510ms faster, lighter backdrop, bigger emoji = flash, not pause). Second most: celebration card (float-up entry, icon bounce, richer stars, "You did it!").
+- Remaining rough edge: characterAnimation system is not connected to the session layer in any visible way. Long-term, a character avatar could be embedded inside phase transition overlays (using context.characterPath) for stronger character presence. Not needed now.
+- Next game to integrate (per prior decision): feed-alien. But recommendation is to validate these 3 games on a real device first.
+- Codex: no asset changes. All files are CSS/JS only.
+
+---
+
+## 2026-05-17 — Claude Code
+
+Prompt:
+> Keep working, then lets make sure we clear everything.
+
+Actions Taken:
+
+**feed-alien integrated into session system**
+feed-alien is a 6-round counting game (drag food onto alien). Difficulty escalates within each round (more food items required), but there is no single structural "harder mode" boundary — so Challenge overlay would be misleading, same reasoning as abc-match. Arc: Warm Up → Explore (afterItem 2, drag-and-feed pattern established) → Almost There (afterItem 5, 1 round left; badge only).
+
+Changes in `feed-alien-game.js`:
+- `handleCorrect()` setTimeout callback made async; after `this.currentRound++`, calls `await this.context.reportProgress(this.currentRound, this.totalItems)`.
+- `end()` made async. `nextGameType` now computed once at top of method (was computed twice independently in `end()` + `showEndScreen()` — same routing-inconsistency bug found and fixed in shape-recognition earlier). `saveSession` receives `nextGameRecommendation: nextGameType` to match `onContinue`. Replaced `this.showEndScreen()` with `this.context.randomEncouragement()` + `await this.context.showCelebration({ accuracy, onContinue: () => this.context.goToNextGame(nextGameType) })`. Added explanatory comment about characterAnimation not being called (invisible behind z-index 9200 overlay).
+- `showEndScreen()` method deleted entirely.
+
+Changes in `session-manager.js`:
+- `PHASE_CHECKPOINTS` extended with `'feed-alien'` entry (afterItem 2 → Explore, afterItem 5 → Almost There).
+
+**Comprehensive cleanup audit — 4 opted-in games**
+grep audit across all game files confirmed:
+
+| Check | color-sort | shape-recognition | abc-match | feed-alien |
+|---|---|---|---|---|
+| `showEndScreen` deleted | ✓ | ✓ | ✓ | ✓ |
+| `characterAnimation` in end() removed | ✓ | ✓ | ✓ | ✓ |
+| `reportProgress` wired | ✓ | ✓ | ✓ | ✓ |
+| `showCelebration` wired | ✓ | ✓ | ✓ | ✓ |
+
+Non-opted-in games (feed-by-sound, number-line, space-defender) confirmed untouched — they still have their own showEndScreen and characterAnimation calls, which is correct.
+
+shape-recognition `characterAnimation('cheer')` on line 329 confirmed as mid-game correct-match response (no overlay visible at that point) — correct behavior, kept.
+
+`syncPhase` on color-sort (line 134) and shape-recognition (line 78) confirmed. abc-match and feed-alien have no save/load, so no sync needed.
+
+SESSION_TOPICS confirmed already contained `'feed-alien'` entry.
+
+UX Flow Validation — feed-alien (6 rounds):
+- Round 1 complete → Warm Up
+- Round 2 complete → afterItem 2 → Explore overlay fires (1360ms hold, then resumes)
+- Round 3, 4 complete → Explore badge
+- Round 5 complete → afterItem 5 → Almost There badge (no overlay)
+- Round 6 complete → end() → randomEncouragement → showCelebration → "You did it!" card
+Clean. No false Challenge. Phase arc matches the game's actual structure.
+
+Files/Folders Changed:
+- `assets/js/games/feed-alien-game.js` (handleCorrect async + reportProgress, end() async + routing fix, showEndScreen deleted)
+- `assets/js/games/session-manager.js` (PHASE_CHECKPOINTS: feed-alien entry added)
+- `AGENT_COLLAB_LOG.md` (this entry)
+
+GitHub/Netlify:
+- Local only. Not pushed. Codex to verify, commit, and push when ready.
+
+Notes / Next Steps:
+- 4 games are now fully integrated: color-sort, shape-recognition, abc-match, feed-alien.
+- Remaining unwired games: number-line, feed-by-sound, space-defender. Deferred — those need checkpoint design review first (number-line is gap-based, not item-count; feed-by-sound has audio overlap risk during transitions; space-defender has a wave/level system that maps differently to phases).
+- feed-alien had the same double-computation routing bug as shape-recognition. Both are now fixed. If Codex audits any remaining games for this pattern, watch for places where nextGameType or nextGameRecommendation is computed inside a showEndScreen() method separately from end() — that's the tell.
+- Codex: no asset or path changes in this prompt. All changes are JS only.
+
+
+---
+
+## 2026-05-18 -- Claude Code
+
+Prompt:
+> Author request: shift from session-shell polish into actual learning-screen design and session flow design. Design and implement the first true learning-game screen pattern for ReadyKiddo. Deliver 3 UI variations, theme adaptability (Space + Jungle), reusable system, real mechanic (what-comes-next pattern), reinforcement-ready design.
+
+Actions Taken:
+
+**New system: Adventure Learning Screen (.lq-* component)**
+Created a fully reusable active gameplay screen pattern. This is the actual in-game question screen -- not a landing card, badge, or overlay. Sits inside #gameArea, injected by the game class exactly like existing games.
+
+Core components:
+- .lq-sequence -- shows the pattern items + dashed blank slot
+- .lq-seq-item -- individual emoji tile (clamp-sized, backdrop-blur glass card)
+- .lq-seq-item--blank -- dashed ? placeholder for the missing item
+- .lq-answers -- 3-column grid of large tappable answer cards
+- .lq-answer -- answer card with hover lift, correct green flash, wrong shake animation
+- .lq-hint-btn -- soft pill button, dims after use (.lq-hint-btn--used)
+- .lq-progress -- progress dots (done/active/idle states)
+- .lq-char -- character container (renders character inside layout, not via game-shell overlay)
+- .lq-char-avatar -- small circular avatar for variation 2
+
+**Three layout variations (variation=1|2|3 via URL param)**
+
+Variation 1 -- Character Left / Question Centered / Progress Bottom
+- CSS grid: 28% character column | 1fr content column
+- Character spans all 3 rows (always full height); prompt + sequence + answers right column
+- Best for: tablet, landscape, character-guided sessions
+- Feeling: warm, guided, mentor-forward
+
+Variation 2 -- Tiny Char Top-Right / Large Sequence / Answers Bottom Row
+- Flex column; character shrinks to 52px circle avatar anchored top-right
+- Full-width sequence (larger items: clamp 70-104px), full-width answer grid below
+- Best for: phones in portrait; maximum question real estate
+- Feeling: focused, clear, clean -- recommended primary for mobile
+
+Variation 3 -- Immersive World-Integrated
+- Character absolute bottom-left, peeking up behind two glassmorphic floating panels
+- Panel 1: prompt + sequence + hint. Panel 2: answer cards
+- World background from game-shell shows fully -- child is inside their world
+- Progress dots use world-native colours (space: gold/purple; jungle: green/amber)
+- Best for: high-impact adventure moments and storytelling beats
+- Feeling: magical, immersive, fully world-aware
+
+**Two theme presets (lq-theme-space | lq-theme-jungle)**
+Theme auto-detected from context.worldSlug. URL param &theme=jungle overrides for demo.
+- Space: deep purple-blue glass tiles, lavender accent, white/purple dots in v3
+- Jungle: rich green glass tiles, sage accent, green/amber dots in v3
+World background image already set by game-shell; themes tint the interactive elements.
+
+**New game: PatternNextGame**
+Mechanic: 6 rounds of AB-pattern visual completion (what comes next?).
+- Shows 3 emoji pattern items + dashed ? blank
+- Child taps one of 3 shuffled answer cards
+- Correct: green flash + lock + randomEncouragement + 720ms pause + next round
+- Wrong: shake animation + try-again speak; card stays tappable, no score pressure
+- Hint: pulse sequence items + speak hint text + dim hint button (one use only)
+- Session wiring: reportProgress after each round, showCelebration at end
+- Routing: abc-match -> pattern-next -> world-reveal
+
+Game-shell character management:
+- PatternNextGame hides #gameCharacter on startGame(), restores in _end()
+- Reason: character is rendered inside the layout (var 1 left col, var 3 bottom-left)
+
+Demo URLs (server on :3000):
+  game-loader.html?game=pattern-next&variation=1
+  game-loader.html?game=pattern-next&variation=2
+  game-loader.html?game=pattern-next&variation=3
+  game-loader.html?game=pattern-next&variation=3&theme=jungle
+
+**Which variation is strongest for ReadyKiddo?**
+Variation 2 is the primary recommendation for phones -- clearest visual hierarchy, maximum
+sequence space, character still present without competing for vertical room.
+Variation 1 is the recommendation for tablets and desktop -- character relationship is stronger.
+Variation 3 is the recommendation for special/milestone moments, not every round.
+
+Files Created:
+- assets/css/adventure-screen.css (reusable .lq-* component system; 3 variations, 2 themes)
+- assets/js/games/pattern-next-game.js (PatternNextGame class; 6 AB-pattern rounds)
+
+Files Modified:
+- assets/js/games/game-registry.js
+  - Replaced coming-soon-2 with active pattern-next (class, scriptPath, cssPath, order 4)
+  - Added pattern-next to getNextGameRecommendation (abc-match -> pattern-next -> world-reveal)
+- assets/js/games/session-manager.js
+  - SESSION_TOPICS: added pattern-next (Pattern Quest, target emoji)
+  - PHASE_CHECKPOINTS: added pattern-next (afterItem 2 Explore, afterItem 5 Almost There)
+- AGENT_COLLAB_LOG.md (this entry)
+
+GitHub/Netlify:
+- Local only. Not pushed. Codex to verify, commit, and push when ready.
+
+Notes / Next Steps:
+- Try all 3 variations on a real device. Var 2 expected to be strongest on phone.
+- Var 3 could serve as the world-event screen for milestone rounds or phase transitions.
+- .lq-* CSS is independent of all existing game styles -- safe to extend without risk.
+- To apply this pattern across other games: adopt .lq-* component structure in each game
+  class _render(), set lq-theme-{world} from context.worldSlug, and drop in the hint/dots/
+  sequence/answer components. Mechanic rotation (pattern -> sort -> match) would need a
+  lightweight question-type dispatcher -- not yet built, but the component system is ready.
+- Codex: no asset or path changes in this prompt. All new files are CSS/JS only.

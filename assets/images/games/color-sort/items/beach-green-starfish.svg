@@ -1,0 +1,35 @@
+<svg viewBox="0 0 100 100">
+      <ellipse cx="50" cy="92" rx="30" ry="3" fill="#000" opacity="0.1"/>
+      <!-- chunky 5-point starfish -->
+      <path d="M50 8c4 0 6 4 8 14l3 16 16 4c10 2 14 4 14 8 0 5-4 7-12 12l-13 9 4 17c2 9 0 14-5 14-4 0-7-3-12-10L50 86l-3 6c-5 7-8 10-12 10-5 0-7-5-5-14l4-17-13-9c-8-5-12-7-12-12 0-4 4-6 14-8l16-4 3-16c2-10 4-14 8-14z"
+            fill="#4aaf5a" stroke="#2f8541" stroke-width="3" stroke-linejoin="round"/>
+      <!-- inner softer body -->
+      <path d="M50 18c2 0 3 3 5 11l3 12 11 3c6 1 9 2 9 5 0 3-3 5-9 9l-9 6 3 11c1 5 0 8-3 8-2 0-4-2-7-6L50 74l-3 3c-3 4-5 6-7 6-3 0-4-3-3-8l3-11-9-6c-6-4-9-6-9-9 0-3 3-4 9-5l11-3 3-12c2-8 3-11 5-11z"
+            fill="#88d796" opacity="0.6"/>
+      <!-- dot patterns -->
+      <circle cx="50" cy="30" r="1.6" fill="#2f8541" opacity="0.55"/>
+      <circle cx="28" cy="50" r="1.6" fill="#2f8541" opacity="0.55"/>
+      <circle cx="72" cy="50" r="1.6" fill="#2f8541" opacity="0.55"/>
+      <circle cx="36" cy="78" r="1.6" fill="#2f8541" opacity="0.55"/>
+      <circle cx="64" cy="78" r="1.6" fill="#2f8541" opacity="0.55"/>
+      <circle cx="50" cy="30" r="0.6" fill="white" opacity="1"/>
+      <circle cx="28" cy="50" r="0.6" fill="white" opacity="1"/>
+      <circle cx="72" cy="50" r="0.6" fill="white" opacity="1"/>
+      <circle cx="36" cy="78" r="0.6" fill="white" opacity="1"/>
+      <circle cx="64" cy="78" r="0.6" fill="white" opacity="1"/>
+      <!-- pebble texture -->
+      <circle cx="44" cy="44" r="1" fill="white" opacity="0.7"/>
+      <circle cx="58" cy="46" r="1" fill="white" opacity="0.7"/>
+      <circle cx="50" cy="56" r="1" fill="white" opacity="0.7"/>
+      <circle cx="42" cy="62" r="1" fill="white" opacity="0.7"/>
+      <circle cx="58" cy="62" r="1" fill="white" opacity="0.7"/>
+      <!-- face -->
+      
+    <circle cx="41" cy="54" r="3.6" fill="#a32424" opacity="0.38"/>
+    <circle cx="59" cy="54" r="3.6" fill="#a32424" opacity="0.38"/>
+    <ellipse cx="44" cy="49" rx="2.2" ry="2.64" fill="#2f8541"/>
+    <ellipse cx="56" cy="49" rx="2.2" ry="2.64" fill="#2f8541"/>
+    <circle cx="44.9" cy="48" r="0.8360000000000001" fill="white"/>
+    <circle cx="56.9" cy="48" r="0.8360000000000001" fill="white"/>
+    <path d="M46 55q4 4 8 0" stroke="#2f8541" stroke-width="2" fill="none" stroke-linecap="round"/>
+    </svg>

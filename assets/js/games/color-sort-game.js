@@ -4,75 +4,25 @@
    All 6 colors + all 6 containers shown at once both rounds
    ───────────────────────────────────────────────────────── */
 
-// World-aware PNG mappings for color learning targets.
-const COLOR_PNG_MAP = {
-  studio: {
-    red:    { item: 'paintblob', path: 'assets/images/games/color-sort/items/studio-red-paintblob.png' },
-    blue:   { item: 'brush',    path: 'assets/images/games/color-sort/items/studio-blue-brush.png' },
-    yellow: { item: 'note',     path: 'assets/images/games/color-sort/items/studio-yellow-note.png' },
-    orange: { item: 'paintblob',path: 'assets/images/games/color-sort/items/studio-orange-paintblob.png' },
-    green:  { item: 'brush',    path: 'assets/images/games/color-sort/items/studio-green-brush.png' },
-    purple: { item: 'note',     path: 'assets/images/games/color-sort/items/studio-purple-note.png' },
-  },
-  jungle: {
-    red:    { item: 'fruit',  path: 'assets/images/games/color-sort/items/jungle-red-fruit.png' },
-    blue:   { item: 'fruit',  path: 'assets/images/games/color-sort/items/jungle-blue-fruit.png' },
-    yellow: { item: 'flower', path: 'assets/images/games/color-sort/items/jungle-yellow-flower.png' },
-    orange: { item: 'leaf',   path: 'assets/images/games/color-sort/items/jungle-orange-leaf.png' },
-    green:  { item: 'leaf',   path: 'assets/images/games/color-sort/items/jungle-green-leaf.png' },
-    purple: { item: 'flower', path: 'assets/images/games/color-sort/items/jungle-purple-flower.png' },
-  },
-  'candy-land': {
-    red:    { item: 'cupcake',  path: 'assets/images/games/color-sort/items/candy-land-red-cupcake.png' },
-    blue:   { item: 'lollipop', path: 'assets/images/games/color-sort/items/candy-land-blue-lollipop.png' },
-    yellow: { item: 'gummy',    path: 'assets/images/games/color-sort/items/candy-land-yellow-gummy.png' },
-    orange: { item: 'lollipop', path: 'assets/images/games/color-sort/items/candy-land-orange-lollipop.png' },
-    green:  { item: 'gummy',    path: 'assets/images/games/color-sort/items/candy-land-green-gummy.png' },
-    purple: { item: 'cupcake',  path: 'assets/images/games/color-sort/items/candy-land-purple-cupcake.png' },
-  },
-  castle: {
-    red:    { item: 'crown',  path: 'assets/images/games/color-sort/items/castle-red-crown.png' },
-    blue:   { item: 'gem',    path: 'assets/images/games/color-sort/items/castle-blue-gem.png' },
-    yellow: { item: 'gem',    path: 'assets/images/games/color-sort/items/castle-yellow-gem.png' },
-    orange: { item: 'shield', path: 'assets/images/games/color-sort/items/castle-orange-shield.png' },
-    green:  { item: 'shield', path: 'assets/images/games/color-sort/items/castle-green-shield.png' },
-    purple: { item: 'crown',  path: 'assets/images/games/color-sort/items/castle-purple-crown.png' },
-  },
-  space: {
-    red:    { item: 'star',   path: null },
-    blue:   { item: 'planet', path: 'assets/images/games/color-sort/items/space-blue-planet.png' },
-    yellow: { item: 'star',   path: null },
-    orange: { item: 'star',   path: 'assets/images/games/color-sort/items/space-orange-star.png' },
-    green:  { item: 'rocket', path: 'assets/images/games/color-sort/items/space-green-rocket.png' },
-    purple: { item: 'planet', path: null },
-  },
-  beach: {
-    red:    { item: 'starfish',  path: null },
-    blue:   { item: 'shell',     path: null },
-    yellow: { item: 'beachball', path: null },
-    orange: { item: 'beachball', path: 'assets/images/games/color-sort/items/beach-orange-beachball.png' },
-    green:  { item: 'starfish',  path: 'assets/images/games/color-sort/items/beach-green-starfish.png' },
-    purple: { item: 'shell',     path: 'assets/images/games/color-sort/items/beach-purple-shell.png' },
-  }
+/* ── World-item mapping ─────────────────────────────────────
+   Each world maps each of the 6 colors to the item key that
+   should be shown in that color.  ITEM_GENERATORS[key](color)
+   from item-data.js produces the inline SVG on the fly —
+   no PNG files required.
+   ─────────────────────────────────────────────────────────── */
+const WORLD_COLOR_ITEMS = {
+  space:        { red:'star',      blue:'planet',   yellow:'star',      orange:'star',      green:'rocket',   purple:'planet'    },
+  'candy-land': { red:'cupcake',   blue:'lollipop', yellow:'gummy',     orange:'lollipop',  green:'gummy',    purple:'cupcake'   },
+  jungle:       { red:'fruit',     blue:'fruit',    yellow:'flower',    orange:'leaf',      green:'leaf',     purple:'flower'    },
+  beach:        { red:'starfish',  blue:'shell',    yellow:'beachball', orange:'beachball', green:'starfish', purple:'shell'     },
+  castle:       { red:'crown',     blue:'gem',      yellow:'gem',       orange:'shield',    green:'shield',   purple:'crown'     },
+  studio:       { red:'paintblob', blue:'brush',    yellow:'note',      orange:'paintblob', green:'brush',    purple:'note'      },
 };
 
 const ALL_COLORS = ['red', 'blue', 'yellow', 'orange', 'green', 'purple'];
 
-const IMAGE_PRELOAD_CACHE = new Map();
-
-function preloadImages(paths) {
-  paths.filter(Boolean).forEach(path => {
-    if (IMAGE_PRELOAD_CACHE.has(path)) return;
-    const img = new Image();
-    img.decoding = 'async';
-    img.loading = 'eager';
-    img.src = path;
-    IMAGE_PRELOAD_CACHE.set(path, img);
-  });
-}
-
-function getColorPNGTarget(worldSlug, color) {
-  return (COLOR_PNG_MAP[worldSlug] || {})[color] || null;
+function getWorldColorItem(worldSlug, color) {
+  return (WORLD_COLOR_ITEMS[worldSlug] || WORLD_COLOR_ITEMS.space)[color] || 'star';
 }
 
 function getColorHex(color) {
@@ -117,8 +67,6 @@ class ColorSortGame {
 
   async startGame() {
     this.render();
-    preloadImages(ALL_COLORS.map(c => getColorPNGTarget(this.worldSlug, c)?.path).filter(Boolean));
-
     const bgEl = document.getElementById('gameBackground');
     if (bgEl && this.context.backgroundPath) bgEl.src = this.context.backgroundPath;
     const charImg = document.getElementById('gameCharacterImg');
@@ -130,6 +78,8 @@ class ColorSortGame {
       const shouldResume = resumeRequested || await this.showResumePrompt(saved);
       if (shouldResume) {
         this.restoreProgress(saved);
+        // Advance badge silently to match saved position (no stale overlays)
+        this.context.syncPhase(this.itemsShown);
       } else {
         this.clearProgress();
       }
@@ -251,23 +201,12 @@ class ColorSortGame {
       item.dataset.color = color;
       item.style.setProperty('--item-color', getColorHex(color));
 
-      const pngTarget = getColorPNGTarget(this.worldSlug, color);
-      if (pngTarget?.path) {
-        const img = document.createElement('img');
-        img.src = pngTarget.path;
-        img.alt = `${color} item`;
-        img.decoding = 'async';
-        img.loading = 'eager';
-        img.fetchPriority = 'high';
-        img.style.width = '100%';
-        img.style.height = '100%';
-        img.style.objectFit = 'contain';
-        img.onerror = () => {
-          img.remove();
-          item.style.background = getColorHex(color);
-        };
-        item.appendChild(img);
+      // Render the world-specific kawaii SVG item for this color
+      const itemKey = getWorldColorItem(this.worldSlug, color);
+      if (typeof ITEM_GENERATORS !== 'undefined' && ITEM_GENERATORS[itemKey]) {
+        item.innerHTML = ITEM_GENERATORS[itemKey](color);
       } else {
+        // Fallback: plain colour background (no item-data.js loaded yet)
         item.style.background = getColorHex(color);
       }
 
@@ -401,7 +340,9 @@ class ColorSortGame {
       this.renderScore();
       this.renderProgress();
 
-      setTimeout(() => {
+      setTimeout(async () => {
+        // Report progress first — holds busy=true through any phase transition overlay
+        await this.context.reportProgress(this.itemsShown, this.totalItems);
         this.busy = false;
 
         if (this.itemsShown >= this.totalItems) {
@@ -464,34 +405,13 @@ class ColorSortGame {
       nextGameRecommendation: 'shape-recognition'
     });
 
-    await this.showEndScreen(accuracy);
-  }
-
-  async showEndScreen(accuracy) {
-    const gameArea = document.getElementById('gameArea');
-    const stars = Math.min(3, Math.round(accuracy * 3));
-
-    // Celebration audio — random from full pool
+    // characterAnimation not called here — celebration overlay (z-index 9200)
+    // fully covers the character (z-index 5), so it would be invisible.
     this.context.randomEncouragement();
-    this.context.characterAnimation('celebrate');
 
-    gameArea.innerHTML = `
-      <div class="color-end-card">
-        <div class="color-end-panel">
-          <h1>🎉 Excellent!</h1>
-          <p>You sorted all the colors!</p>
-          <div class="color-stars">
-            ${[0,1,2].map(i=>`<svg class="color-star${i<stars?' lit':''}" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-            </svg>`).join('')}
-          </div>
-          <p class="color-accuracy">${Math.round(accuracy*100)}% Correct</p>
-          <button class="color-next-btn" id="nextGameBtn">Next Game ▶</button>
-        </div>
-      </div>
-    `;
-    document.getElementById('nextGameBtn').addEventListener('click', () => {
-      this.context.goToNextGame('shape-recognition');
+    await this.context.showCelebration({
+      accuracy,
+      onContinue: () => this.context.goToNextGame('shape-recognition')
     });
   }
 
