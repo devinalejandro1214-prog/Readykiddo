@@ -1,0 +1,402 @@
+/* ─────────────────────────────────────────────────────────
+   ReadyKiddo — Session Manager Styles  v1.0
+   Phase badge · Phase transitions · Celebration screen
+
+   All rules are scoped to .sm-* to prevent collisions with
+   existing game or shell CSS.  Mobile-first throughout.
+   ───────────────────────────────────────────────────────── */
+
+
+/* ══════════════════════════════════════════════════════════
+   PHASE BADGE
+   Subtle floating pill that lives in the top-right corner,
+   just below the mute button.  Updates as phases advance.
+   ══════════════════════════════════════════════════════════ */
+
+.sm-badge {
+  position: fixed;
+  top: 56px;         /* 8px mute-button top + 44px button height + 4px breathing gap */
+  right: 12px;
+  z-index: 820;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 11px 4px 7px;
+  border-radius: 999px;
+  font-family: 'Fredoka', system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  pointer-events: none;   /* never intercepts game taps */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.32);
+  /* Smooth colour crossfade between phases */
+  transition: background 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+}
+
+.sm-badge-icon { font-size: 14px; line-height: 1; }
+
+/* ── Phase colour variants ── */
+.sm-phase-warm-up {
+  background: rgba(9, 57, 95, 0.80);
+  color: #c8e4ff;
+  border: 1.5px solid rgba(255, 255, 255, 0.14);
+}
+.sm-phase-explore {
+  background: rgba(11, 95, 149, 0.88);
+  color: #fff;
+  border: 1.5px solid rgba(255, 255, 255, 0.20);
+}
+.sm-phase-challenge {
+  background: rgba(149, 88, 196, 0.88);
+  color: #fff;
+  border: 1.5px solid rgba(255, 255, 255, 0.20);
+}
+.sm-phase-final {
+  background: rgba(242, 140, 24, 0.92);
+  color: #09395f;
+  border: 1.5px solid rgba(255, 255, 255, 0.28);
+}
+
+/* Badge pops on every phase change */
+@keyframes smBadgePop {
+  0%   { transform: scale(0.76); opacity: 0.3; }
+  65%  { transform: scale(1.14);               }
+  100% { transform: scale(1);    opacity: 1;   }
+}
+
+.sm-phase-explore,
+.sm-phase-challenge,
+.sm-phase-final {
+  animation: smBadgePop 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* ── Mobile ── */
+@media (max-width: 480px) {
+  .sm-badge {
+    top: 52px;         /* mute button slightly shorter on mobile */
+    right: 10px;
+    font-size: 11px;
+    padding: 3px 9px 3px 6px;
+  }
+  .sm-badge-icon { font-size: 12px; }
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   PHASE TRANSITION
+   Full-screen moment shown automatically at phase boundaries.
+   Lasts ~1.6 s then fades out — no user interaction required.
+   ══════════════════════════════════════════════════════════ */
+
+.sm-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 9100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Start fully transparent */
+  background: rgba(6, 12, 26, 0);
+  backdrop-filter: blur(0px) saturate(1);
+  -webkit-backdrop-filter: blur(0px) saturate(1);
+  transition:
+    background       0.28s ease,
+    backdrop-filter  0.28s ease;
+  pointer-events: none;  /* auto-dismisses — no tap needed */
+}
+
+.sm-transition.sm-transition-show {
+  /* Lighter overlay — feels like a lens flash, not a hard stop */
+  background: rgba(6, 12, 26, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.sm-transition.sm-transition-exit {
+  background: rgba(6, 12, 26, 0);
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
+  transition:
+    background       0.22s ease,
+    backdrop-filter  0.22s ease;
+}
+
+/* Inner card — slides up from below on entry */
+.sm-transition-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  opacity: 0;
+  transform: translateY(24px) scale(0.88);
+  transition:
+    opacity   0.36s ease,
+    transform 0.44s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.sm-transition.sm-transition-show .sm-transition-inner {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.sm-transition.sm-transition-exit .sm-transition-inner {
+  opacity: 0;
+  transform: translateY(-16px) scale(1.05);
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+/* Emoji pops in with a slight spin */
+.sm-transition-emoji {
+  font-size: clamp(72px, 20vw, 108px);
+  line-height: 1;
+  animation: smEmojiSpin 0.52s cubic-bezier(0.34, 1.56, 0.64, 1) 0.12s both;
+}
+
+@keyframes smEmojiSpin {
+  from { transform: scale(0.48) rotate(-18deg); }
+  to   { transform: scale(1)    rotate(0deg);   }
+}
+
+.sm-transition-label {
+  font-family: 'Fredoka', system-ui, sans-serif;
+  font-size: clamp(24px, 7vw, 36px);
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.02em;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.45);
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   CELEBRATION SCREEN
+   Child-facing end-of-session screen.
+   Warm, playful, no parent stats or academic language.
+   Replaces the functional end card for opted-in games.
+   ══════════════════════════════════════════════════════════ */
+
+.sm-celebration {
+  position: fixed;
+  inset: 0;
+  z-index: 9200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Start transparent so the fade-in can animate */
+  background: rgba(6, 12, 26, 0);
+  transition: background 0.36s ease;
+  pointer-events: none;
+}
+
+.sm-celebration.sm-celebration-show {
+  background: rgba(6, 12, 26, 0.93);
+  pointer-events: auto;
+}
+
+.sm-celebration.sm-celebration-exit {
+  background: rgba(6, 12, 26, 0);
+  pointer-events: none;
+}
+
+/* ── Card ── */
+.sm-celebration-inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: min(440px, 92vw);
+  padding: 42px 32px 38px;
+  background: linear-gradient(155deg, #0e5490 0%, #09395f 100%);
+  border: 2px solid rgba(255, 255, 255, 0.14);
+  border-radius: 30px;
+  box-shadow:
+    0 32px 80px rgba(0, 0, 0, 0.62),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  text-align: center;
+  overflow: hidden;
+  /* Start close and small — floats up rather than dropping in */
+  opacity: 0;
+  transform: translateY(24px) scale(0.94);
+  transition:
+    opacity   0.38s ease,
+    transform 0.52s cubic-bezier(0.34, 1.72, 0.64, 1);
+}
+
+.sm-celebration.sm-celebration-show .sm-celebration-inner {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.sm-celebration.sm-celebration-exit .sm-celebration-inner {
+  opacity: 0;
+  transform: translateY(-22px) scale(1.04);
+  transition: opacity 0.30s ease, transform 0.30s ease;
+}
+
+/* ── Sparkle particles (CSS-only, no libs) ── */
+.sm-sparkles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.sm-sparkle {
+  position: absolute;
+  border-radius: 50%;
+  width: 7px;
+  height: 7px;
+  background: #ffb23e;
+  opacity: 0.7;
+  /*
+    Distribute the 16 sparkles across the panel:
+    --i ranges from 0 to 15, set as inline style in JS.
+  */
+  left: calc(4% + (var(--i) / 16) * 92%);
+  top:  calc(8% + (var(--i) % 5)  * 17%);
+  animation: smSparkle 2.2s calc(var(--i) * 0.13s) ease-in-out infinite alternate;
+}
+
+/* Size/colour variation for visual interest */
+.sm-sparkle:nth-child(even)  { background: rgba(255, 255, 255, 0.88); width: 4px;  height: 4px;  }
+.sm-sparkle:nth-child(3n+1)  { background: #f28c18;                   width: 5px;  height: 5px;  }
+.sm-sparkle:nth-child(5n)    {                                          width: 9px;  height: 9px;  }
+
+@keyframes smSparkle {
+  from { transform: translateY(0)    scale(1);   opacity: 0.28; }
+  to   { transform: translateY(-22px) scale(1.6); opacity: 0.92; }
+}
+
+/* ── Icon ── */
+.sm-celebration-icon {
+  font-size: clamp(52px, 18vw, 76px);
+  line-height: 1;
+  position: relative;
+  z-index: 1;
+  animation: smCelebIconPop 0.60s cubic-bezier(0.34, 1.56, 0.64, 1) 0.26s both;
+}
+
+@keyframes smCelebIconPop {
+  0%   { transform: scale(0.38) translateY(18px); opacity: 0; }
+  60%  { transform: scale(1.18) translateY(-6px); opacity: 1; }   /* overshoot + lift */
+  100% { transform: scale(1)    translateY(0);    opacity: 1; }
+}
+
+/* ── Title + topic label ── */
+.sm-celebration-title {
+  font-family: 'Fredoka', system-ui, sans-serif;
+  font-size: clamp(26px, 7.5vw, 36px);
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.1;
+  position: relative;
+  z-index: 1;
+  animation: smFadeUp 0.50s ease 0.50s both;
+}
+
+.sm-celebration-topic {
+  font-family: 'Fredoka', system-ui, sans-serif;
+  font-size: clamp(13px, 4vw, 17px);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.60);
+  position: relative;
+  z-index: 1;
+  animation: smFadeUp 0.50s ease 0.60s both;
+}
+
+@keyframes smFadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* ── Stars ── */
+.sm-celebration-stars {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  z-index: 1;
+  animation: smFadeUp 0.50s ease 0.68s both;
+}
+
+.sm-star {
+  display: inline-block;
+  font-size: clamp(30px, 10vw, 44px);
+  line-height: 1;
+  filter: grayscale(1) brightness(0.45);
+  transition: filter 0.3s ease;
+}
+
+/* Stars are empty by default; JS adds .sm-star-on for earned stars */
+.sm-star.sm-star-on {
+  filter: grayscale(0) brightness(1)
+          drop-shadow(0 0 6px rgba(255, 210, 0, 0.80))
+          drop-shadow(0 0 14px rgba(255, 175, 0, 0.50));
+}
+
+/* Staggered pop — tighter delays so stars land just after card settles */
+.sm-celebration-stars .sm-star-on:nth-child(1) { animation: smStarPop 0.48s cubic-bezier(0.34, 1.64, 0.64, 1) 0.62s both; }
+.sm-celebration-stars .sm-star-on:nth-child(2) { animation: smStarPop 0.48s cubic-bezier(0.34, 1.64, 0.64, 1) 0.76s both; }
+.sm-celebration-stars .sm-star-on:nth-child(3) { animation: smStarPop 0.48s cubic-bezier(0.34, 1.64, 0.64, 1) 0.90s both; }
+
+/* Stars need content — use emoji via CSS so JS doesn't have to */
+.sm-star::before { content: '⭐'; }
+
+@keyframes smStarPop {
+  from { transform: scale(0.28) rotate(-28deg); opacity: 0; }
+  to   { transform: scale(1)    rotate(0deg);   opacity: 1; }
+}
+
+/* ── Keep Going button ── */
+.sm-celebration-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+  padding: 15px 36px;
+  min-height: 48px;   /* iOS minimum touch target */
+  font-family: 'Fredoka', system-ui, sans-serif;
+  font-size: clamp(18px, 5.5vw, 22px);
+  font-weight: 700;
+  color: #09395f;
+  background: linear-gradient(135deg, #ffb23e 0%, #f28c18 100%);
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(242, 140, 24, 0.44);
+  position: relative;
+  z-index: 1;
+  transition: transform 0.20s ease, box-shadow 0.20s ease;
+  animation:
+    smFadeUp   0.44s ease 1.02s both,
+    smBtnPulse 2.40s ease-in-out 1.46s infinite;
+}
+
+.sm-celebration-btn:hover  { transform: translateY(-3px) scale(1.04); box-shadow: 0 12px 32px rgba(242, 140, 24, 0.56); }
+.sm-celebration-btn:active { transform: scale(0.96); }
+
+@keyframes smBtnPulse {
+  0%, 100% { box-shadow: 0 8px 24px rgba(242, 140, 24, 0.42); }
+  50%       { box-shadow: 0 14px 38px rgba(242, 140, 24, 0.64); }
+}
+
+
+/* ── Mobile adjustments ── */
+@media (max-width: 480px) {
+  .sm-celebration-inner {
+    padding: 32px 20px 28px;
+    gap: 11px;
+    border-radius: 24px;
+  }
+  .sm-celebration-btn { padding: 13px 28px; }
+}
+
+/* Landscape phones with short viewports */
+@media (max-height: 580px) and (max-width: 900px) {
+  .sm-celebration-inner { gap: 8px; padding: 22px 20px 20px; }
+  .sm-celebration-icon  { font-size: 42px; }
+  .sm-celebration-title { font-size: 22px; }
+  .sm-star              { font-size: 26px; }
+  .sm-celebration-btn   { padding: 11px 26px; font-size: 17px; margin-top: 2px; }
+}

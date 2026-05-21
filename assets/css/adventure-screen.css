@@ -1,0 +1,755 @@
+/* ─────────────────────────────────────────────────────────
+   ReadyKiddo — Adventure Learning Screen  v1.0
+   Reusable active gameplay screen pattern.
+
+   Three layout variations, two theme presets, mobile-first.
+   Designed to live inside #gameArea (injected by GameShell).
+
+   Prefix: .lq-  (learning quest — short, collision-safe)
+
+   URL params for demo:
+     ?variation=1   character left / question centered / progress bottom
+     ?variation=2   tiny char top-right / large sequence / answers row
+     ?variation=3   immersive world-integrated glassmorphic layout
+     &theme=jungle  override world theme (default: space)
+   ───────────────────────────────────────────────────────── */
+
+
+/* ══════════════════════════════════════════════════════════
+   BASE — shared across all variations
+   ══════════════════════════════════════════════════════════ */
+
+.lq-screen {
+  width: 100%;
+  height: 100%;
+  flex: 1;                    /* fill game-area's flex column */
+  align-self: stretch;        /* take full cross-axis width   */
+  display: flex;
+  flex-direction: column;
+  font-family: 'Fredoka', system-ui, sans-serif;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* ── Prompt text ─────────────────────────────────────────── */
+.lq-prompt {
+  font-size: clamp(20px, 5.5vw, 30px);
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+  text-align: center;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+}
+
+/* ── Pattern sequence strip ──────────────────────────────── */
+.lq-sequence {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(8px, 2vw, 14px);
+  flex-wrap: wrap;
+}
+
+.lq-seq-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width:  clamp(58px, 14vw, 88px);
+  height: clamp(58px, 14vw, 88px);
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.28);
+  border-radius: 18px;
+  font-size: clamp(30px, 7.5vw, 50px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.20);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  flex-shrink: 0;
+}
+
+/* SVG items inside sequence slots */
+.lq-seq-item svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Dashed blank slot — the "?" */
+.lq-seq-item--blank {
+  background: rgba(255, 255, 255, 0.07);
+  border: 2.5px dashed rgba(255, 255, 255, 0.42);
+  font-size: clamp(22px, 5.5vw, 34px);
+  color: rgba(255, 255, 255, 0.48);
+}
+
+/* Hint pulse — bounces the non-blank sequence items */
+.lq-seq-item--hint {
+  animation: lqHintBounce 0.52s cubic-bezier(0.34, 1.56, 0.64, 1) 2;
+  border-color: #ffb23e;
+  box-shadow: 0 0 0 3px rgba(255, 178, 62, 0.42), 0 4px 14px rgba(0, 0, 0, 0.20);
+}
+
+@keyframes lqHintBounce {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.16); }
+}
+
+/* ── Answer cards ────────────────────────────────────────── */
+.lq-answers {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(8px, 2.5vw, 14px);
+}
+
+.lq-answer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(12px, 3vw, 20px) 6px;
+  min-height: clamp(72px, 17vw, 100px);
+  background: rgba(255, 255, 255, 0.16);
+  border: 2.5px solid rgba(255, 255, 255, 0.28);
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: clamp(34px, 9vw, 54px);
+  line-height: 1;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.20);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: transform 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* SVG item wrapper inside answer buttons */
+.lq-item-svg {
+  width:  clamp(52px, 13vw, 76px);
+  height: clamp(52px, 13vw, 76px);
+}
+.lq-item-svg svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.lq-answer:hover  {
+  transform: translateY(-4px) scale(1.05);
+  background: rgba(255, 255, 255, 0.26);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.26);
+}
+.lq-answer:active { transform: scale(0.95); }
+
+/* ── Answer state classes ── */
+.lq-answer--correct {
+  background: rgba(72, 212, 120, 0.42) !important;
+  border-color: #48d478 !important;
+  box-shadow: 0 0 0 3px rgba(72, 212, 120, 0.45), 0 6px 18px rgba(0, 0, 0, 0.20) !important;
+  pointer-events: none;
+}
+
+.lq-answer--wrong {
+  animation: lqAnswerShake 0.42s ease;
+  border-color: rgba(255, 100, 100, 0.55) !important;
+}
+
+.lq-answer--locked { pointer-events: none; }
+
+@keyframes lqAnswerShake {
+  0%, 100% { transform: translateX(0); }
+  22%      { transform: translateX(-9px); }
+  44%      { transform: translateX(9px); }
+  66%      { transform: translateX(-5px); }
+  88%      { transform: translateX(5px); }
+}
+
+/* ── Hint button ─────────────────────────────────────────── */
+.lq-hint-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 22px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1.5px solid rgba(255, 255, 255, 0.26);
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.80);
+  font-family: 'Fredoka', system-ui, sans-serif;
+  font-size: clamp(14px, 3.5vw, 17px);
+  font-weight: 600;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: background 0.18s ease, transform 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.lq-hint-btn:hover  { background: rgba(255, 255, 255, 0.22); transform: translateY(-2px); }
+.lq-hint-btn:active { transform: scale(0.96); }
+.lq-hint-btn--used  { opacity: 0.36; pointer-events: none; cursor: default; }
+
+/* ── Progress dots ───────────────────────────────────────── */
+.lq-progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+}
+
+.lq-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
+  border: 2px solid rgba(255, 255, 255, 0.34);
+  transition: all 0.28s ease;
+  flex-shrink: 0;
+}
+
+.lq-dot--done {
+  background: rgba(255, 255, 255, 0.86);
+  border-color: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 0 7px rgba(255, 255, 255, 0.52);
+}
+
+.lq-dot--active {
+  background: #ffb23e;
+  border-color: #ffb23e;
+  box-shadow: 0 0 10px rgba(255, 178, 62, 0.65);
+  transform: scale(1.3);
+}
+
+/* ── Character container ─────────────────────────────────── */
+.lq-char {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.lq-char img {
+  object-fit: contain;
+  object-position: bottom center;
+  max-width: 100%;
+  display: block;
+  filter: drop-shadow(0 4px 18px rgba(0, 0, 0, 0.30));
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   VARIATION 1
+   Character occupies left column · Question + answers right · Progress bottom
+   Best for tablet and landscape. Warm, guided, character-forward.
+   ══════════════════════════════════════════════════════════ */
+
+.lq-v1 {
+  display: grid;
+  grid-template-columns: 28% 1fr;
+  grid-template-rows: 1fr auto auto;
+  padding: 12px 14px 0;
+  gap: 0;
+}
+
+/* Character: left column, spans all rows — always full height */
+.lq-v1 > .lq-char {
+  grid-column: 1;
+  grid-row: 1 / 4;
+  align-self: stretch;
+}
+.lq-v1 > .lq-char img {
+  width: 100%;
+  max-height: min(58vh, 360px);
+}
+
+/* Main content: right column, row 1 — grows to fill */
+.lq-v1 > .lq-content {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(12px, 2.8vh, 22px);
+  padding: 0 0 0 14px;
+  overflow: hidden;
+}
+
+/* Hint: right column, row 2 */
+.lq-v1 > .lq-actions {
+  grid-column: 2;
+  grid-row: 2;
+  padding: 6px 0 8px 14px;
+}
+
+/* Progress dots: full width, row 3 */
+.lq-v1 > .lq-progress {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  padding: 10px 0 14px;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   VARIATION 2
+   Tiny character avatar top-right · Large centred sequence · Answers bottom row
+   Best for phones in portrait. Maximum question real estate.
+   ══════════════════════════════════════════════════════════ */
+
+.lq-v2 {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 14px 0;
+}
+
+/* Top bar: tiny character avatar anchored to top-right */
+.lq-v2 > .lq-topbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  min-height: 52px;
+  flex-shrink: 0;
+}
+
+.lq-char-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.14);
+  border: 2px solid rgba(255, 255, 255, 0.28);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
+  flex-shrink: 0;
+}
+
+.lq-char-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Content: grows to fill, vertically centred — more visual space than any other variation */
+.lq-v2 > .lq-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(14px, 3.5vh, 26px);
+  overflow: hidden;
+}
+
+/* Larger items in v2 — more visual impact without character crowding */
+.lq-v2 .lq-seq-item {
+  width:  clamp(70px, 17vw, 104px);
+  height: clamp(70px, 17vw, 104px);
+  font-size: clamp(38px, 9.5vw, 60px);
+  border-radius: 22px;
+}
+
+.lq-v2 .lq-answers { width: 100%; }
+
+/* Hint: centred below answers */
+.lq-v2 > .lq-actions {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0;
+  flex-shrink: 0;
+}
+
+.lq-v2 > .lq-progress {
+  padding: 8px 0 14px;
+  flex-shrink: 0;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   VARIATION 3
+   Immersive world-integrated layout
+   Glassmorphic panels float over world background.
+   Character peeks in from bottom-left.
+   Progress is worldy (space = purple/gold, jungle = green/amber).
+   Best for high-impact moments and world storytelling.
+   ══════════════════════════════════════════════════════════ */
+
+.lq-v3 {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0 14px 14px;
+  position: relative;
+  gap: 10px;
+}
+
+/* Character: absolute, bottom-left, peeking up from behind panels */
+.lq-v3 > .lq-char {
+  position: absolute;
+  bottom: 0;
+  left: 10px;
+  z-index: 1;
+  align-items: flex-end;
+}
+.lq-v3 > .lq-char img {
+  max-height: min(48vh, 270px);
+  max-width: min(30vw, 170px);
+}
+
+/* Question panel: floats above world, contains prompt + sequence + hint */
+.lq-v3 .lq-question-panel {
+  width: 100%;
+  max-width: 560px;
+  background: rgba(6, 18, 44, 0.70);
+  border: 1.5px solid rgba(255, 255, 255, 0.16);
+  border-radius: 26px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  padding: 18px 16px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.32);
+}
+
+/* Answers panel: separate panel below, visually lighter */
+.lq-v3 .lq-answers-panel {
+  width: 100%;
+  max-width: 560px;
+  background: rgba(6, 18, 44, 0.58);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 26px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 12px;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.26);
+}
+
+.lq-v3 .lq-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.lq-v3 > .lq-progress {
+  position: relative;
+  z-index: 2;
+  padding: 4px 0 0;
+}
+
+/* ── World-native dot colours in v3 ── */
+.lq-v3.lq-theme-space .lq-dot--done   { background: #ffe566; border-color: #ffe566; box-shadow: 0 0 9px rgba(255, 229, 102, 0.62); }
+.lq-v3.lq-theme-space .lq-dot--active { background: #a78bfa; border-color: #a78bfa; box-shadow: 0 0 9px rgba(167, 139, 250, 0.62); }
+.lq-v3.lq-theme-jungle .lq-dot--done   { background: #86efac; border-color: #86efac; box-shadow: 0 0 9px rgba(134, 239, 172, 0.62); }
+.lq-v3.lq-theme-jungle .lq-dot--active { background: #fbbf24; border-color: #fbbf24; box-shadow: 0 0 9px rgba(251, 191, 36, 0.62); }
+
+
+/* ══════════════════════════════════════════════════════════
+   THEMES
+   Colour-tints for sequence tiles, answer cards, hints, prompt.
+   The world background image is already set by GameShell —
+   these rules make the interactive elements feel native to it.
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Space ── deep purple-blue tones ── */
+.lq-theme-space .lq-seq-item {
+  background: rgba(40, 16, 88, 0.50);
+  border-color: rgba(167, 139, 250, 0.38);
+}
+.lq-theme-space .lq-seq-item--blank {
+  border-color: rgba(167, 139, 250, 0.56);
+  color: rgba(167, 139, 250, 0.62);
+}
+.lq-theme-space .lq-answer {
+  background: rgba(26, 10, 64, 0.52);
+  border-color: rgba(167, 139, 250, 0.30);
+}
+.lq-theme-space .lq-answer:hover {
+  background: rgba(52, 26, 112, 0.68);
+}
+.lq-theme-space .lq-prompt {
+  color: #e8e0ff;
+}
+.lq-theme-space .lq-hint-btn {
+  border-color: rgba(167, 139, 250, 0.40);
+  color: rgba(218, 210, 255, 0.86);
+}
+
+/* ── Jungle ── rich green tones ── */
+.lq-theme-jungle .lq-seq-item {
+  background: rgba(12, 58, 28, 0.52);
+  border-color: rgba(134, 239, 172, 0.36);
+}
+.lq-theme-jungle .lq-seq-item--blank {
+  border-color: rgba(134, 239, 172, 0.56);
+  color: rgba(134, 239, 172, 0.62);
+}
+.lq-theme-jungle .lq-answer {
+  background: rgba(10, 46, 22, 0.52);
+  border-color: rgba(134, 239, 172, 0.30);
+}
+.lq-theme-jungle .lq-answer:hover {
+  background: rgba(14, 66, 30, 0.70);
+}
+.lq-theme-jungle .lq-prompt {
+  color: #d1fae5;
+}
+.lq-theme-jungle .lq-hint-btn {
+  border-color: rgba(134, 239, 172, 0.40);
+  color: rgba(196, 255, 218, 0.86);
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════════════════════════════ */
+
+/* Narrow phones (< 400px) */
+@media (max-width: 400px) {
+  .lq-v1 {
+    grid-template-columns: 24% 1fr;
+    padding: 8px 10px 0;
+  }
+  .lq-v1 > .lq-content { padding-left: 10px; gap: 10px; }
+  .lq-answers    { gap: 7px; }
+  .lq-answer     { border-radius: 14px; min-height: 64px; }
+  .lq-seq-item   { border-radius: 14px; }
+}
+
+/* Landscape phones — compressed vertical space */
+@media (max-height: 480px) and (max-width: 900px) {
+  .lq-v1 > .lq-char img { max-height: 36vh; }
+  .lq-v2 > .lq-topbar   { min-height: 38px; }
+  .lq-v2 .lq-char-avatar { width: 40px; height: 40px; }
+  .lq-seq-item  { width: 50px; height: 50px; font-size: 26px; border-radius: 12px; }
+  .lq-answer    { min-height: 54px; font-size: 26px; padding: 7px 4px; border-radius: 12px; }
+  .lq-v1 > .lq-content, .lq-v2 > .lq-content { gap: 8px; }
+  .lq-prompt    { font-size: 17px; }
+  .lq-v3 > .lq-char img { max-height: 38vh; }
+}
+
+/* Tablets and wider — more breathing room */
+@media (min-width: 600px) {
+  .lq-v1 { grid-template-columns: 30% 1fr; padding: 16px 20px 0; }
+  .lq-v2 { padding: 14px 20px 0; }
+  .lq-v3 { padding: 0 20px 20px; gap: 12px; }
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   PATTERN QUEST v2 EXTENSIONS
+   Added when PatternNextGame was unified into one 8-round
+   experience (merging former pattern-next + space-pattern).
+
+   New components:
+   - .lq-particles / .lq-particle  — floating world decorations
+   - .lq-topstrip                  — progress + hint top bar
+   - .lq-v3--top modifier          — adds top-padding for topstrip
+
+   New world themes:
+   - .lq-theme-candy-land
+   - .lq-theme-beach
+   - .lq-theme-castle
+   - .lq-theme-studio
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Floating world particle layer ──────────────────────── */
+.lq-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.lq-particle {
+  position: absolute;
+  opacity: 0;
+  font-size: var(--sz, 13px);
+  line-height: 1;
+  animation: lqParticleFloat var(--dur, 7s) var(--delay, 0s) ease-in-out infinite;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+@keyframes lqParticleFloat {
+  0%   { opacity: 0;               transform: translateY(0)      scale(0.7); }
+  15%  { opacity: var(--op, 0.28); }
+  80%  { opacity: var(--op, 0.28); transform: translateY(-68px)  scale(1.04); }
+  100% { opacity: 0;               transform: translateY(-88px)  scale(0.9); }
+}
+
+/* ── Top strip: progress dots + hint button ─────────────── */
+.lq-topstrip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Progress bar fills centre of topstrip */
+.lq-topstrip .lq-progress {
+  flex: 1;
+  justify-content: center;
+  gap: 5px;
+  padding: 0;
+}
+
+/* Slightly smaller dots so 8 fit comfortably on narrow phones */
+.lq-topstrip .lq-dot {
+  width: 9px;
+  height: 9px;
+}
+
+/* Push lq-v3 content below the absolute topstrip */
+.lq-v3.lq-v3--top {
+  padding-top: 54px;
+}
+
+@media (min-width: 600px) {
+  .lq-v3.lq-v3--top {
+    padding-top: 58px;
+  }
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   WORLD THEMES — candy-land, beach, castle, studio
+   (Space + Jungle themes are already above.)
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Candy Land ── hot pink / rose tones ── */
+.lq-theme-candy-land .lq-seq-item {
+  background: rgba(88, 10, 44, 0.52);
+  border-color: rgba(251, 113, 133, 0.38);
+}
+.lq-theme-candy-land .lq-seq-item--blank {
+  border-color: rgba(251, 113, 133, 0.56);
+  color: rgba(251, 113, 133, 0.65);
+}
+.lq-theme-candy-land .lq-answer {
+  background: rgba(74, 8, 38, 0.52);
+  border-color: rgba(251, 113, 133, 0.30);
+}
+.lq-theme-candy-land .lq-answer:hover {
+  background: rgba(112, 16, 60, 0.70);
+}
+.lq-theme-candy-land .lq-prompt { color: #fde8f0; }
+.lq-theme-candy-land .lq-hint-btn {
+  border-color: rgba(251, 113, 133, 0.40);
+  color: rgba(253, 200, 220, 0.88);
+}
+.lq-v3.lq-theme-candy-land .lq-dot--done {
+  background: #fb7185; border-color: #fb7185;
+  box-shadow: 0 0 9px rgba(251, 113, 133, 0.62);
+}
+.lq-v3.lq-theme-candy-land .lq-dot--active {
+  background: #f9a8d4; border-color: #f9a8d4;
+  box-shadow: 0 0 9px rgba(249, 168, 212, 0.62);
+}
+
+/* ── Beach ── teal / coral tones ── */
+.lq-theme-beach .lq-seq-item {
+  background: rgba(8, 60, 72, 0.52);
+  border-color: rgba(94, 234, 212, 0.38);
+}
+.lq-theme-beach .lq-seq-item--blank {
+  border-color: rgba(94, 234, 212, 0.56);
+  color: rgba(94, 234, 212, 0.65);
+}
+.lq-theme-beach .lq-answer {
+  background: rgba(6, 46, 56, 0.52);
+  border-color: rgba(94, 234, 212, 0.30);
+}
+.lq-theme-beach .lq-answer:hover {
+  background: rgba(10, 70, 84, 0.70);
+}
+.lq-theme-beach .lq-prompt { color: #ccfbf1; }
+.lq-theme-beach .lq-hint-btn {
+  border-color: rgba(94, 234, 212, 0.40);
+  color: rgba(178, 255, 247, 0.88);
+}
+.lq-v3.lq-theme-beach .lq-dot--done {
+  background: #2dd4bf; border-color: #2dd4bf;
+  box-shadow: 0 0 9px rgba(45, 212, 191, 0.62);
+}
+.lq-v3.lq-theme-beach .lq-dot--active {
+  background: #fb923c; border-color: #fb923c;
+  box-shadow: 0 0 9px rgba(251, 146, 60, 0.62);
+}
+
+/* ── Castle ── royal purple / gold tones ── */
+.lq-theme-castle .lq-seq-item {
+  background: rgba(36, 10, 72, 0.52);
+  border-color: rgba(234, 179, 8, 0.38);
+}
+.lq-theme-castle .lq-seq-item--blank {
+  border-color: rgba(234, 179, 8, 0.56);
+  color: rgba(234, 179, 8, 0.65);
+}
+.lq-theme-castle .lq-answer {
+  background: rgba(28, 8, 58, 0.52);
+  border-color: rgba(234, 179, 8, 0.30);
+}
+.lq-theme-castle .lq-answer:hover {
+  background: rgba(48, 14, 88, 0.70);
+}
+.lq-theme-castle .lq-prompt { color: #fef9c3; }
+.lq-theme-castle .lq-hint-btn {
+  border-color: rgba(234, 179, 8, 0.40);
+  color: rgba(255, 240, 140, 0.88);
+}
+.lq-v3.lq-theme-castle .lq-dot--done {
+  background: #eab308; border-color: #eab308;
+  box-shadow: 0 0 9px rgba(234, 179, 8, 0.62);
+}
+.lq-v3.lq-theme-castle .lq-dot--active {
+  background: #c084fc; border-color: #c084fc;
+  box-shadow: 0 0 9px rgba(192, 132, 252, 0.62);
+}
+
+/* ── Studio ── warm orange / sky-blue creative tones ── */
+.lq-theme-studio .lq-seq-item {
+  background: rgba(72, 22, 8, 0.52);
+  border-color: rgba(251, 146, 60, 0.38);
+}
+.lq-theme-studio .lq-seq-item--blank {
+  border-color: rgba(251, 146, 60, 0.56);
+  color: rgba(251, 146, 60, 0.65);
+}
+.lq-theme-studio .lq-answer {
+  background: rgba(58, 18, 6, 0.52);
+  border-color: rgba(251, 146, 60, 0.30);
+}
+.lq-theme-studio .lq-answer:hover {
+  background: rgba(88, 28, 10, 0.70);
+}
+.lq-theme-studio .lq-prompt { color: #ffedd5; }
+.lq-theme-studio .lq-hint-btn {
+  border-color: rgba(251, 146, 60, 0.40);
+  color: rgba(255, 215, 175, 0.88);
+}
+.lq-v3.lq-theme-studio .lq-dot--done {
+  background: #fb923c; border-color: #fb923c;
+  box-shadow: 0 0 9px rgba(251, 146, 60, 0.62);
+}
+.lq-v3.lq-theme-studio .lq-dot--active {
+  background: #38bdf8; border-color: #38bdf8;
+  box-shadow: 0 0 9px rgba(56, 189, 248, 0.62);
+}

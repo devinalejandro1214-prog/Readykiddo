@@ -59,7 +59,10 @@ class GameShell {
       characterAnimation: (type) => this.characterAnimation(type),
       saveSession: (data) => this.saveSession(data),
       goToNextGame: (nextGameType) => this.goToNextGame(nextGameType),
-      randomEncouragement: () => this.randomEncouragement()
+      randomEncouragement: () => this.randomEncouragement(),
+      reportProgress: (current, total) => this.reportProgress(current, total),
+      showCelebration: (opts) => this.showCelebration(opts),
+      syncPhase: (itemsShown) => this.syncPhase(itemsShown)
     };
   }
 
@@ -175,7 +178,7 @@ class GameShell {
     if (nextGameType === 'world-reveal') {
       window.location.href = 'world-reveal.html';
     } else {
-      window.location.href = `game-loader.html?game=${nextGameType}`;
+      window.location.href = `game-loader?game=${nextGameType}`;
     }
   }
 
@@ -231,18 +234,22 @@ class GameShell {
   }
 
   requireInteraction() {
-    // Look up game metadata from the registry for a themed overlay
+    // Pull topic info from SessionMgr when available; fall back to registry
+    const topic = (window.SessionMgr) ? SessionMgr.getTopic(this.gameType) : null;
     const gameConfig = (typeof GAME_REGISTRY !== 'undefined' && GAME_REGISTRY[this.gameType]) || {};
-    const gameName = gameConfig.name || 'Get Ready!';
-    const gameDesc = gameConfig.description || 'Your adventure is about to begin.';
+    const topicIcon    = topic?.icon    || '⭐';
+    const topicName    = topic?.name    || gameConfig.name        || 'Get Ready!';
+    const topicSubline = topic?.subline || gameConfig.description || 'Your adventure is about to begin.';
 
     return new Promise(resolve => {
       const overlay = document.createElement('div');
       overlay.className = 'interaction-overlay';
       overlay.innerHTML = `
         <div class="interaction-panel">
-          <div class="interaction-game-badge">${gameName}</div>
-          <p class="interaction-desc">${gameDesc}</p>
+          <div class="interaction-adventure-label">Today's Adventure</div>
+          <div class="interaction-topic-icon" aria-hidden="true">${topicIcon}</div>
+          <div class="interaction-topic-name">${topicName}</div>
+          <p class="interaction-desc">${topicSubline}</p>
           <button class="start-btn" id="tapToStartBtn">
             <span class="start-btn-icon">▶</span> Let's Go!
           </button>
@@ -276,24 +283,35 @@ class GameShell {
           border-radius: 28px;
           box-shadow: 0 24px 60px rgba(0,0,0,0.5);
         }
-        .interaction-game-badge {
+        .interaction-adventure-label {
           display: inline-block;
-          padding: 6px 20px;
+          padding: 5px 18px;
           border-radius: 999px;
           background: linear-gradient(135deg, #f28c18, #ffb23e);
           color: #09395f;
-          font-size: 13px;
+          font-size: 12px;
           font-weight: 700;
-          letter-spacing: 0.04em;
+          letter-spacing: 0.06em;
           text-transform: uppercase;
           margin-bottom: 16px;
         }
+        .interaction-topic-icon {
+          font-size: clamp(52px, 16vw, 72px);
+          line-height: 1;
+          margin-bottom: 8px;
+        }
+        .interaction-topic-name {
+          font-size: clamp(22px, 6.5vw, 30px);
+          font-weight: 700;
+          line-height: 1.1;
+          margin-bottom: 10px;
+        }
         .interaction-desc {
-          font-size: 20px;
+          font-size: clamp(14px, 4vw, 18px);
           font-weight: 600;
           line-height: 1.3;
-          margin-bottom: 28px;
-          opacity: 0.9;
+          margin-bottom: 26px;
+          opacity: 0.80;
         }
         .start-btn {
           display: inline-flex; align-items: center; gap: 10px;
@@ -324,6 +342,12 @@ class GameShell {
         overlay.remove();
         style.remove();
 
+        // Init session manager and inject the phase badge
+        if (window.SessionMgr) {
+          SessionMgr.init(this.gameType);
+          SessionMgr.injectBadge(document.body);
+        }
+
         // Ensure loading spinner is gone so game is instantly visible
         const spinner = document.getElementById('loadingSpinner');
         if (spinner) spinner.style.display = 'none';
@@ -331,6 +355,26 @@ class GameShell {
         resolve();
       }, { once: true });
     });
+  }
+
+  /* ─────────────────────────────────────────────────────────
+     Session Manager bridge
+     ───────────────────────────────────────────────────────── */
+
+  async reportProgress(current, total) {
+    if (window.SessionMgr) {
+      return SessionMgr.reportProgress(current, total, this.context);
+    }
+  }
+
+  async showCelebration(opts = {}) {
+    if (window.SessionMgr) {
+      return SessionMgr.showCelebration(opts);
+    }
+  }
+
+  syncPhase(itemsShown) {
+    if (window.SessionMgr) SessionMgr.syncPhase(itemsShown);
   }
 
   /* ─────────────────────────────────────────────────────────

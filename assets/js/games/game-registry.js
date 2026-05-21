@@ -31,14 +31,23 @@ const GAME_REGISTRY = {
     isActive: false,
     order: 3
   },
-  'coming-soon-2': {
-    name: 'Pattern Builder',
-    description: 'Complete sequences and patterns (Coming Soon)',
-    class: null,
-    scriptPath: null,
-    cssPath: null,
-    isActive: false,
+  'pattern-next': {
+    name: 'Pattern Quest',
+    description: 'What comes next in the pattern?',
+    class: 'PatternNextGame',
+    scriptPath: 'assets/js/games/pattern-next-game.js',
+    cssPath: 'assets/css/adventure-screen.css',
+    isActive: true,
     order: 4
+  },
+  'space-pattern': {
+    name: 'Space Pattern',
+    description: 'Deprecated — merged into Pattern Quest (pattern-next) v2.0.',
+    class: 'SpacePatternGame',
+    scriptPath: 'assets/js/games/space-pattern-game.js',
+    cssPath: 'assets/css/space-pattern-game.css',
+    isActive: false,
+    order: 5
   },
   'space-defender': {
     name: 'Space Defender',
@@ -47,7 +56,7 @@ const GAME_REGISTRY = {
     scriptPath: 'assets/js/games/space-defender-game.js',
     cssPath: 'assets/css/space-defender-game.css',
     isActive: true,
-    order: 5
+    order: 6
   },
   'feed-alien': {
     name: 'Feed the Alien',
@@ -56,7 +65,7 @@ const GAME_REGISTRY = {
     scriptPath: 'assets/js/games/feed-alien-game.js',
     cssPath: 'assets/css/feed-alien-game.css',
     isActive: true,
-    order: 6
+    order: 7
   },
   'number-line': {
     name: 'Letter Line',
@@ -65,7 +74,7 @@ const GAME_REGISTRY = {
     scriptPath: 'assets/js/games/number-line-game.js',
     cssPath: 'assets/css/number-line-game.css',
     isActive: true,
-    order: 7
+    order: 8
   },
   'feed-by-sound': {
     name: 'Feed by Sound',
@@ -74,7 +83,7 @@ const GAME_REGISTRY = {
     scriptPath: 'assets/js/games/feed-by-sound-game.js',
     cssPath: 'assets/css/feed-by-sound-game.css',
     isActive: true,
-    order: 8
+    order: 9
   },
   'abc-match': {
     name: 'ABC Match',
@@ -83,7 +92,7 @@ const GAME_REGISTRY = {
     scriptPath: 'assets/js/games/abc-match-game.js',
     cssPath: 'assets/css/abc-match-game.css',
     isActive: true,
-    order: 9
+    order: 10
   }
 };
 
@@ -242,10 +251,7 @@ function getNextGameRecommendation(currentGameType, finalBranch, accuracy) {
   }
 
   if (currentGameType === 'shape-recognition') {
-    if (accuracy > 0.85 && finalBranch === 'hard') {
-      return 'coming-soon-1'; // User is advanced
-    }
-    return 'color-sort'; // Review colors or try again
+    return 'space-defender'; // Forward progression in the game chain
   }
 
   if (currentGameType === 'space-defender') {
@@ -265,7 +271,11 @@ function getNextGameRecommendation(currentGameType, finalBranch, accuracy) {
   }
 
   if (currentGameType === 'abc-match') {
-    return 'world-reveal'; // Finish the loop and head back to the world
+    return 'pattern-next'; // Visual pattern recognition follows letter recognition naturally
+  }
+
+  if (currentGameType === 'pattern-next') {
+    return 'world-reveal'; // Pattern Quest is the final game; celebrate at the world
   }
 
   return 'color-sort'; // Default fallback
