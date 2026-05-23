@@ -296,7 +296,7 @@
     'wow':               'Amara-Wow.m4a',
 
     // Wrong feedback — Amara's voice
-    'try again':    'Amara-Itâ€™s okay, try again!.m4a',
+    'try again':    'Amara-It\'s okay, try again!.m4a',
     'aww man':      'Amara-Oh man.m4a',
     'oh no':        'Amara-Oh no!.m4a',
 

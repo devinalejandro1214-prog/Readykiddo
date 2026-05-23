@@ -15,7 +15,7 @@
 
 .sm-badge {
   position: fixed;
-  top: 56px;         /* 8px mute-button top + 44px button height + 4px breathing gap */
+  top: 68px;         /* 16px mute-button top + 44px button height + 8px breathing gap */
   right: 12px;
   z-index: 820;
   display: inline-flex;
@@ -73,7 +73,7 @@
 /* ── Mobile ── */
 @media (max-width: 480px) {
   .sm-badge {
-    top: 52px;         /* mute button slightly shorter on mobile */
+    top: 68px;         /* same as desktop — mute button doesn't change at mobile */
     right: 10px;
     font-size: 11px;
     padding: 3px 9px 3px 6px;

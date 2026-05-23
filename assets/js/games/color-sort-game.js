@@ -121,10 +121,15 @@ class ColorSortGame {
     }
 
     if (isRound2) {
-      // Wait for 'match the colors' to finish, then call out the specific color.
+      // Block taps until the target color is called out — if the child taps during
+      // the intro clip, targetColor is still null and handleDrop shows "Find null!".
       // speakAndWait resolves on clip-end so the callout never overlaps or drops.
+      this.busy = true;
       this.context.speakAndWait('match the colors').then(() => {
-        if (!this.ended) this.callOutNextColor();
+        if (!this.ended) {
+          this.callOutNextColor();
+          this.busy = false;
+        }
       });
     } else {
       this.context.speak('match the colors');

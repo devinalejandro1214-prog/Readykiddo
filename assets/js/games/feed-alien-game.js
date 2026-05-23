@@ -94,8 +94,9 @@ class FeedAlienGame {
   }
 
   getRoundSpokenPrompt() {
-    // Matches the pre-recorded audio keys: 'feed the alien N item(s)'
-    const noun = this.requiredCount === 1 ? 'item' : 'items';
+    const noun = this.requiredCount === 1
+      ? 'piece of food from the basket'
+      : 'pieces of food from the basket';
     return `feed the alien ${this.requiredCount} ${noun}`;
   }
 

@@ -388,6 +388,7 @@ class SpaceDefenderGame {
       } else {
         this.showLevelFlash(`Level ${this.level} clear!`);
         this.context.characterAnimation('celebrate');
+        this.context.speak('great effort');   // em-sd-great-effort.wav — was recorded but never wired
         setTimeout(() => {
           this.level++;
           this.startLevel();

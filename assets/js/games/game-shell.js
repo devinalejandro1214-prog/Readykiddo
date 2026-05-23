@@ -178,7 +178,7 @@ class GameShell {
     if (nextGameType === 'world-reveal') {
       window.location.href = 'world-reveal.html';
     } else {
-      window.location.href = `game-loader?game=${nextGameType}`;
+      window.location.href = `game-loader.html?game=${nextGameType}`;
     }
   }
 
