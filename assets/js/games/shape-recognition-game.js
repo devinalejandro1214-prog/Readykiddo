@@ -6,9 +6,19 @@
 
 const SHAPE_KEYS = ['circle', 'square', 'triangle', 'star', 'rectangle', 'diamond'];
 
-const SHAPE_PNG_COLOR = 'blue';
+// Each shape gets its own distinct colour so the tiles look like coloured
+// paper cut-outs rather than identical blue cards.
+const SHAPE_CHOICE_COLORS = {
+  circle:    'red',
+  square:    'purple',
+  triangle:  'green',
+  star:      'yellow',
+  rectangle: 'orange',
+  diamond:   'blue',
+};
 function getShapePNG(shape) {
-  return `assets/images/games/shapes/${SHAPE_PNG_COLOR}-${shape}.png`;
+  const color = SHAPE_CHOICE_COLORS[shape] || 'blue';
+  return `assets/images/games/shapes/${color}-${shape}.png`;
 }
 
 const SHAPE_IMAGE_PRELOAD_CACHE = new Map();

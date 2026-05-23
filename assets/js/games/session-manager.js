@@ -37,11 +37,8 @@
      ─────────────────────────────────────────────────────── */
   const PHASES = [
     { id: 'warm-up',   label: 'Warm Up',      emoji: '✨', audioKey: null, animation: null,        showOverlay: false },
-    // audioKey intentionally null on overlaid phases: randomEncouragement() already
-    // fired on the correct match 500 ms earlier — playing a second clip here causes
-    // audio collision.  The overlay visual (emoji + character animation) is enough.
-    { id: 'explore',   label: 'Explore',      emoji: '🌟', audioKey: null, animation: 'thumbs-up', showOverlay: true  },
-    { id: 'challenge', label: 'Challenge',    emoji: '⚡', audioKey: null, animation: 'wave',      showOverlay: true  },
+    { id: 'explore',   label: 'Explore',      emoji: '🌟', audioKey: null, animation: 'thumbs-up', showOverlay: false },
+    { id: 'challenge', label: 'Challenge',    emoji: '⚡', audioKey: null, animation: 'wave',      showOverlay: false },
     { id: 'final',     label: 'Almost There', emoji: '🔥', audioKey: null, animation: null,        showOverlay: false },
   ];
 
