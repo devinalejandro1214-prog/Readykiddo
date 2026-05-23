@@ -449,7 +449,9 @@ class FeedBySoundGame {
     const alien = document.getElementById('fbsAlienChar');
     if (alien) alien.classList.add('fbs-alien--happy');
 
-    this.context.randomEncouragement();
+    // randomEncouragement() already fired from _handleCorrect() ~800 ms ago.
+    // A second call here causes two clips to collide, then the next-round
+    // speak prompt cuts off whichever one is still playing.
 
     setTimeout(() => {
       this.currentRound++;

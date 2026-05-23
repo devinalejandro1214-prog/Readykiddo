@@ -108,8 +108,24 @@ class ShapeRecognitionGame {
     this.updateInstruction(isRound2 ? 'Listen for the shape to match!' : 'Drag each shape to its matching outline!');
 
     if (isRound2) {
+      // Block taps until the target shape is called out — same guard as color-sort.
+      // If the child taps during the intro clip, targetShape is still null.
+      // Safety timer: unblocks the game after 3 s if speakAndWait never resolves
+      // (mute toggle, tab backgrounding, or any iOS autoplay quirk).
+      this.busy = true;
+      const _safetyUnlock = setTimeout(() => {
+        if (this.busy && !this.ended && !this.targetShape) {
+          this.callOutNextShape();
+          this.busy = false;
+        }
+      }, 3000);
+
       this.context.speakAndWait('match the shapes').then(() => {
-        if (!this.ended) this.callOutNextShape();
+        clearTimeout(_safetyUnlock);
+        if (!this.ended) {
+          this.callOutNextShape();
+          this.busy = false;
+        }
       });
     } else {
       this.context.speak('match the shapes');

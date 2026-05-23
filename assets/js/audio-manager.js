@@ -543,6 +543,7 @@
     // Use preloaded element if available, otherwise create new
     let audio = cache[path];
     if (audio) {
+      audio._warmingUp = false;  // cancel any in-flight warmUp pause for this element
       audio.currentTime = 0;
       audio.muted = isMuted();
     } else {
@@ -592,6 +593,7 @@
 
     let audio = cache[path];
     if (audio) {
+      audio._warmingUp = false;  // cancel any in-flight warmUp pause for this element
       audio.currentTime = 0;
       audio.muted = isMuted();
     } else {
@@ -672,23 +674,69 @@
   // Without this, only the first element unlocked via unlock() gets that approval —
   // every other clip still requires its own gesture, causing the "first play silent"
   // bug on iPad/iPhone.
+  //
+  // Race-condition guard: game-shell calls speak('ready') right after warmUp().
+  // speak() reuses the same cached element for 'em-ready-lets-go.m4a'.
+  // Without the guard, warmUp's async .then() fires AFTER speak() has started
+  // the real clip, and the pause() call kills it mid-word.
+  // Fix: each element is tagged _warmingUp = true before play().  speak() and
+  // speakAndWait() clear the flag when they take over an element, so warmUp's
+  // .then() sees the flag is gone and skips the pause.
   function warmUp() {
     if (warmUp._done) return;
     warmUp._done = true;
     const muted = isMuted();
     Object.values(cache).forEach(audio => {
       if (!(audio instanceof Audio)) return;
+      audio._warmingUp = true;
       audio.muted = true;
       audio.play()
         .then(() => {
+          if (!audio._warmingUp) return;  // speak() already took over — skip pause
+          audio._warmingUp = false;
           audio.pause();
           audio.currentTime = 0;
           audio.muted = muted;
         })
         .catch(() => {
+          audio._warmingUp = false;
           audio.muted = muted;
         });
     });
+  }
+
+  // speakCourtesy: used for encouragement clips ("yay", "great job", etc.)
+  // that should NEVER interrupt an active instruction/callout.
+  //
+  // Behaviour:
+  //  • If a clip is currently playing → queue this clip to play immediately
+  //    after it ends.  Only one courtesy clip can be pending — a newer call
+  //    replaces any earlier pending clip.
+  //  • If nothing is playing → play immediately (same as speak()).
+  //  • If speak() / speakAndWait() fires a new instruction while a courtesy
+  //    is pending, the instruction wins: speak() pauses the current voice
+  //    (not "ended"), so the courtesy's ended listener never fires and the
+  //    stale clip is silently dropped.  This is intentional.
+  let _pendingCourtesyKey = null;
+
+  function speakCourtesy(key) {
+    if (isMuted()) return;
+    _pendingCourtesyKey = key;
+
+    const voice = currentVoice;
+    if (voice && !voice.paused && !voice.ended) {
+      // Something important is playing — wait for it to finish naturally
+      voice.addEventListener('ended', () => {
+        if (_pendingCourtesyKey === key) {
+          _pendingCourtesyKey = null;
+          speak(key);
+        }
+      }, { once: true });
+    } else {
+      // Nothing active — play right away
+      _pendingCourtesyKey = null;
+      speak(key);
+    }
   }
 
   /* ── Export ──────────────────────────────────────────────── */
@@ -705,6 +753,7 @@
     injectMuteButton,
     unlock,
     warmUp,
+    speakCourtesy,
     createMuteButton,
   };
 

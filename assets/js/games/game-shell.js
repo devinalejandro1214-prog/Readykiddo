@@ -399,7 +399,13 @@ class GameShell {
       'keep it up'
     ];
     const key = pool[Math.floor(Math.random() * pool.length)];
-    this.speak(key);
+    // Use speakCourtesy so encouragement never cuts off an active instruction
+    // or callout clip.  Falls back to regular speak() if RKAudio isn't ready.
+    if (window.RKAudio && typeof RKAudio.speakCourtesy === 'function') {
+      RKAudio.speakCourtesy(key);
+    } else {
+      this.speak(key);
+    }
   }
 
   /* ─────────────────────────────────────────────────────────

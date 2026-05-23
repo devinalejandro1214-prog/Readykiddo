@@ -436,7 +436,9 @@ class FeedAlienGame {
 
     this.updateCounter();
     this.triggerChomp();
-    this.context.speak(String(this.selectedCount));
+    // Number callout removed: rapid drag events fire speak() in quick succession,
+    // each one killing the previous — child never hears any of them cleanly.
+    // The on-screen counter + alien thought bubble already shows the count.
     this._animateBasketRefill();
 
     if (this.selectedCount === this.requiredCount) {
