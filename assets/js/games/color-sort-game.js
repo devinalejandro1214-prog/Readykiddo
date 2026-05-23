@@ -124,8 +124,20 @@ class ColorSortGame {
       // Block taps until the target color is called out — if the child taps during
       // the intro clip, targetColor is still null and handleDrop shows "Find null!".
       // speakAndWait resolves on clip-end so the callout never overlaps or drops.
+      //
+      // Safety timer: if speakAndWait never resolves (audio interrupted by mute toggle,
+      // tab backgrounding, or any other external event), unblock the game after 3 s so
+      // the child is never permanently stuck.
       this.busy = true;
+      const _safetyUnlock = setTimeout(() => {
+        if (this.busy && !this.ended && !this.targetColor) {
+          this.callOutNextColor();
+          this.busy = false;
+        }
+      }, 3000);
+
       this.context.speakAndWait('match the colors').then(() => {
+        clearTimeout(_safetyUnlock);
         if (!this.ended) {
           this.callOutNextColor();
           this.busy = false;
