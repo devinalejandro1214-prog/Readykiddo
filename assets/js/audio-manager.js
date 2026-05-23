@@ -322,6 +322,26 @@
   /* ── Preload cache ───────────────────────────────────────── */
   const cache = {}; // path → HTMLAudioElement (preloaded)
 
+  // Clips most likely to play within the first 60 s of any game.
+  // These are fetched as blobs immediately (fetch has no gesture restriction)
+  // so audio data is already in memory when play() is first called —
+  // bypassing iOS/iPadOS's silent preload='auto' limitation.
+  // Only clean filenames (no spaces / special chars) are listed here so
+  // the fetch URL is always valid without manual encoding.
+  const _PRIORITY_CLIPS = [
+    'em-ready-lets-go.m4a',
+    'em-match-colors.m4a',   'em-match-shapes.m4a',
+    'em-you-got-it.m4a',     'em-you-found-it.m4a',
+    'em-great-job.m4a',      'em-yay.m4a',
+    'em-try-again.m4a',      'em-aww-man.m4a',
+    'em-keep-it-up.m4a',     'em-almost-there.m4a',
+    'em-find-red.m4a',       'em-find-blue.m4a',
+    'em-find-yellow.m4a',    'em-find-orange.m4a',
+    'em-find-green.m4a',     'em-find-purple.m4a',
+    'em-circle.m4a',
+    'Amara-Yay.m4a',         'Amara-Oh man.m4a',
+  ];
+
   function preloadAll() {
     // Preload both maps so clips are ready regardless of character selection timing
     const allFiles = [
@@ -335,6 +355,28 @@
       a.src = path;
       a.load();
       cache[path] = a;
+    });
+
+    // ── Priority blob-fetch ──────────────────────────────────
+    // fetch() works without a user gesture.  Storing blobs in memory
+    // means the cached Audio element can play instantly — no network
+    // round-trip at the moment the game needs the clip.
+    // We replace the cache entry (HTTP src) with a blob-URL element
+    // only while the original element is paused (i.e. not mid-play).
+    _PRIORITY_CLIPS.forEach(filename => {
+      const path = VOICE_BASE + filename;
+      if (!cache[path]) return;   // skip if not in any voice map
+      fetch(path)
+        .then(r => r.ok ? r.blob() : null)
+        .then(blob => {
+          if (!blob) return;
+          const existing = cache[path];
+          if (existing && !existing.paused) return;  // don't interrupt active play
+          const a = new Audio(URL.createObjectURL(blob));
+          a.preload = 'auto';
+          cache[path] = a;
+        })
+        .catch(() => { /* HTTP fallback stays in cache — silently ignore */ });
     });
 
     Object.values(SFX_MAP).forEach(({ path }) => {
@@ -624,6 +666,31 @@
     a.play().catch(() => {});
   }
 
+  // Called immediately after unlock() on the Let's Go tap.
+  // Plays-then-pauses every cached Audio element silently within the gesture
+  // window so iOS marks each one as "user-approved" for future programmatic play.
+  // Without this, only the first element unlocked via unlock() gets that approval —
+  // every other clip still requires its own gesture, causing the "first play silent"
+  // bug on iPad/iPhone.
+  function warmUp() {
+    if (warmUp._done) return;
+    warmUp._done = true;
+    const muted = isMuted();
+    Object.values(cache).forEach(audio => {
+      if (!(audio instanceof Audio)) return;
+      audio.muted = true;
+      audio.play()
+        .then(() => {
+          audio.pause();
+          audio.currentTime = 0;
+          audio.muted = muted;
+        })
+        .catch(() => {
+          audio.muted = muted;
+        });
+    });
+  }
+
   /* ── Export ──────────────────────────────────────────────── */
   window.RKAudio = {
     preloadAll,
@@ -637,6 +704,7 @@
     setMuted,
     injectMuteButton,
     unlock,
+    warmUp,
     createMuteButton,
   };
 

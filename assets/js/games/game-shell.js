@@ -337,6 +337,10 @@ class GameShell {
       btn.addEventListener('click', () => {
         if (window.RKAudio) {
           RKAudio.unlock();
+          // warmUp() plays-then-pauses every cached clip silently within this
+          // gesture window so iOS marks each element as user-approved for future
+          // programmatic play — fixes "first clip silent" on iPad/iPhone.
+          if (typeof RKAudio.warmUp === 'function') RKAudio.warmUp();
           RKAudio.speak('ready');
         }
         overlay.remove();
