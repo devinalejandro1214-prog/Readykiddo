@@ -8,6 +8,7 @@ const SHAPE_KEYS = ['circle', 'square', 'triangle', 'star', 'rectangle', 'diamon
 
 // Each shape gets its own distinct colour so the tiles look like coloured
 // paper cut-outs rather than identical blue cards.
+// Rendered as filled SVG shapes (not PNG files).
 const SHAPE_CHOICE_COLORS = {
   circle:    'red',
   square:    'purple',
@@ -16,21 +17,9 @@ const SHAPE_CHOICE_COLORS = {
   rectangle: 'orange',
   diamond:   'blue',
 };
-function getShapePNG(shape) {
-  const color = SHAPE_CHOICE_COLORS[shape] || 'blue';
-  return `assets/images/games/shapes/${color}-${shape}.png`;
-}
 
-const SHAPE_IMAGE_PRELOAD_CACHE = new Map();
-function preloadShapeImages() {
-  SHAPE_KEYS.map(getShapePNG).forEach(path => {
-    if (SHAPE_IMAGE_PRELOAD_CACHE.has(path)) return;
-    const img = new Image();
-    img.decoding = 'async';
-    img.loading = 'eager';
-    img.src = path;
-    SHAPE_IMAGE_PRELOAD_CACHE.set(path, img);
-  });
+function getShapeColorName(shape) {
+  return SHAPE_CHOICE_COLORS[shape] || 'blue';
 }
 
 class ShapeRecognitionGame {
@@ -71,7 +60,7 @@ class ShapeRecognitionGame {
 
   async startGame() {
     this.render();
-    preloadShapeImages();
+    // SVG shapes are rendered inline — no preload needed
 
     const bgEl = document.getElementById('gameBackground');
     if (bgEl && this.context.backgroundPath) bgEl.src = this.context.backgroundPath;
@@ -215,18 +204,17 @@ class ShapeRecognitionGame {
       choice.dataset.index = String(index);
       choice.dataset.item  = shapeName;
 
-      const img = document.createElement('img');
-      img.src = getShapePNG(shapeName);
-      img.alt = shapeName;
-      img.decoding = 'async';
-      img.loading = 'eager';
-      img.fetchPriority = 'high';
-      img.style.cssText = 'width:100%;height:100%;object-fit:contain;';
-      img.onerror = () => {
-        img.remove();
-        choice.innerHTML = getShapeSVG(shapeName, 'medium') || `<span>${shapeName}</span>`;
-      };
-      choice.appendChild(img);
+      // Render colored SVG shape directly (no PNG fallback needed)
+      const colorName = getShapeColorName(shapeName);
+      const svgHtml = getShapeSVG(shapeName, 'medium', colorName);
+      choice.innerHTML = svgHtml;
+
+      // Set SVG container to fill available space
+      const svgEl = choice.querySelector('svg');
+      if (svgEl) {
+        svgEl.style.cssText = 'width:100%;height:100%;display:block;';
+      }
+
       const isRound2 = this.itemsShown >= 6;
       if (!isRound2) {
         choice.addEventListener('pointerdown', e => this.startPointerDrag(e, choice));

@@ -3,9 +3,20 @@
    Used for shape recognition game
    ───────────────────────────────────────────────────────── */
 
+/* ── Color palette for each shape ─────────────────────────── */
 const SHAPE_COLORS = {
-  primary: '#4a90e2',
+  primary: '#4a90e2',      // fallback outline color
   secondary: '#2a5aa8',
+};
+
+/* ── Solid fill colors for shape tiles ─────────────────────── */
+const SHAPE_TILE_COLORS = {
+  red:    '#EF5350',
+  purple: '#AB47BC',
+  green:  '#66BB6A',
+  yellow: '#FDD835',
+  orange: '#FF9800',
+  blue:   '#42A5F5'
 };
 
 const SHAPES = {
@@ -114,16 +125,30 @@ const SHAPES = {
 };
 
 /* ─────────────────────────────────────────────────────────
-   Helper: Get shape SVG (fallback / small thumbnails)
+   Helper: Get shape SVG with optional color fill
+   Used for: game tiles (colored), outlines (blue), thumbnails
    ───────────────────────────────────────────────────────── */
 
-function getShapeSVG(shapeType, size = 'large') {
+function getShapeSVG(shapeType, size = 'large', colorName = null) {
   const generator = SHAPES[shapeType];
   if (!generator) {
     console.warn(`Shape not found: ${shapeType}`);
     return SHAPES.circle(size);
   }
-  return generator(size);
+
+  let svg = generator(size);
+
+  // If a color is requested, replace the outline stroke with a solid fill
+  if (colorName && SHAPE_TILE_COLORS[colorName]) {
+    const fillColor = SHAPE_TILE_COLORS[colorName];
+    // Remove stroke, add fill
+    svg = svg
+      .replace('fill="none"', `fill="${fillColor}"`)
+      .replace(/stroke="#[0-9a-f]{6}"/gi, `stroke="none"`)
+      .replace(/stroke-width="[^"]*"/g, '');
+  }
+
+  return svg;
 }
 
 /* ─────────────────────────────────────────────────────────
