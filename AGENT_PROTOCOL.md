@@ -1,5 +1,5 @@
 # ReadyKiddo 2.0 — Agent Protocol
-> Version 1.0 | Maintained by: Antigravity (Overseer)
+> Version 1.2 | Maintained by: Antigravity (Overseer)
 > **OVERSEER: Read this file at the start of every session before touching anything.**
 
 ---
@@ -289,6 +289,112 @@ Every completed operation must be logged in `AGENT_COLLAB_LOG.md` with:
 4. **Audio keys must be verified against real files before shipping.**
 5. **AGENT_COLLAB_LOG.md is updated before the session closes.**
 6. **The Overseer reads the full diff — not a summary, the diff.**
+
+---
+
+## 13. Check-In Protocol
+
+Devin should never wonder what is happening. The Overseer proactively communicates at every meaningful moment.
+
+### Mandatory Check-In Triggers
+
+The Overseer MUST send a check-in message when any of these happen — no waiting to be asked:
+
+| Trigger | What to say |
+|---|---|
+| Gate 0 complete (brief ready) | Summary of the brief + ask for approval |
+| Agent task started | "🟢 [Agent] is now working on [task]. I'll update you when the diff is ready." |
+| Agent task complete | "✅ [Agent] finished. Here's what changed: [2-3 bullet points]. Reviewing now." |
+| Diff reviewed and clean | "👍 Diff is clean. Running tests, then committing." |
+| Commit pushed | "🚀 Deployed to main — commit [hash]. [What to look at on the live site]." |
+| Blocker or unexpected issue found | "⚠️ Pausing — found [issue]. Here are the options: [A / B]. What do you want to do?" |
+| More than 5 minutes of silent work | Check in with current status, even if nothing is ready yet |
+
+### Check-In Message Format
+
+Keep it short, plain English, and actionable. No jargon.
+
+```
+🟢 Status: [what is happening right now]
+📋 Last done: [what just finished]
+⏭️ Next: [what comes next]
+❓ Need from you: [decision / approval / nothing — just FYI]
+```
+
+**Example:**
+> 🟢 Status: Claude is writing the Beach theme CSS override.
+> 📋 Last done: Jungle theme approved and committed (a1b2c3d).
+> ⏭️ Next: Review Beach diff, then Castle and Studio.
+> ❓ Need from you: Nothing right now — I'll ping you when the diff is ready.
+
+### What Devin Should Never Have to Ask
+- "What are you working on?"
+- "Is this done yet?"
+- "Did it deploy?"
+- "Did anything break?"
+
+If Devin has to ask any of these — the Overseer missed a check-in.
+
+---
+
+## 14. Mobile-First UI Priority
+
+**ReadyKiddo's primary audience is children on phones and tablets.**
+Most users will never touch a desktop. Mobile is not an afterthought — it is the design target.
+
+### The Mobile-First Rule
+
+> **Every UI element must be designed for 375px wide first.**
+> Desktop scaling is an enhancement, not the baseline.
+
+This applies to every agent:
+- **Claude:** Write mobile CSS first. Desktop overrides go in `@media (min-width: Npx)` blocks, not the other way around.
+- **Codex:** Any DOM structure that affects layout must be reviewed for touch usability.
+- **Overseer:** Gate 2 review always includes a mobile check before approval.
+
+### Mobile Requirements (Non-Negotiable in Every Brief)
+
+Every CSS brief sent to Claude MUST include these as acceptance criteria:
+
+```
+MOBILE ACCEPTANCE CRITERIA:
+- [ ] All tap targets are minimum 44px × 44px (Apple HIG standard)
+- [ ] No horizontal scrolling at 375px viewport width
+- [ ] Text is readable without pinching (min 16px body, min 19px prompts)
+- [ ] Breakpoints exist at 820px (tablet) and 430px (large phone) minimum
+- [ ] Touch targets have enough spacing — no two tappable elements closer than 8px
+- [ ] prefers-reduced-motion block exists for all animations
+- [ ] Tested mentally at 375px, 430px, 768px, and 1024px
+```
+
+### Device Priority Order
+
+| Priority | Device | Viewport |
+|---|---|---|
+| 1 (Primary) | iPhone SE / small Android | 375px |
+| 2 | iPhone 14 / large Android | 390–430px |
+| 3 | iPad / tablet | 768–1024px |
+| 4 (Enhancement) | Desktop | 1280px+ |
+
+### Game-Specific Mobile Rules
+
+- **Item tap zones** must be large enough for a child's finger (not a stylus)
+- **Count item grids** should never overflow — use `grid-template-columns: repeat(auto-fit, ...)` or explicit max columns
+- **Choice card rows** must wrap or compress gracefully — never clip off screen
+- **Pause / overlay panels** must be `min(420px, 92vw)` or similar — never full fixed width
+- **Text prompts** inside game panels must use `clamp()` for responsive font sizing
+
+### What the Overseer Checks at Gate 2 for UI
+
+```
+MOBILE GATE 2 CHECKLIST:
+  ☐ Opened DevTools (or mentally simulated) at 375px
+  ☐ No elements clip or overflow horizontally
+  ☐ All buttons are tap-sized
+  ☐ Font sizes use clamp() or are ≥ 16px at smallest breakpoint
+  ☐ Animations have reduced-motion fallback
+  ☐ Overlays and panels fit within 92vw
+```
 
 ---
 
