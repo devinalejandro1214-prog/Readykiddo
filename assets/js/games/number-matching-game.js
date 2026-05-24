@@ -86,7 +86,7 @@ class NumberMatchingGame {
 
     this.renderRound();
     this.renderProgress();
-    this.context.speak(`count ${target}`);
+    this.context.speak(String(target));
   }
 
   renderShell() {
@@ -203,7 +203,7 @@ class NumberMatchingGame {
       card.disabled = false;
       card.classList.add('nm-choice-card--ready');
     });
-    this.context.speak(`find ${this.round.target}`);
+    this.context.speak(String(this.round.target));
   }
 
   handleChoiceTap(button) {
