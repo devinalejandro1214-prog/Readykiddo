@@ -336,11 +336,9 @@ class GameShell {
       const btn = document.getElementById('tapToStartBtn');
       btn.addEventListener('click', () => {
         if (window.RKAudio) {
+          // unlock() activates the iOS audio context on this tap gesture
+          // speak('ready') plays immediately after — no warmUp needed
           RKAudio.unlock();
-          // warmUp() plays-then-pauses every cached clip silently within this
-          // gesture window so iOS marks each element as user-approved for future
-          // programmatic play — fixes "first clip silent" on iPad/iPhone.
-          if (typeof RKAudio.warmUp === 'function') RKAudio.warmUp();
           RKAudio.speak('ready');
         }
         overlay.remove();
