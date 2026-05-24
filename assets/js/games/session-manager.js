@@ -19,6 +19,7 @@
   const SESSION_TOPICS = {
     'color-sort':        { name: 'Color Mission',    icon: '🎨', subline: 'Sort the colors into their homes!'     },
     'shape-recognition': { name: 'Shape Quest',      icon: '🔷', subline: 'Match every shape to its outline!'    },
+    'number-matching':   { name: 'Number Match',     icon: '123', subline: 'Count the items and find the number!'  },
     'space-defender':    { name: 'Space Adventure',  icon: '🚀', subline: 'Defend the galaxy!'                   },
     'feed-alien':        { name: 'Counting Journey', icon: '👾', subline: 'Feed your hungry alien friend!'        },
     'number-line':       { name: 'Number Quest',     icon: '🔢', subline: 'Fill in the missing numbers!'          },
@@ -72,6 +73,13 @@
       { phaseIdx: 1, afterItem: 3  },
       { phaseIdx: 2, afterItem: 6  },
       { phaseIdx: 3, afterItem: 10 },
+    ],
+    // number-matching: 10 rounds. Rounds 1-5 use visible ordinal badges;
+    // rounds 6-10 hide badges and add a fourth choice.
+    'number-matching': [
+      { phaseIdx: 1, afterItem: 3  },
+      { phaseIdx: 2, afterItem: 5  },
+      { phaseIdx: 3, afterItem: 8  },
     ],
     // abc-match: 11 identical rounds (letter chip → find the matching picture).
     // All rounds are mechanically identical — no structural difficulty shift.

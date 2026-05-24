@@ -95,15 +95,20 @@ function getSavedGame(profile) {
     // Check dedicated progress keys for games that save mid-session
     const keyedCandidates = [
         { key: `colorSortProgress_${childId}`,       gameType: 'color-sort',       label: 'Color Sort'   },
-        { key: `shapeRecognitionProgress_${childId}`, gameType: 'shape-recognition', label: 'Shape Game'   }
+        { key: `shapeRecognitionProgress_${childId}`, gameType: 'shape-recognition', label: 'Shape Game'   },
+        { key: `numberMatchingProgress_${childId}`,  gameType: 'number-matching',  label: 'Number Match' }
     ];
 
     const fromKeys = keyedCandidates
         .map(candidate => {
             try {
                 const saved = JSON.parse(localStorage.getItem(candidate.key) || 'null');
-                if (!saved || typeof saved.itemsShown !== 'number') return null;
-                return { ...candidate, itemsShown: saved.itemsShown, savedAt: saved.savedAt || 0 };
+                if (!saved) return null;
+                const itemsShown = typeof saved.itemsShown === 'number'
+                    ? saved.itemsShown
+                    : saved.currentRound;
+                if (typeof itemsShown !== 'number') return null;
+                return { ...candidate, itemsShown, savedAt: saved.savedAt || 0 };
             } catch (e) { return null; }
         })
         .filter(Boolean);

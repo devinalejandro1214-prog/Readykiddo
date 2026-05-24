@@ -22,13 +22,13 @@ const GAME_REGISTRY = {
     isActive: true,
     order: 2
   },
-  'coming-soon-1': {
+  'number-matching': {
     name: 'Number Matching',
-    description: 'Count and match quantities (Coming Soon)',
-    class: null,
-    scriptPath: null,
-    cssPath: null,
-    isActive: false,
+    description: 'Count and match quantities',
+    class: 'NumberMatchingGame',
+    scriptPath: 'assets/js/games/number-matching-game.js',
+    cssPath: 'assets/css/number-matching-game.css',
+    isActive: true,
     order: 3
   },
   'pattern-next': {
@@ -252,6 +252,10 @@ function getNextGameRecommendation(currentGameType, finalBranch, accuracy) {
 
   if (currentGameType === 'shape-recognition') {
     return 'space-defender'; // Forward progression in the game chain
+  }
+
+  if (currentGameType === 'number-matching') {
+    return 'space-defender'; // Counting match transitions into Space Defender
   }
 
   if (currentGameType === 'space-defender') {
