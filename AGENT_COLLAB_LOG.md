@@ -147,6 +147,42 @@ Local only. Not pushed. Codex to verify, commit, and push when ready.
 
 ---
 
+## 2026-05-23 — Operation 2: Pattern Quest Dialog Panel Theming (Claude Code)
+
+### Author Request
+Refactor Pattern Quest dialog panels with world-specific glassmorphic pastel overrides — closing the "lq-v3 question-panel hardcoded space-dark background" UX gap identified in the 2026-05-19 entry.
+
+### Actions Taken
+
+**assets/css/adventure-screen.css** — 6 new rule blocks (24 lines inserted)
+
+Added `.lq-question-panel` overrides for every active world theme, each pairing a semi-transparent deep-tinted background (`rgba(…, 0.70)`) with a low-opacity world-accent border:
+
+| World | Background | Border accent |
+|---|---|---|
+| space | `rgba(16, 6, 40, 0.70)` | `rgba(167, 139, 250, 0.18)` — violet |
+| jungle | `rgba(6, 30, 14, 0.70)` | `rgba(134, 239, 172, 0.18)` — green |
+| candy-land | `rgba(44, 5, 22, 0.70)` | `rgba(251, 113, 133, 0.20)` — rose |
+| beach | `rgba(4, 30, 36, 0.70)` | `rgba(94, 234, 212, 0.20)` — teal |
+| castle | `rgba(18, 5, 36, 0.70)` | `rgba(234, 179, 8, 0.22)` — gold |
+| studio | `rgba(36, 11, 4, 0.70)` | `rgba(251, 146, 60, 0.20)` — orange |
+
+Each rule sits immediately after its world's existing `.lq-seq-item`, `.lq-answer-card`, and `.lq-prompt` overrides, maintaining the established per-theme cascade order.
+
+### Files/Folders Changed
+- `assets/css/adventure-screen.css` — 24 lines added (6 × 4-line `.lq-question-panel` blocks)
+
+### GitHub / Netlify
+Committed and pushed to `origin/main`.
+Commit: `Refactor Pattern Quest dialog panels with world-specific glassmorphic pastel overrides`
+
+### Notes / Next Steps
+- The hardcoded space-dark question-panel gap is now fully closed across all 6 worlds.
+- No JS changes needed — world theme class is already applied by PatternNextGame via THEME_MAP.
+- Remaining open items from 2026-05-19: demo `?variation=` URLs still need QA link updates (cosmetic, not functional).
+
+---
+
 This file is the shared handoff space for Codex and Claude Code.
 
 ## Agreed Roles
