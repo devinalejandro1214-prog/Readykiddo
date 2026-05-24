@@ -418,7 +418,10 @@
     themeAudio = new Audio(THEME_PATH);
     themeAudio.loop = false;   // play once, stop naturally at end
     themeAudio.volume = 0.35;
-    themeAudio.preload = 'auto';
+    // Use 'none' on mobile to prevent blocking page load
+    // Theme will load on-demand when play() is called
+    const isMobile = /iPhone|iPad|Android|Mobile/i.test(navigator.userAgent);
+    themeAudio.preload = isMobile ? 'none' : 'auto';
     themeAudio.muted = isMuted();
   }
 
@@ -433,18 +436,30 @@
       sessionStorage.removeItem(THEME_POS_KEY);
     }
 
-    themeAudio.play().catch(() => {
-      // Autoplay blocked — will start on first user interaction
-      const startOnce = () => {
-        themeAudio.play().catch(() => {});
+    // Use setTimeout to avoid blocking on slow networks
+    // If audio hasn't loaded in 2 seconds, don't wait for it
+    const safetyTimeout = setTimeout(() => {
+      if (!themeStarted) themeStarted = true;
+    }, 2000);
+
+    themeAudio.play()
+      .then(() => {
+        clearTimeout(safetyTimeout);
         themeStarted = true;
-        document.removeEventListener('pointerdown', startOnce);
-        document.removeEventListener('keydown', startOnce);
-      };
-      document.addEventListener('pointerdown', startOnce, { once: true });
-      document.addEventListener('keydown', startOnce, { once: true });
-    });
-    themeStarted = true;
+      })
+      .catch(() => {
+        clearTimeout(safetyTimeout);
+        // Autoplay blocked — will start on first user interaction
+        const startOnce = () => {
+          themeAudio.play().catch(() => {});
+          themeStarted = true;
+          document.removeEventListener('pointerdown', startOnce);
+          document.removeEventListener('keydown', startOnce);
+        };
+        document.addEventListener('pointerdown', startOnce, { once: true });
+        document.addEventListener('keydown', startOnce, { once: true });
+        themeStarted = true;
+      });
   }
 
   function stopTheme() {
