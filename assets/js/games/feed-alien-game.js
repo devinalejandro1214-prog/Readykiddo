@@ -32,6 +32,7 @@ class FeedAlienGame {
 
     this._pupilHandler = null;
     this.activeDrag = null;
+    this._countTimer = null;
     this.handleDragMove = this.onDragMove.bind(this);
     this.handleDragEnd  = this.onDragEnd.bind(this);
   }
@@ -415,8 +416,23 @@ class FeedAlienGame {
 
   /* ─── Feed ───────────────────────────────────────────── */
 
+  speakCount(n) {
+    // Debounce: cancel any pending count — only the latest number matters.
+    // Rapid drags queue up; the 80ms window ensures we speak the most
+    // recent count without stacking audio clips over each other.
+    if (this._countTimer) {
+      clearTimeout(this._countTimer);
+      this._countTimer = null;
+    }
+    this._countTimer = setTimeout(() => {
+      this.context.speak(String(n));
+      this._countTimer = null;
+    }, 80);
+  }
+
   feedFood(ghostEl) {
     this.selectedCount++;
+    this.speakCount(this.selectedCount);
 
     // Fly ghost into mouth
     const mouth = document.getElementById('alienMouth');
@@ -436,9 +452,9 @@ class FeedAlienGame {
 
     this.updateCounter();
     this.triggerChomp();
-    // Number callout removed: rapid drag events fire speak() in quick succession,
-    // each one killing the previous — child never hears any of them cleanly.
-    // The on-screen counter + alien thought bubble already shows the count.
+    // speakCount() debounces rapid drags — only the latest count fires,
+    // 80ms after the most recent feed. randomEncouragement() at round end
+    // provides the positive statement when the target is reached.
     this._animateBasketRefill();
 
     if (this.selectedCount === this.requiredCount) {
