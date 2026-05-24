@@ -128,12 +128,12 @@
     'you got it':        'em-you-got-it.m4a',
     'you found it':      'em-you-found-it.m4a',
     'great job':         'em-great-job.m4a',
-    'good job':          'Em-Good job.m4a',
+    'good job':          'em-good-job.m4a',
     'perfect':           'em-great-job.m4a',
     'yay':               'em-yay.m4a',
-    'impressive':        'Em-impressive.m4a',
-    'i cant believe it': 'Em-I canâ€™t believe it.m4a',
-    'laugh':             'Em-Laugh.m4a',
+    'impressive':        'em-impressive.m4a',
+    'i cant believe it': 'em-i-cant-believe-it.m4a',
+    'laugh':             'em-laugh.m4a',
     'wow':               'gray-wow.m4a',
 
     // Wrong feedback
@@ -154,21 +154,21 @@
     ...EM_MAP,  // inherit all callouts and numbers from Em
 
     // Override feedback with Amara's voice
-    'you got it':        'Amara-Yay.m4a',
-    'you found it':      'Amara-Yay we did it!.m4a',
-    'great job':         'Amara-You so smart .m4a',
-    'good job':          'Amara-You so smart .m4a',
-    'perfect':           'Amara-You so smart .m4a',
-    'yay':               'Amara-Yay.m4a',
-    'impressive':        'Amara-You look so cool.m4a',
-    'i cant believe it': 'Amara-Wow.m4a',
-    'laugh':             'Amara-Yay.m4a',
-    'wow':               'Amara-Wow.m4a',
-    'try again':         "Amara-It's okay, try again!.m4a",
-    'aww man':           'Amara-Oh man.m4a',
-    'keep it up':        'Amara-Keep going.m4a',
-    'almost there':      'Amara-Almost there .m4a',
-    'welcome':           'Amara-Welcome to your world .m4a',
+    'you got it':        'amara-yay.m4a',
+    'you found it':      'amara-yay-we-did-it.m4a',
+    'great job':         'amara-you-so-smart.m4a',
+    'good job':          'amara-you-so-smart.m4a',
+    'perfect':           'amara-you-so-smart.m4a',
+    'yay':               'amara-yay.m4a',
+    'impressive':        'amara-you-look-so-cool.m4a',
+    'i cant believe it': 'amara-wow.m4a',
+    'laugh':             'amara-yay.m4a',
+    'wow':               'amara-wow.m4a',
+    'try again':         "amara-its-okay-try-again.m4a",
+    'aww man':           'amara-oh-man.m4a',
+    'keep it up':        'amara-keep-going.m4a',
+    'almost there':      'amara-almost-there.m4a',
+    'welcome':           'amara-welcome-to-your-world.m4a',
   };
 
   function getVoiceMap() { return isFemaleChar() ? AMARA_MAP : EM_MAP; }
@@ -188,7 +188,7 @@
     'em-find-yellow.m4a',    'em-find-orange.m4a',
     'em-find-green.m4a',     'em-find-purple.m4a',
     'em-circle.m4a',         'em-square.m4a',        'em-triangle.m4a',
-    'Amara-Yay.m4a',         'Amara-Oh man.m4a',
+    'amara-yay.m4a',         'amara-oh-man.m4a',
   ];
 
   const cache = {};
