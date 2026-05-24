@@ -640,33 +640,35 @@ const ITEM_GENERATORS = {
   crown: c => `
     <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="crwg" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stop-color="#ffe87a"/>
-          <stop offset="50%" stop-color="#f0c840"/>
-          <stop offset="100%" stop-color="#c8a000"/>
-        </linearGradient>
-        <linearGradient id="crwvg${c}" x1="0%" y1="0%" x2="0%" y2="100%">
+        <linearGradient id="crwbody${c}" x1="0%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%" stop-color="${LIGHT[c]}"/>
           <stop offset="100%" stop-color="${DARK[c]}"/>
         </linearGradient>
+        <linearGradient id="crwband${c}" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="${DARK[c]}"/>
+          <stop offset="100%" stop-color="${DARK[c]}"/>
+        </linearGradient>
       </defs>
+      <!-- Crown body — fully colored -->
       <path d="M12 36l16 30h44l16-30-18 14-14-26-6 22-6-22-14 26z"
-            fill="url(#crwg)" stroke="#c8a000" stroke-width="2.5" stroke-linejoin="round"/>
-      <path d="M12 36l16 30v-22z M88 36l-16 30v-22z" fill="#c8a000" opacity="0.25"/>
-      <rect x="20" y="66" width="60" height="15" rx="4" fill="url(#crwg)" stroke="#c8a000" stroke-width="2.5"/>
-      <rect x="20" y="66" width="28" height="15" rx="4" fill="#c8a000" opacity="0.18"/>
-      <path d="M20 72h60" stroke="#c8a000" stroke-width="1.8" opacity="0.5"/>
-      <path d="M36 66 q7 8 14 0" fill="url(#crwvg${c})" stroke="${DARK[c]}" stroke-width="1.5"/>
-      <circle cx="12" cy="36" r="6" fill="#e03030" stroke="#c8a000" stroke-width="2"/>
-      <circle cx="11" cy="34" r="2.2" fill="#ff9eb5"/>
-      <circle cx="50" cy="37" r="6" fill="#2a7fd9" stroke="#c8a000" stroke-width="2"/>
-      <circle cx="49" cy="35" r="2.2" fill="#aaddff"/>
-      <circle cx="88" cy="36" r="6" fill="#4aaf5a" stroke="#c8a000" stroke-width="2"/>
-      <circle cx="87" cy="34" r="2.2" fill="#aaffc0"/>
-      <circle cx="32" cy="73" r="3.5" fill="#f4c83b" stroke="#c8a000" stroke-width="1.5"/>
-      <circle cx="50" cy="73" r="3.5" fill="#9558c4" stroke="#c8a000" stroke-width="1.5"/>
-      <circle cx="68" cy="73" r="3.5" fill="#4aaf5a" stroke="#c8a000" stroke-width="1.5"/>
-      <path d="M24 42 q8-2 16 2" stroke="white" stroke-width="2" fill="none" opacity="0.4" stroke-linecap="round"/>
+            fill="url(#crwbody${c})" stroke="${DARK[c]}" stroke-width="2.5" stroke-linejoin="round"/>
+      <!-- Shading on sides -->
+      <path d="M12 36l16 30v-22z M88 36l-16 30v-22z" fill="${DARK[c]}" opacity="0.25"/>
+      <!-- Crown band — darker shade of same color -->
+      <rect x="20" y="66" width="60" height="15" rx="4" fill="${DARK[c]}" stroke="${DARK[c]}" stroke-width="2.5"/>
+      <!-- Highlight streak -->
+      <path d="M24 42 q8-2 16 2" stroke="white" stroke-width="2.5" fill="none" opacity="0.45" stroke-linecap="round"/>
+      <!-- Gold accent jewels on tips -->
+      <circle cx="12" cy="36" r="6" fill="#ffe87a" stroke="${DARK[c]}" stroke-width="2"/>
+      <circle cx="11" cy="34" r="2.2" fill="white" opacity="0.7"/>
+      <circle cx="50" cy="37" r="6" fill="#ffe87a" stroke="${DARK[c]}" stroke-width="2"/>
+      <circle cx="49" cy="35" r="2.2" fill="white" opacity="0.7"/>
+      <circle cx="88" cy="36" r="6" fill="#ffe87a" stroke="${DARK[c]}" stroke-width="2"/>
+      <circle cx="87" cy="34" r="2.2" fill="white" opacity="0.7"/>
+      <!-- Gold band gems -->
+      <circle cx="32" cy="73" r="3.5" fill="#ffe87a" stroke="${DARK[c]}" stroke-width="1.5"/>
+      <circle cx="50" cy="73" r="3.5" fill="#ffe87a" stroke="${DARK[c]}" stroke-width="1.5"/>
+      <circle cx="68" cy="73" r="3.5" fill="#ffe87a" stroke="${DARK[c]}" stroke-width="1.5"/>
       ${sparkle(50, 24, 4)}${sparkle(88, 28, 3.5)}
     </svg>`,
 

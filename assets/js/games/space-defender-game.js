@@ -201,10 +201,8 @@ class SpaceDefenderGame {
         <div class="overlay-text">Enemies are coming! Clear 5 levels in one smooth run. Use left and right arrows, or drag, to dodge. We auto-shoot!</div>
         <button class="btn-primary" id="sdBtnStart">Start Level 1</button>
       `;
-      this.context.speak('ready for action');
       this.context.characterAnimation('wave');
     } else if (type === 'gameOver') {
-      this.context.speak('aww man');
       html = `
         <div class="overlay-title">Game Over</div>
         <div class="overlay-text">Nice try, ${this.context.childName}! You made it through ${this.level} levels!</div>
@@ -383,12 +381,10 @@ class SpaceDefenderGame {
       if (this.level >= this.maxLevels) {
         this.showLevelFlash('All levels cleared!');
         this.context.characterAnimation('celebrate');
-        this.context.speak('cleared all 5 levels');
         setTimeout(() => this.showScreen('summary'), 900);
       } else {
         this.showLevelFlash(`Level ${this.level} clear!`);
         this.context.characterAnimation('celebrate');
-        this.context.speak('great effort');   // em-sd-great-effort.wav — was recorded but never wired
         setTimeout(() => {
           this.level++;
           this.startLevel();
@@ -512,7 +508,6 @@ class SpaceDefenderGame {
     this.playArea.appendChild(exp);
     setTimeout(() => exp.remove(), 400);
 
-    this.context.playSound('space-hit');
     this.context.characterAnimation('thumbs-up');
     enemy.el.remove();
     this.enemies.splice(index, 1);
