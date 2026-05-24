@@ -201,7 +201,7 @@ class SpaceDefenderGame {
         <div class="overlay-text">Enemies are coming! Clear 5 levels in one smooth run. Use left and right arrows, or drag, to dodge. We auto-shoot!</div>
         <button class="btn-primary" id="sdBtnStart">Start Level 1</button>
       `;
-      this.context.speak(`Ready for action, ${this.context.childName}? Enemies are coming!`);
+      this.context.speak('ready for action');
       this.context.characterAnimation('wave');
     } else if (type === 'gameOver') {
       this.context.speak('aww man');
@@ -522,6 +522,9 @@ class SpaceDefenderGame {
     this.lives--;
     const livesEls = document.querySelectorAll('.life');
     if (livesEls[this.lives]) livesEls[this.lives].classList.add('lost');
+
+    // SFX only — no voice clip, keeps it punchy without being overwhelming
+    if (window.RKAudio) RKAudio.playSfx('space-destroyed');
 
     this.container.style.boxShadow = 'inset 0 0 50px red';
     setTimeout(() => {
