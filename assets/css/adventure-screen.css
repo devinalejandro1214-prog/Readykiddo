@@ -410,6 +410,7 @@
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   padding: 18px 16px 14px;
+  padding-left: clamp(16px, 8vw, 24px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -530,6 +531,24 @@
   .lq-answers    { gap: 7px; }
   .lq-answer     { border-radius: 14px; min-height: 64px; }
   .lq-seq-item   { border-radius: 14px; }
+
+  .lq-v3 .lq-question-panel {
+    padding: 14px 14px 12px;
+  }
+  .lq-v3 .lq-sequence {
+    gap: 6px;
+  }
+  .lq-v3 .lq-seq-item {
+    width:  clamp(52px, 13vw, 58px);
+    height: clamp(52px, 13vw, 58px);
+  }
+  .lq-v3 .lq-answers-panel {
+    padding-left: clamp(14px, 7vw, 20px);
+  }
+  .lq-v3 > .lq-char img {
+    max-width: min(26vw, 130px);
+    max-height: min(40vh, 220px);
+  }
 }
 
 /* Landscape phones — compressed vertical space */

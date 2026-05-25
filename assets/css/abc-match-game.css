@@ -8,10 +8,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
-  padding: 16px 12px 24px;
-  min-height: 100%;
+  gap: clamp(10px, 2vh, 20px);
+  padding: clamp(10px, 2vh, 16px) 12px clamp(14px, 2vh, 24px);
+  height: 100%;
+  max-height: 100%;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 /* ── Alien Area ──────────────────────────────────────────── */
@@ -36,6 +38,13 @@
 
 @media (min-width: 480px) {
   .am-alien { width: 150px; height: 183px; }
+}
+
+@media (max-width: 374px) {
+  .am-alien         { width: 88px;  height: 107px; }
+  .am-letter-chip   { width: 60px;  height: 60px;  }
+  .am-bubble        { max-width: 180px; padding: 10px 12px; }
+  .am-alien-area    { gap: 10px; }
 }
 
 /* Shadow */
@@ -283,7 +292,7 @@
 .am-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
+  gap: clamp(10px, 3vw, 14px);
   width: 100%;
   max-width: 380px;
 }
@@ -297,7 +306,8 @@
   background: #fff;
   border: 3px solid #e0e0e0;
   border-radius: 18px;
-  padding: 16px 8px;
+  padding: clamp(12px, 3vw, 16px) 8px;
+  min-height: 80px;
   cursor: pointer;
   user-select: none;
   transition: border-color 0.15s, transform 0.1s, background 0.15s;
@@ -312,7 +322,7 @@
 }
 
 .am-tile-emoji {
-  font-size: 2.6rem;
+  font-size: clamp(2rem, 7vw, 2.6rem);
   line-height: 1;
 }
 
@@ -446,4 +456,14 @@
 .am-next-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 18px rgba(11,95,149,0.45);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .am-tile,
+  .am-tile--correct,
+  .am-tile--shake,
+  .am-chip-ghost {
+    animation: none !important;
+    transition: none !important;
+  }
 }
