@@ -3555,3 +3555,19 @@ Notes / Next Steps:
 **Bugs Found:** none
 **Open Items:** none
 **Commit:** ac9cabd
+
+## Op 6 — Mobile Layout Fix (ABC Match + Pattern Quest) — 2026-05-25
+**Agent:** Claude (Implementation) + Overseer (Review)
+**Files Changed:** assets/css/abc-match-game.css, assets/css/adventure-screen.css
+**What Changed:** Added mobile layout fixes for ABC Match (vertical overflow, tile sizes) and Pattern Quest (left padding for character overlap, sequence item sizing).
+**Bugs Found:** none
+**Open Items:** none
+**Commit:** 4077b56
+
+## Op 4 — Mobile Audio Reliability Fix — 2026-05-25
+**Agent:** Claude (Implementation) + Overseer (Review)
+**Files Changed:** assets/js/audio-manager.js
+**What Changed:** Added visibilitychange reconnect, 25-second silent keepalive interval for iOS Safari, one-time pointerdown document listener to unlock audio on first tap anywhere, and primeClip() pre-buffering to eliminate first-clip lag.
+**Bugs Found:** none
+**Open Items:** none
+**Commit:** 4ecf554
