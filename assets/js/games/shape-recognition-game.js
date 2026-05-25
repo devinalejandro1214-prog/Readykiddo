@@ -110,7 +110,9 @@ class ShapeRecognitionGame {
     if (stageEl) stageEl.style.display = isRound2 ? 'none' : '';
     this.renderChoices();
     this.renderProgress();
-    this.updateInstruction(isRound2 ? 'Listen for the shape to match!' : 'Tap a shape!');
+    this.updateInstruction(isRound2
+      ? 'Listen for the shape to match!'
+      : (this.context.ageGroup === '3-4' ? 'Tap a shape!' : 'Drag each shape to its matching outline!'));
 
     if (isRound2) {
       // Block taps until the target shape is called out — same guard as color-sort.
@@ -168,7 +170,7 @@ class ShapeRecognitionGame {
         </div>
 
         <div class="shape-stage" id="shapeStage"></div>
-        <div class="shape-instruction" id="shapeInstruction">Tap a shape!</div>
+        <div class="shape-instruction" id="shapeInstruction">Get ready!</div>
         <div class="shape-choices" id="shapeChoices"></div>
         <div class="shape-feedback" id="shapeFeedback" style="display:none;"></div>
       </div>
@@ -192,7 +194,8 @@ class ShapeRecognitionGame {
 
       target.innerHTML = `<div class="shape-outline">${getShapeSVG(shapeName, 'medium')}</div>`;
       const isRound1 = this.itemsShown < 6;
-      if (isRound1 && !this.matchedShapes.has(shapeName)) {
+      const useTap   = this.context.ageGroup === '3-4';
+      if (isRound1 && useTap && !this.matchedShapes.has(shapeName)) {
         target.addEventListener('pointerdown', e => this.handleRound1TargetTap(e, target));
       }
       stage.appendChild(target);
@@ -227,7 +230,10 @@ class ShapeRecognitionGame {
 
       const isRound2 = this.itemsShown >= 6;
       if (!isRound2) {
-        choice.addEventListener('pointerdown', e => this.handleRound1ChoiceTap(e, choice));
+        const useTap = this.context.ageGroup === '3-4';
+        choice.addEventListener('pointerdown', useTap
+          ? e => this.handleRound1ChoiceTap(e, choice)
+          : e => this.startPointerDrag(e, choice));
       } else {
         choice.addEventListener('pointerdown', e => this.handleTapSelect(e, choice));
       }

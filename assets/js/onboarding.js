@@ -11,6 +11,17 @@ const onboardingSteps = [
         nextButtonText: 'Next'
     },
     {
+        id: 'ageGroup',
+        title: 'How old is your explorer?',
+        subtitle: "We'll set up the perfect adventure",
+        type: 'options',
+        options: [
+            { label: '3–4 Years', value: '3-4', description: 'Tap to play', icon: '🌱' },
+            { label: '4–5 Years', value: '4-5', description: 'Tap & drag', icon: '⭐' }
+        ],
+        nextButtonText: 'Next'
+    },
+    {
         id: 'theme',
         title: 'Pick your world',
         subtitle: 'Choose the environment for your adventure',
@@ -216,17 +227,31 @@ function renderOptionButtons(step) {
     const group = document.createElement('div');
     group.className = 'button-group image-option-group';
 
-    options.forEach(option => {
+        options.forEach(option => {
         const label = typeof option === 'object' ? option.label : option;
+        const value = typeof option === 'object' && option.value ? option.value : label;
+        const icon = typeof option === 'object' ? option.icon : null;
+        const description = typeof option === 'object' ? option.description : null;
+
         const btn = document.createElement('button');
         btn.className = 'option-button image-option-button' +
-                        (userChoices[step.id] === label ? ' selected' : '');
+                        (userChoices[step.id] === value ? ' selected' : '');
         btn.setAttribute('aria-label', label);
 
-        btn.innerHTML = `
-            <img src="${option.image}" alt="${label}" class="option-button-image">
-            <span class="option-button-label">${label}</span>
-        `;
+        let innerHTML = '';
+        if (typeof option === 'object' && option.image) {
+            innerHTML += `<img src="${option.image}" alt="${label}" class="option-button-image">`;
+        } else if (icon) {
+            innerHTML += `<div class="option-button-icon">${icon}</div>`;
+        }
+        
+        innerHTML += `<span class="option-button-label">${label}</span>`;
+        
+        if (description) {
+            innerHTML += `<span class="option-button-desc muted">${description}</span>`;
+        }
+        
+        btn.innerHTML = innerHTML;
 
         btn.addEventListener('click', () => {
             // Start theme on first user tap (guaranteed gesture = always works)
@@ -234,7 +259,7 @@ function renderOptionButtons(step) {
             group.querySelectorAll('.option-button')
                  .forEach(b => b.classList.remove('selected'));
             btn.classList.add('selected');
-            userChoices[step.id] = label;
+            userChoices[step.id] = value;
 
             // Auto-advance to next step after selection (music only — no voice clip)
             setTimeout(() => advanceFromOptionStep(step), 500);

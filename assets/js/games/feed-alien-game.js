@@ -267,10 +267,43 @@ class FeedAlienGame {
     `;
 
     const basket = document.getElementById('feedBasket');
-    basket.addEventListener('pointerdown', e => this.startBasketDrag(e));
+    const useTap = this.context.ageGroup === '3-4';
+    if (useTap) {
+      basket.addEventListener('pointerdown', e => this.handleFoodTap(e, basket));
+    } else {
+      basket.addEventListener('pointerdown', e => this.startBasketDrag(e));
+    }
     basket.addEventListener('mousedown',   e => this.startBasketDrag(e));
     basket.addEventListener('touchstart',  e => this.startBasketDrag(e), { passive: false });
     basket.addEventListener('dragstart',   e => e.preventDefault());
+  }
+
+  handleFoodTap(event, item) {
+    if (this.roundCorrect || this.activeDrag) return;
+    event.preventDefault();
+
+    const bRect    = item.getBoundingClientRect();
+    const ghostSize = 72;
+    const startX   = bRect.left + bRect.width  / 2 - ghostSize / 2;
+    const startY   = bRect.top  + bRect.height / 2 - ghostSize / 2;
+
+    const ghost = document.createElement('div');
+    ghost.className = 'food-drag-ghost';
+    ghost.innerHTML = this.getFoodSVG();
+    ghost.style.width        = `${ghostSize}px`;
+    ghost.style.height       = `${ghostSize}px`;
+    ghost.style.borderRadius = '20px';
+    ghost.style.background   = 'linear-gradient(135deg, #fff8dc, #ffe4b5)';
+    ghost.style.border       = '3px solid #f59e0b';
+    ghost.style.display      = 'flex';
+    ghost.style.alignItems   = 'center';
+    ghost.style.justifyContent = 'center';
+    ghost.style.padding      = '8px';
+    ghost.style.transform    = `translate(${startX}px, ${startY}px) scale(0.5) rotate(-6deg)`;
+    
+    document.body.appendChild(ghost);
+
+    this.feedFood(ghost);
   }
 
   /* ─── Drag — Start ───────────────────────────────────── */

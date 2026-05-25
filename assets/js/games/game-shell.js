@@ -33,6 +33,7 @@ class GameShell {
       childName: profile.childName || 'Explorer',
       parentName: profile.parentName || 'Parent',
       childId: profile.childId,
+      ageGroup: profile.ageGroup || '4-5',
 
       // World & character selection
       world: profile.theme || 'space',

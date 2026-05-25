@@ -119,11 +119,10 @@ class ColorSortGame {
     this.renderItems();
     this.renderProgress();
 
-    const instruction = document.getElementById('colorInstruction');
     if (instruction) {
       instruction.textContent = isRound2
         ? 'Listen for the color to match!'
-        : 'Tap a color!';
+        : (this.context.ageGroup === '3-4' ? 'Tap a color!' : 'Drag each color to its matching bucket!');
     }
 
     if (isRound2) {
@@ -187,7 +186,7 @@ class ColorSortGame {
         </div>
 
         <div class="color-item-stage" id="colorItemStage"></div>
-        <div class="color-instruction" id="colorInstruction">Tap a color!</div>
+        <div class="color-instruction" id="colorInstruction">Get ready!</div>
         <div class="color-zones" id="colorZones"></div>
       </div>
     `;
@@ -206,7 +205,8 @@ class ColorSortGame {
       zone.style.setProperty('--zone-color', getColorHex(color));
       zone.innerHTML = `<div class="zone-target" aria-hidden="true"></div>`;
       const isRound1 = this.itemsShown < 6;
-      if (isRound1) {
+      const useTap   = this.context.ageGroup === '3-4';
+      if (isRound1 && useTap) {
         zone.addEventListener('pointerdown', e => this.handleRound1ZoneTap(e, zone));
       }
       zonesEl.appendChild(zone);
@@ -239,7 +239,10 @@ class ColorSortGame {
 
       const isRound2 = this.itemsShown >= 6;
       if (!isRound2) {
-        item.addEventListener('pointerdown', e => this.handleRound1ItemTap(e, item));
+        const useTap = this.context.ageGroup === '3-4';
+        item.addEventListener('pointerdown', useTap
+          ? e => this.handleRound1ItemTap(e, item)
+          : e => this.startPointerDrag(e, item));
       } else {
         item.addEventListener('pointerdown', e => this.handleTapSelect(e, item));
       }
