@@ -148,6 +148,28 @@
   animation: itemWrong 0.4s ease;
 }
 
+/* Round 1 two-tap: selected item highlight */
+.color-item.cs-selected {
+  outline: 4px solid #ffffff;
+  outline-offset: 2px;
+  transform: scale(1.12);
+  box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.35),
+              0 0 28px 8px rgba(255, 255, 255, 0.55);
+  z-index: 10;
+  position: relative;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Round 1 two-tap: wrong zone flash */
+.color-zone.flash-wrong {
+  animation: zoneFlashWrong 0.45s ease;
+}
+
+@keyframes zoneFlashWrong {
+  0%, 100% { box-shadow: var(--shadow-pop), inset 0 -8px 0 rgba(0,0,0,0.18), inset 0 4px 0 rgba(255,255,255,0.25); }
+  50%       { box-shadow: 0 0 0 6px rgba(231, 59, 59, 0.85), inset 0 -8px 0 rgba(0,0,0,0.18); }
+}
+
 .color-item svg {
   width: 64%;
   height: 64%;

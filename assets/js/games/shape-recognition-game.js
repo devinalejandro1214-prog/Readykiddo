@@ -34,6 +34,9 @@ class ShapeRecognitionGame {
     this.busy  = false;
     this.ended = false;
 
+    // Round 1 two-tap state
+    this.selectedChoice = null;
+
     // Current round state
     this.matchedShapes = new Set(); // shapes matched in current round
     this.targetShape   = null;      // Round 2: specific shape called out
@@ -97,6 +100,9 @@ class ShapeRecognitionGame {
     this.targetShape   = null;
     this.itemStartTime = Date.now();
     this.busy = false;
+    this.selectedChoice = null;
+    document.querySelectorAll('.shape-choice.sr-selected')
+      .forEach(el => el.classList.remove('sr-selected'));
 
     // Render all 6 shape outlines (targets) and all 6 shape tiles (draggables)
     this.renderTargets();
@@ -104,7 +110,7 @@ class ShapeRecognitionGame {
     if (stageEl) stageEl.style.display = isRound2 ? 'none' : '';
     this.renderChoices();
     this.renderProgress();
-    this.updateInstruction(isRound2 ? 'Listen for the shape to match!' : 'Drag each shape to its matching outline!');
+    this.updateInstruction(isRound2 ? 'Listen for the shape to match!' : 'Tap a shape!');
 
     if (isRound2) {
       // Block taps until the target shape is called out — same guard as color-sort.
@@ -162,7 +168,7 @@ class ShapeRecognitionGame {
         </div>
 
         <div class="shape-stage" id="shapeStage"></div>
-        <div class="shape-instruction" id="shapeInstruction">Drag each shape to its matching outline!</div>
+        <div class="shape-instruction" id="shapeInstruction">Tap a shape!</div>
         <div class="shape-choices" id="shapeChoices"></div>
         <div class="shape-feedback" id="shapeFeedback" style="display:none;"></div>
       </div>
@@ -185,6 +191,10 @@ class ShapeRecognitionGame {
       }
 
       target.innerHTML = `<div class="shape-outline">${getShapeSVG(shapeName, 'medium')}</div>`;
+      const isRound1 = this.itemsShown < 6;
+      if (isRound1 && !this.matchedShapes.has(shapeName)) {
+        target.addEventListener('pointerdown', e => this.handleRound1TargetTap(e, target));
+      }
       stage.appendChild(target);
     });
   }
@@ -217,7 +227,7 @@ class ShapeRecognitionGame {
 
       const isRound2 = this.itemsShown >= 6;
       if (!isRound2) {
-        choice.addEventListener('pointerdown', e => this.startPointerDrag(e, choice));
+        choice.addEventListener('pointerdown', e => this.handleRound1ChoiceTap(e, choice));
       } else {
         choice.addEventListener('pointerdown', e => this.handleTapSelect(e, choice));
       }
@@ -316,6 +326,39 @@ class ShapeRecognitionGame {
     document.addEventListener('pointermove', moveChoice);
     document.addEventListener('pointerup', endDrag);
     document.addEventListener('pointercancel', cancelDrag);
+  }
+
+  /* ── Round 1: two-tap interaction ──────────────────────── */
+
+  handleRound1ChoiceTap(event, choice) {
+    if (this.busy || event.button > 0) return;
+    event.preventDefault();
+    document.querySelectorAll('.shape-choice.sr-selected')
+      .forEach(el => el.classList.remove('sr-selected'));
+    choice.classList.add('sr-selected');
+    this.selectedChoice = choice;
+    this.updateInstruction('Now tap its matching outline!');
+  }
+
+  handleRound1TargetTap(event, target) {
+    if (this.busy || event.button > 0) return;
+    event.preventDefault();
+    if (!this.selectedChoice) return;
+    const choice      = this.selectedChoice;
+    const itemShape   = choice.dataset.item;
+    const targetShape = target.dataset.shape;
+    if (itemShape === targetShape) {
+      choice.classList.remove('sr-selected');
+      this.selectedChoice = null;
+      this.handleShapeDrop(itemShape, targetShape, target, choice);
+    } else {
+      target.classList.add('flash-wrong');
+      setTimeout(() => target.classList.remove('flash-wrong'), 450);
+      choice.classList.remove('sr-selected');
+      this.selectedChoice = null;
+      this.context.speak('try again');
+      this.updateInstruction('Tap a shape!');
+    }
   }
 
   handleTapSelect(event, choice) {

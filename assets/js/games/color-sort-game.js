@@ -41,6 +41,9 @@ class ColorSortGame {
     this.busy  = false;
     this.ended = false;
 
+    // Round 1 two-tap state
+    this.selectedItem = null;
+
     // Current round state
     this.matchedColors = new Set(); // colors matched in the current round
     this.targetColor   = null;      // Round 2: the specific color called out
@@ -104,6 +107,9 @@ class ColorSortGame {
     this.targetColor   = null;
     this.itemStartTime = Date.now();
     this.busy = false;
+    this.selectedItem  = null;
+    document.querySelectorAll('.color-item.cs-selected')
+      .forEach(el => el.classList.remove('cs-selected'));
 
     // Render all 6 tiles and all 6 zones
     this.renderZones();
@@ -117,7 +123,7 @@ class ColorSortGame {
     if (instruction) {
       instruction.textContent = isRound2
         ? 'Listen for the color to match!'
-        : 'Drag each color to its matching bucket!';
+        : 'Tap a color!';
     }
 
     if (isRound2) {
@@ -181,7 +187,7 @@ class ColorSortGame {
         </div>
 
         <div class="color-item-stage" id="colorItemStage"></div>
-        <div class="color-instruction" id="colorInstruction">Drag each color to its matching bucket!</div>
+        <div class="color-instruction" id="colorInstruction">Tap a color!</div>
         <div class="color-zones" id="colorZones"></div>
       </div>
     `;
@@ -199,6 +205,10 @@ class ColorSortGame {
       zone.dataset.color = color;
       zone.style.setProperty('--zone-color', getColorHex(color));
       zone.innerHTML = `<div class="zone-target" aria-hidden="true"></div>`;
+      const isRound1 = this.itemsShown < 6;
+      if (isRound1) {
+        zone.addEventListener('pointerdown', e => this.handleRound1ZoneTap(e, zone));
+      }
       zonesEl.appendChild(zone);
     });
   }
@@ -229,7 +239,7 @@ class ColorSortGame {
 
       const isRound2 = this.itemsShown >= 6;
       if (!isRound2) {
-        item.addEventListener('pointerdown', e => this.startPointerDrag(e, item));
+        item.addEventListener('pointerdown', e => this.handleRound1ItemTap(e, item));
       } else {
         item.addEventListener('pointerdown', e => this.handleTapSelect(e, item));
       }
@@ -321,6 +331,41 @@ class ColorSortGame {
     document.addEventListener('pointermove', moveItem);
     document.addEventListener('pointerup', endDrag);
     document.addEventListener('pointercancel', cancelDrag);
+  }
+
+  /* ── Round 1: two-tap interaction ──────────────────────── */
+
+  handleRound1ItemTap(event, item) {
+    if (this.busy || event.button > 0) return;
+    event.preventDefault();
+    document.querySelectorAll('.color-item.cs-selected')
+      .forEach(el => el.classList.remove('cs-selected'));
+    item.classList.add('cs-selected');
+    this.selectedItem = item;
+    const instruction = document.getElementById('colorInstruction');
+    if (instruction) instruction.textContent = 'Now tap its matching bucket!';
+  }
+
+  handleRound1ZoneTap(event, zone) {
+    if (this.busy || event.button > 0) return;
+    event.preventDefault();
+    if (!this.selectedItem) return;
+    const item      = this.selectedItem;
+    const itemColor = item.dataset.color;
+    const zoneColor = zone.dataset.color;
+    if (itemColor === zoneColor) {
+      item.classList.remove('cs-selected');
+      this.selectedItem = null;
+      this.handleDrop(itemColor, zoneColor, zone, item);
+    } else {
+      zone.classList.add('flash-wrong');
+      setTimeout(() => zone.classList.remove('flash-wrong'), 450);
+      item.classList.remove('cs-selected');
+      this.selectedItem = null;
+      this.context.speak('try again');
+      const instruction = document.getElementById('colorInstruction');
+      if (instruction) instruction.textContent = 'Tap a color!';
+    }
   }
 
   handleTapSelect(event, item) {
