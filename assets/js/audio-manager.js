@@ -271,6 +271,13 @@
     if (themeAudio && !themeAudio.paused && themeAudio.currentTime > 0) {
       sessionStorage.setItem(THEME_POS_KEY, String(themeAudio.currentTime));
     }
+    if (typeof keepAliveInterval !== 'undefined' && keepAliveInterval) {
+      clearInterval(keepAliveInterval);
+    }
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') unlock();
   });
 
   /* ── Voice playback ──────────────────────────────────────── */
@@ -317,6 +324,14 @@
     return a;
   }
 
+  function primeClip(path) {
+    if (cache[path]) return;          // already cached, skip
+    const a = new Audio(path);
+    a.preload = 'auto';
+    a.load();
+    cache[path] = a;
+  }
+
   /* speak(key)
      Plays a clip immediately, stopping whatever was playing.
      Returns a Promise that resolves when playback STARTS (not ends). */
@@ -324,6 +339,8 @@
     if (isMuted()) return Promise.resolve(false);
     const path = getPath(key);
     if (!path) return speakFallback(key);
+
+    if (!cache[path]) primeClip(path);
 
     stopCurrent();
     const audio = getAudio(path);
@@ -402,6 +419,18 @@
   /* ── iOS audio unlock ────────────────────────────────────── */
   // Playing a zero-length silent clip inside the user gesture activates
   // the browser's audio session — all subsequent play() calls work freely.
+  let keepAliveInterval = null;
+
+  function keepAlive() {
+    if (isMuted()) return;
+    const busy = currentVoice && !currentVoice.paused && !currentVoice.ended;
+    if (busy) return;
+    const a = new Audio();
+    a.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA='; // same as unlock
+    a.volume = 0;
+    a.play().catch(() => {});
+  }
+
   function unlock() {
     if (unlock._done) return;
     unlock._done = true;
@@ -409,6 +438,7 @@
     a.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
     a.volume = 0;
     a.play().catch(() => {});
+    keepAliveInterval = setInterval(keepAlive, 25000);
   }
 
   /* warmUp kept as no-op — games still call it but it does nothing.
@@ -452,6 +482,8 @@
   };
 
   // Preload critical clips after DOM ready (desktop only, non-blocking)
+  document.addEventListener('pointerdown', () => unlock(), { once: true });
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', preloadAll);
   } else {
