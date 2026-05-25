@@ -3547,3 +3547,11 @@ Notes / Next Steps:
 - Operation 3 is integrated into the main game chain as the active third experience.
 - Netlify should auto-deploy after the push to `origin/main`.
 
+
+## Op 8 — Age Range Selection + Game Mode Routing — 2026-05-25
+**Agent:** Claude (Implementation) + Overseer (Review)
+**Files Changed:** assets/js/onboarding.js, assets/js/games/game-shell.js, assets/js/games/color-sort-game.js, assets/js/games/shape-recognition-game.js, assets/js/games/feed-alien-game.js, assets/css/onboarding.css
+**What Changed:** Added age range selection to onboarding. Saved age group to profile. Context now routes users to tap-only games for 3-4 years and drag-and-drop games for 4-5 years in Round 1.
+**Bugs Found:** none
+**Open Items:** none
+**Commit:** ac9cabd
