@@ -469,19 +469,20 @@ footer {
   .inputs .wrap .ico { left: 10px; }
   .inputs input { padding: 11px 10px 11px 32px; font-size: 14px; border-radius: 12px; }
 
+  /* Compact landscape strip — keeps live preview without dominating the screen */
   .hero {
-    width: min(360px, 86vw);
-    aspect-ratio: 1 / 1;
-    max-height: 40vh;
-    border-radius: 22px;
+    width: min(360px, 92vw);
+    aspect-ratio: 5 / 2;
+    max-height: 20vh;
+    border-radius: 16px;
   }
-  .hero::before { inset: 10px; border-radius: 14px; }
-  .hero .placeholder .scroll { font-size: 26px; max-width: 220px; }
-  .hero .nametag { left: 10px; right: 10px; top: 10px; }
-  .hero .nametag .title { font-size: 11px; padding: 4px 9px; border-radius: 9px; max-width: 64%; }
+  .hero::before { inset: 8px; border-radius: 10px; }
+  .hero .placeholder .scroll { font-size: 20px; max-width: 200px; }
+  .hero .nametag { left: 8px; right: 8px; top: 8px; }
+  .hero .nametag .title { font-size: 10px; padding: 3px 8px; border-radius: 8px; max-width: 60%; }
   .hero .nametag .title .by { font-size: 9px; }
-  .hero .nametag .stamp { font-size: 9px; padding: 3px 8px; }
-  .hero .quip { font-size: 12px; padding: 7px 12px; bottom: 10px; }
+  .hero .nametag .stamp { font-size: 9px; padding: 2px 7px; }
+  .hero .quip { font-size: 11px; padding: 5px 10px; bottom: 8px; }
 
   footer { gap: 8px; }
   .opt-label { font-size: 12px; }
@@ -506,6 +507,11 @@ footer {
   .opt.age-opt { width: 118px; }
   .opt .lbl { font-size: 12px; padding: 6px 4px; }
   .opt.selected::after { width: 20px; height: 20px; font-size: 11px; top: 5px; right: 5px; }
+
+  /* Shorter card thumbnails — saves ~30px from footer height */
+  .opt .thumb { aspect-ratio: unset; height: 70px; }
+  .age-thumb   { min-height: unset; }
+  .age-icon    { font-size: 2.2rem; margin: 4px 0 2px; }
 }
 
 @media (max-width: 380px) {
@@ -513,7 +519,7 @@ footer {
   .brand-name { display: none; }
   .opt { width: 96px; }
   .opt.age-opt { width: 110px; }
-  .hero { max-height: 36vh; }
+  .hero { max-height: 16vh; }
 }
 
 @media (max-width: 760px) and (max-height: 740px) {
@@ -522,10 +528,10 @@ footer {
   .prompt p { display: none; }
   .inputs label { display: none; }
   .inputs input { padding: 11px 12px 11px 34px; }
-  .hero { max-height: 34vh; }
+  .hero { max-height: 14vh; }
 }
 @media (max-height: 600px) {
-  .hero { max-height: 28vh; }
+  .hero { max-height: 10vh; }
   .prompt p { display: none; }
 }
 
