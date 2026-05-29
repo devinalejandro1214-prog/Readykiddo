@@ -35,22 +35,11 @@
 
   /* ── Em voice map ────────────────────────────────────────── */
   const EM_MAP = {
-    // Game intros
-    'match the colors': 'em-match-colors.m4a',
-    'match the shapes': 'em-match-shapes.m4a',
+    // Op 9 housekeeping: game intros + color callouts + circle/square/triangle
+    // now use the TEACHER voice (see TEACHER_MAP). Their old .m4a recordings
+    // were removed from the repo, so they're no longer mapped here.
 
-    // Color callouts
-    'find red':    'em-find-red.m4a',
-    'find blue':   'em-find-blue.m4a',
-    'find yellow': 'em-find-yellow.m4a',
-    'find green':  'em-find-green.m4a',
-    'find orange': 'em-find-orange.m4a',
-    'find purple': 'em-find-purple.m4a',
-
-    // Shape callouts
-    'find circle':    'em-circle.m4a',
-    'find square':    'em-square.m4a',
-    'find triangle':  'em-triangle.m4a',
+    // Shape callouts (existing teacher .wav)
     'find star':      'em-star.wav',
     'find rectangle': 'em-rectangle.wav',
     'find diamond':   'em-diamond.wav',
@@ -287,17 +276,20 @@
   // Too many simultaneous fetches on mobile saturates the connection
   // and freezes the page before the child even sees it.
   const CRITICAL_CLIPS = [
+    // start cue (character)
     'em-ready-lets-go.m4a',
-    'em-match-colors.m4a',   'em-match-shapes.m4a',
-    'em-you-got-it.m4a',     'em-you-found-it.m4a',
-    'em-great-job.m4a',      'em-yay.m4a',
-    'em-try-again.m4a',      'em-aww-man.m4a',
-    'em-keep-it-up.m4a',     'em-almost-there.m4a',
-    'em-find-red.m4a',       'em-find-blue.m4a',
-    'em-find-yellow.m4a',    'em-find-orange.m4a',
-    'em-find-green.m4a',     'em-find-purple.m4a',
-    'em-circle.m4a',         'em-square.m4a',        'em-triangle.m4a',
-    'amara-yay.m4a',         'amara-oh-man.m4a',
+    // teacher directions — most common first prompts
+    'teacher-match-colors.wav', 'teacher-match-shapes.wav',
+    'teacher-find-red.wav',     'teacher-find-blue.wav',  'teacher-find-yellow.wav',
+    'teacher-find-orange.wav',  'teacher-find-green.wav', 'teacher-find-purple.wav',
+    'teacher-circle.wav',       'teacher-square.wav',     'teacher-triangle.wav',
+    'teacher-what-comes-next.wav',
+    // character praise
+    'em-you-got-it.m4a',        'em-you-found-it.m4a',
+    'em-great-job.m4a',         'em-yay.m4a',
+    'em-try-again.m4a',         'em-aww-man.m4a',
+    'em-keep-it-up.m4a',        'em-almost-there.m4a',
+    'amara-yay.m4a',            'amara-oh-man.m4a',
   ];
 
   const cache = {};

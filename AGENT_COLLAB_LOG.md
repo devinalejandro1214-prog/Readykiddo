@@ -3607,9 +3607,9 @@ Reused `LeadEngine/tts_server.py` (kokoro-onnx, kokoro-v1.0.onnx, voice `af_sky`
 
 ### Verification
 - `node --check` on all 11 changed JS files: pass. `npm test`: pass.
-- Manual QA pending on device (see OPERATION_9_BRIEF.md QA checklist).
+- Manual QA pending on device (see docs/operations/OPERATION_9_BRIEF.md QA checklist).
 
 ### Files Changed
 - assets/js/audio-manager.js, assets/js/games/game-shell.js + 9 game files
 - assets/audio/voice/teacher-*.wav (23 new)
-- OPERATION_9_BRIEF.md (plan), AGENT_COLLAB_LOG.md (this entry)
+- docs/operations/OPERATION_9_BRIEF.md (plan), AGENT_COLLAB_LOG.md (this entry)

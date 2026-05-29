@@ -1,2 +1,8 @@
 .claude/
 *.local.json
+
+# one-off scratch / patch scripts (kept locally, never committed)
+replace*.js
+*-patch.ps1
+# TTS pipeline scratch output
+temp_output.wav
