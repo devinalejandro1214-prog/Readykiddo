@@ -51,6 +51,8 @@ body::after {
   grid-template-rows: auto 1fr auto;
   padding: 18px 28px;
   gap: 8px;
+  overflow-x: hidden; /* prevent any child from triggering horizontal scroll */
+  width: 100%;
 }
 
 /* ─── Header ────────────────────────────────────────────── */
@@ -413,7 +415,11 @@ footer {
 }
 
 /* ─── Step fade-up ──────────────────────────────────────── */
-.stage-body { animation: fadeUp .42s cubic-bezier(.2,.9,.3,1.2) both; }
+.stage-body {
+  animation: fadeUp .42s cubic-bezier(.2,.9,.3,1.2) both;
+  width: 100%;     /* always fill its grid cell so children can size off it */
+  max-width: 100%;
+}
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: none; }
@@ -459,19 +465,20 @@ footer {
   .back-fab { width: 38px; height: 38px; border-radius: 11px; }
   .back-fab svg { width: 16px; height: 16px; }
 
-  main { gap: 14px; }
-  .prompt { gap: 4px; padding: 0 8px; }
-  .prompt h1 { font-size: 24px; line-height: 1.08; }
-  .prompt p  { font-size: 13px; line-height: 1.35; }
+  main { gap: 8px; place-items: start center; }
+  .prompt { gap: 4px; padding: 0 4px; }
+  .prompt h1 { font-size: 22px; line-height: 1.08; }
+  .prompt p  { font-size: 13px; line-height: 1.3; }
 
-  .inputs { grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 360px; }
+  .inputs { grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 100%; }
   .inputs label { font-size: 10px; margin-bottom: 4px; letter-spacing: 0.1em; }
   .inputs .wrap .ico { left: 10px; }
   .inputs input { padding: 11px 10px 11px 32px; font-size: 14px; border-radius: 12px; }
 
   /* Compact landscape strip — keeps live preview without dominating the screen */
   .hero {
-    width: min(360px, 92vw);
+    width: 100%;            /* fill the stage-body column — no vw overflow risk */
+    max-width: 360px;
     aspect-ratio: 5 / 2;
     max-height: 20vh;
     border-radius: 16px;
