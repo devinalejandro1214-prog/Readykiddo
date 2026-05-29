@@ -1,46 +1,112 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Build Your World - Onboarding</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/onboarding.css">
-    <link rel="stylesheet" href="assets/css/audio.css">
-    <link rel="stylesheet" href="assets/css/feedback.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Build Your World — ReadyKiddo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/onboarding.css" />
+  <link rel="stylesheet" href="assets/css/audio.css" />
+  <link rel="stylesheet" href="assets/css/feedback.css" />
 </head>
 <body>
-    <div class="onboarding-page">
-        <div class="background-container">
-            <picture>
-                <source srcset="assets/images/backgrounds/onboarding-bg.webp" type="image/webp">
-                <img src="assets/images/backgrounds/onboarding-bg.png" alt="Onboarding Background" class="background-image">
-            </picture>
-        </div>
 
-        <div class="onboarding-container">
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill"></div>
-            </div>
+<!-- Polite live region: announces step/selection changes to screen readers -->
+<div class="sr-only" id="liveRegion" role="status" aria-live="polite" aria-atomic="true"></div>
 
-            <div class="question-card" id="questionCard">
-                <!-- Dynamic content will be inserted here -->
-            </div>
-        </div>
+<div class="app">
+
+  <header>
+    <button class="back-fab" id="backBtn" aria-label="Go back to previous step" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+    </button>
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2l2.6 5.4L20 8l-4 4 1 6-5-2.7L7 18l1-6-4-4 5.4-.6L12 2z"/>
+        </svg>
+      </span>
+      <span class="brand-name">ReadyKiddo</span>
+    </div>
+    <div class="header-end">
+      <div class="pips" id="pips" role="group" aria-label="Onboarding progress"></div>
+      <span class="step-count" id="stepCount">Step 1 of 5</span>
+    </div>
+  </header>
+
+  <main>
+    <div class="prompt" id="prompt">
+      <h1 id="title" tabindex="-1">Let's build your world</h1>
+      <p id="sub">Tell us who's playing — then we'll start your adventure.</p>
     </div>
 
-    <script src="assets/js/audio-manager.js"></script>
-    <script src="assets/js/onboarding.js"></script>
-    <script src="assets/js/feedback-widget.js"></script>
-    <script>
-      document.addEventListener('DOMContentLoaded', function () {
-        // Continue theme song from where it left off
-        RKAudio.startTheme();
-        RKAudio.injectMuteButton('body');
-        document.addEventListener('pointerdown', RKAudio.unlock, { once: true });
-      });
-    </script>
+    <div class="stage-body" id="stageBody" style="display:flex;flex-direction:column;align-items:center;gap:14px;">
+
+      <!-- INPUTS (setup step only) -->
+      <div class="inputs" id="inputsBlock" style="display:none;">
+        <div class="field">
+          <label for="childName">Hero's name</label>
+          <div class="wrap">
+            <svg class="ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
+            <input id="childName" type="text" placeholder="e.g. Lila" autocomplete="off" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="parentName">Parent / Guardian</label>
+          <div class="wrap">
+            <svg class="ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4a4 4 0 1 1-8 0 4 4 0 0 1 8 0z"/><path d="M3 21c1.5-4 5-6 9-6s7.5 2 9 6"/></svg>
+            <input id="parentName" type="text" placeholder="Your full name" autocomplete="off" />
+          </div>
+        </div>
+      </div>
+
+      <!-- HERO — live adventure preview that builds as you choose -->
+      <div class="hero" id="hero" role="img" aria-label="Your adventure scene — fills in as you make choices">
+        <div class="world" id="heroWorld"></div>
+        <div class="vibe-wash" id="heroVibe"></div>
+        <img class="character" id="heroChar" alt="" />
+        <div class="nametag" id="nametag">
+          <div class="title" id="nametagTitle"></div>
+          <div class="stamp">Adventure №<span id="advNo">001</span></div>
+        </div>
+        <div class="placeholder" id="heroPlaceholder">
+          <div class="scroll">Once upon a time</div>
+        </div>
+        <div class="quip" id="quip" aria-hidden="true"></div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>
+    <div class="options-col">
+      <div class="opt-label" id="optsLabel">Choose your character</div>
+      <div class="options-row" id="optionsRow" role="radiogroup" aria-labelledby="optsLabel"></div>
+    </div>
+  </footer>
+
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite">
+  <span aria-hidden="true">🎉</span>
+  <span><span class="em" id="toastChild">Adventurer</span>, your world is ready!</span>
+</div>
+
+<canvas id="confetti" aria-hidden="true"></canvas>
+
+<script src="assets/js/audio-manager.js"></script>
+<script src="assets/js/onboarding.js"></script>
+<script src="assets/js/feedback-widget.js"></script>
+<script>
+  if (window.RKAudio) {
+    RKAudio.injectMuteButton('body');
+    window.addEventListener('load', () => RKAudio.startTheme());
+    document.addEventListener('pointerdown', RKAudio.unlock, { once: true });
+  }
+</script>
 </body>
 </html>
