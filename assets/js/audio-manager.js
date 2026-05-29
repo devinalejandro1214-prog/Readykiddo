@@ -171,6 +171,115 @@
     'welcome':           'amara-welcome-to-your-world.m4a',
   };
 
+  /* ── Teacher voice map (Op 9) ────────────────────────────────
+     The TEACHER voice (Kokoro 'af_sky', .wav) speaks all DIRECTIONS.
+     It is character-INDEPENDENT — every child hears the same teacher
+     for "what to do". Encouragement stays in EM_MAP / AMARA_MAP. */
+  const TEACHER_MAP = {
+    // Game intros
+    'match the colors': 'teacher-match-colors.wav',
+    'match the shapes': 'teacher-match-shapes.wav',
+
+    // Color callouts (regenerated as teacher)
+    'find red':    'teacher-find-red.wav',
+    'find blue':   'teacher-find-blue.wav',
+    'find yellow': 'teacher-find-yellow.wav',
+    'find green':  'teacher-find-green.wav',
+    'find orange': 'teacher-find-orange.wav',
+    'find purple': 'teacher-find-purple.wav',
+
+    // Shape callouts
+    'find circle':    'teacher-circle.wav',
+    'find square':    'teacher-square.wav',
+    'find triangle':  'teacher-triangle.wav',
+    'find star':      'em-star.wav',
+    'find rectangle': 'em-rectangle.wav',
+    'find diamond':   'em-diamond.wav',
+
+    // Letter callouts (existing teacher .wav)
+    'find a': 'em-find-a.wav', 'find b': 'em-find-b.wav', 'find c': 'em-find-c.wav',
+    'find d': 'em-find-d.wav', 'find e': 'em-find-e.wav', 'find f': 'em-find-f.wav',
+    'find g': 'em-find-g.wav', 'find h': 'em-find-h.wav', 'find i': 'em-find-i.wav',
+    'find j': 'em-find-j.wav', 'find k': 'em-find-k.wav', 'find l': 'em-find-l.wav',
+    'find m': 'em-find-m.wav', 'find n': 'em-find-n.wav', 'find o': 'em-find-o.wav',
+    'find p': 'em-find-p.wav', 'find q': 'em-find-q.wav', 'find r': 'em-find-r.wav',
+    'find s': 'em-find-s.wav', 'find t': 'em-find-t.wav', 'find u': 'em-find-u.wav',
+    'find v': 'em-find-v.wav', 'find w': 'em-find-w.wav', 'find x': 'em-find-x.wav',
+    'find y': 'em-find-y.wav', 'find z': 'em-find-z.wav',
+
+    // Letter placement prompts (existing teacher .wav)
+    'where does a go': 'em-where-a-go.wav', 'where does b go': 'em-where-b-go.wav',
+    'where does c go': 'em-where-c-go.wav', 'where does d go': 'em-where-d-go.wav',
+    'where does e go': 'em-where-e-go.wav', 'where does f go': 'em-where-f-go.wav',
+    'where does g go': 'em-where-g-go.wav', 'where does h go': 'em-where-h-go.wav',
+    'where does i go': 'em-where-i-go.wav', 'where does j go': 'em-where-j-go.wav',
+    'where does k go': 'em-where-k-go.wav', 'where does l go': 'em-where-l-go.wav',
+    'where does m go': 'em-where-m-go.wav', 'where does n go': 'em-where-n-go.wav',
+    'where does o go': 'em-where-o-go.wav', 'where does p go': 'em-where-p-go.wav',
+    'where does q go': 'em-where-q-go.wav', 'where does r go': 'em-where-r-go.wav',
+    'where does s go': 'em-where-s-go.wav', 'where does t go': 'em-where-t-go.wav',
+    'where does u go': 'em-where-u-go.wav', 'where does v go': 'em-where-v-go.wav',
+    'where does w go': 'em-where-w-go.wav', 'where does x go': 'em-where-x-go.wav',
+    'where does y go': 'em-where-y-go.wav', 'where does z go': 'em-where-z-go.wav',
+
+    // Number placement prompts (regenerated as teacher)
+    'where does 1 go':  'teacher-where-does-1-go.wav',
+    'where does 2 go':  'teacher-where-does-2-go.wav',
+    'where does 3 go':  'teacher-where-does-3-go.wav',
+    'where does 4 go':  'teacher-where-does-4-go.wav',
+    'where does 5 go':  'teacher-where-does-5-go.wav',
+    'where does 6 go':  'teacher-where-does-6-go.wav',
+    'where does 7 go':  'teacher-where-does-7-go.wav',
+    'where does 8 go':  'teacher-where-does-8-go.wav',
+    'where does 9 go':  'teacher-where-does-9-go.wav',
+    'where does 10 go': 'teacher-where-does-10-go.wav',
+
+    // Sound Safari (existing teacher .wav)
+    'starts with the sound buh': 'em-fbs-b.wav',
+    'starts with the sound sss': 'em-fbs-s.wav',
+    'starts with the sound mmm': 'em-fbs-m.wav',
+    'starts with the sound fff': 'em-fbs-f.wav',
+    'starts with the sound puh': 'em-fbs-p.wav',
+    'starts with the sound duh': 'em-fbs-d.wav',
+
+    // Numbers (existing teacher .wav)
+    '1':  'em-num-1.wav',  '2':  'em-num-2.wav',  '3':  'em-num-3.wav',
+    '4':  'em-num-4.wav',  '5':  'em-num-5.wav',  '6':  'em-num-6.wav',
+    '7':  'em-num-7.wav',  '8':  'em-num-8.wav',  '9':  'em-num-9.wav',
+    '10': 'em-num-10.wav',
+
+    // Feed Alien — item counts (existing teacher .wav)
+    'feed the alien 1 item':   'em-feed-alien-1.wav',
+    'feed the alien 2 items':  'em-feed-alien-2.wav',
+    'feed the alien 3 items':  'em-feed-alien-3.wav',
+    'feed the alien 4 items':  'em-feed-alien-4.wav',
+    'feed the alien 5 items':  'em-feed-alien-5.wav',
+    'feed the alien 6 items':  'em-feed-alien-6.wav',
+    'feed the alien 7 items':  'em-feed-alien-7.wav',
+    'feed the alien 8 items':  'em-feed-alien-8.wav',
+    'feed the alien 9 items':  'em-feed-alien-9.wav',
+    'feed the alien 10 items': 'em-feed-alien-10.wav',
+
+    // Feed Alien — basket counts (existing teacher .wav)
+    'feed the alien 1 piece of food from the basket':   'em-feed-basket-1.wav',
+    'feed the alien 2 pieces of food from the basket':  'em-feed-basket-2.wav',
+    'feed the alien 3 pieces of food from the basket':  'em-feed-basket-3.wav',
+    'feed the alien 4 pieces of food from the basket':  'em-feed-basket-4.wav',
+    'feed the alien 5 pieces of food from the basket':  'em-feed-basket-5.wav',
+    'feed the alien 6 pieces of food from the basket':  'em-feed-basket-6.wav',
+    'feed the alien 7 pieces of food from the basket':  'em-feed-basket-7.wav',
+    'feed the alien 8 pieces of food from the basket':  'em-feed-basket-8.wav',
+    'feed the alien 9 pieces of food from the basket':  'em-feed-basket-9.wav',
+    'feed the alien 10 pieces of food from the basket': 'em-feed-basket-10.wav',
+
+    // Pattern games
+    'what comes next': 'teacher-what-comes-next.wav',
+    'pattern hint':    'teacher-hint.wav',
+
+    // Space Defender intro
+    'ready for action': 'em-sd-ready.wav',
+  };
+
   function getVoiceMap() { return isFemaleChar() ? AMARA_MAP : EM_MAP; }
 
   /* ── Preload — desktop only, critical clips only ─────────── */
@@ -292,8 +401,7 @@
       .trim();
   }
 
-  function getPath(key) {
-    const map  = getVoiceMap();
+  function resolveFromMap(map, key) {
     const norm = normalizeKey(key);
     if (!norm) return null;
     if (map[norm]) return VOICE_BASE + map[norm];
@@ -305,6 +413,11 @@
     }
     return bestKey ? VOICE_BASE + map[bestKey] : null;
   }
+
+  // Character (encouragement) voice — Em or Amara depending on selection
+  function getPath(key) { return resolveFromMap(getVoiceMap(), key); }
+  // Teacher (directions) voice — character-independent
+  function getTeacherPath(key) { return resolveFromMap(TEACHER_MAP, key); }
 
   function stopCurrent() {
     if (!currentVoice) return;
@@ -388,6 +501,51 @@
 
   function stopVoice() { stopCurrent(); }
 
+  /* ── Op 9: intent-aware playback ─────────────────────────────
+     speakInstruction → TEACHER voice (directions, character-independent)
+     speakPraise       → CHARACTER voice (encouragement, Em/Amara)
+     Both reuse the same element/cache/stop logic as speak(). */
+  function playImmediate(path, key) {
+    if (!path) return speakFallback(key);
+    if (!cache[path]) primeClip(path);
+    stopCurrent();
+    const audio = getAudio(path);
+    currentVoice = audio;
+    return audio.play()
+      .then(() => true)
+      .catch(err => {
+        console.warn('[Audio] play failed:', key, err && err.message);
+        currentVoice = null;
+        return false;
+      });
+  }
+
+  function playAndWait(path, key) {
+    if (!path) return speakFallback(key);
+    stopCurrent();
+    const audio = getAudio(path);
+    currentVoice = audio;
+    return new Promise(resolve => {
+      const done = (ok) => { currentVoice = null; resolve(ok); };
+      audio.addEventListener('ended', () => done(true),  { once: true });
+      audio.addEventListener('error', () => done(false), { once: true });
+      audio.play().catch(() => done(false));
+    });
+  }
+
+  function speakInstruction(key) {
+    if (isMuted()) return Promise.resolve(false);
+    return playImmediate(getTeacherPath(key), key);
+  }
+  function speakInstructionAndWait(key) {
+    if (isMuted()) return Promise.resolve(false);
+    return playAndWait(getTeacherPath(key), key);
+  }
+  function speakPraise(key) {
+    if (isMuted()) return Promise.resolve(false);
+    return playImmediate(getPath(key), key);
+  }
+
   /* Speech synthesis fallback for keys with no recorded clip */
   function speakFallback(text) {
     if (!('speechSynthesis' in window)) return Promise.resolve(false);
@@ -469,6 +627,7 @@
     preloadAll,
     startTheme, stopTheme,
     speak, speakAndWait, speakCourtesy,
+    speakInstruction, speakInstructionAndWait, speakPraise,
     playSfx, stopVoice,
     isMuted, setMuted,
     injectMuteButton, createMuteButton,

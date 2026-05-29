@@ -127,7 +127,7 @@ class ShapeRecognitionGame {
         }
       }, 3000);
 
-      this.context.speakAndWait('match the shapes').then(() => {
+      this.context.speakInstructionAndWait('match the shapes').then(() => {
         clearTimeout(_safetyUnlock);
         if (!this.ended) {
           this.callOutNextShape();
@@ -135,7 +135,7 @@ class ShapeRecognitionGame {
         }
       });
     } else {
-      this.context.speak('match the shapes');
+      this.context.speakInstruction('match the shapes');
     }
   }
 
@@ -150,7 +150,7 @@ class ShapeRecognitionGame {
     });
 
     this.updateInstruction(`Find the ${this.targetShape}!`);
-    this.context.speak(`find ${this.targetShape}`);
+    this.context.speakInstruction(`find ${this.targetShape}`);
   }
 
   /* ── Rendering ──────────────────────────────────────────── */
@@ -362,7 +362,7 @@ class ShapeRecognitionGame {
       setTimeout(() => target.classList.remove('flash-wrong'), 450);
       choice.classList.remove('sr-selected');
       this.selectedChoice = null;
-      this.context.speak('try again');
+      this.context.speakPraise('try again');
       this.updateInstruction('Tap a shape!');
     }
   }
@@ -428,7 +428,7 @@ class ShapeRecognitionGame {
         setTimeout(() => choiceEl.classList.remove('wrong'), 450);
       }
       const wrongPhrases = ['try again', 'aww man'];
-      this.context.speak(wrongPhrases[Math.floor(Math.random() * wrongPhrases.length)]);
+      this.context.speakPraise(wrongPhrases[Math.floor(Math.random() * wrongPhrases.length)]);
       // Remind them of the target in Round 2
       if (isRound2 && !isCallout) {
         this.updateInstruction(`Find the ${this.targetShape}!`);

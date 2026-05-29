@@ -3548,7 +3548,7 @@ Notes / Next Steps:
 - Netlify should auto-deploy after the push to `origin/main`.
 
 
-## Op 8 — Age Range Selection + Game Mode Routing — 2026-05-25
+## Op 8 ï¿½ Age Range Selection + Game Mode Routing ï¿½ 2026-05-25
 **Agent:** Claude (Implementation) + Overseer (Review)
 **Files Changed:** assets/js/onboarding.js, assets/js/games/game-shell.js, assets/js/games/color-sort-game.js, assets/js/games/shape-recognition-game.js, assets/js/games/feed-alien-game.js, assets/css/onboarding.css
 **What Changed:** Added age range selection to onboarding. Saved age group to profile. Context now routes users to tap-only games for 3-4 years and drag-and-drop games for 4-5 years in Round 1.
@@ -3556,7 +3556,7 @@ Notes / Next Steps:
 **Open Items:** none
 **Commit:** ac9cabd
 
-## Op 6 — Mobile Layout Fix (ABC Match + Pattern Quest) — 2026-05-25
+## Op 6 ï¿½ Mobile Layout Fix (ABC Match + Pattern Quest) ï¿½ 2026-05-25
 **Agent:** Claude (Implementation) + Overseer (Review)
 **Files Changed:** assets/css/abc-match-game.css, assets/css/adventure-screen.css
 **What Changed:** Added mobile layout fixes for ABC Match (vertical overflow, tile sizes) and Pattern Quest (left padding for character overlap, sequence item sizing).
@@ -3564,10 +3564,52 @@ Notes / Next Steps:
 **Open Items:** none
 **Commit:** 4077b56
 
-## Op 4 — Mobile Audio Reliability Fix — 2026-05-25
+## Op 4 ï¿½ Mobile Audio Reliability Fix ï¿½ 2026-05-25
 **Agent:** Claude (Implementation) + Overseer (Review)
 **Files Changed:** assets/js/audio-manager.js
 **What Changed:** Added visibilitychange reconnect, 25-second silent keepalive interval for iOS Safari, one-time pointerdown document listener to unlock audio on first tap anywhere, and primeClip() pre-buffering to eliminate first-clip lag.
 **Bugs Found:** none
 **Open Items:** none
 **Commit:** 4ecf554
+
+---
+
+## 2026-05-29 â€” Op 9: Voice Realignment â€” Teacher (directions) vs Character (encouragement) (Claude Code)
+
+### Author Request
+"Have our generated 'teacher' speak the directions and our recordings give the
+encouragement. Map all opportunities and align the site." â†’ audit + implement.
+
+### What Changed
+- **Two voice roles, enforced in routing:**
+  - TEACHER (Kokoro `af_sky`, `.wav`) = all DIRECTIONS, character-independent.
+  - CHARACTER (Em/Amara recordings `.m4a`) = encouragement / reactions only.
+- **audio-manager.js:** added `TEACHER_MAP` + `speakInstruction()`, `speakInstructionAndWait()`,
+  `speakPraise()`. `getPath` refactored to `resolveFromMap`; added `getTeacherPath`.
+  EM_MAP/AMARA_MAP unchanged (encouragement still per-character).
+- **game-shell.js:** added `speakInstruction/ speakInstructionAndWait / speakPraise` API wrappers.
+- **All 10 games:** directions â†’ `speakInstruction`; "try again"/wrong phrases â†’ `speakPraise`.
+  Pattern/Space-Pattern hints + "what comes next" + Number-Line "where does N go" no longer
+  fall back to robotic browser TTS â€” they use teacher clips.
+- **Generated 23 new teacher clips** via the LeadEngine Kokoro pipeline (af_sky):
+  11 directions previously stuck in `.m4a` recordings (6 colors, circle/square/triangle,
+  match-colors, match-shapes), "what comes next", "where does 1â€“10 go", and a generic hint line.
+
+### Voice generation
+Reused `LeadEngine/tts_server.py` (kokoro-onnx, kokoro-v1.0.onnx, voice `af_sky`) via
+`LeadEngine/gen_teacher_audio.py`. Files saved to `assets/audio/voice/teacher-*.wav`.
+
+### Decisions
+- Pattern hints: replaced templated item-name hints with one generic teacher line
+  ("Look carefully. What pattern do you see?") for consistency.
+- "Ready, let's go!" (game start) kept as CHARACTER hype, not teacher.
+- world-reveal "welcome" kept as CHARACTER greeting.
+
+### Verification
+- `node --check` on all 11 changed JS files: pass. `npm test`: pass.
+- Manual QA pending on device (see OPERATION_9_BRIEF.md QA checklist).
+
+### Files Changed
+- assets/js/audio-manager.js, assets/js/games/game-shell.js + 9 game files
+- assets/audio/voice/teacher-*.wav (23 new)
+- OPERATION_9_BRIEF.md (plan), AGENT_COLLAB_LOG.md (this entry)

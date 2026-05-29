@@ -86,7 +86,7 @@ class NumberMatchingGame {
 
     this.renderRound();
     this.renderProgress();
-    this.context.speak(String(target));
+    this.context.speakInstruction(String(target));
   }
 
   renderShell() {
@@ -170,14 +170,14 @@ class NumberMatchingGame {
       button.classList.remove('nm-count-item--nudge');
       void button.offsetWidth;
       button.classList.add('nm-count-item--nudge');
-      this.context.speak(String(this.countedIndex + 1));
+      this.context.speakInstruction(String(this.countedIndex + 1));
       return;
     }
 
     this.countedIndex++;
     button.classList.add('nm-count-item--counted');
     button.disabled = true;
-    this.context.speak(String(this.countedIndex));
+    this.context.speakInstruction(String(this.countedIndex));
     this.updateCountCloud();
 
     if (this.countedIndex >= this.round.target) {
@@ -203,14 +203,14 @@ class NumberMatchingGame {
       card.disabled = false;
       card.classList.add('nm-choice-card--ready');
     });
-    this.context.speak(String(this.round.target));
+    this.context.speakInstruction(String(this.round.target));
   }
 
   handleChoiceTap(button) {
     if (this.busy || !this.round || button.disabled) return;
 
     const value = Number(button.dataset.value);
-    this.context.speak(String(value));
+    this.context.speakInstruction(String(value));
 
     if (value === this.round.target) {
       this.handleCorrect(button);
@@ -260,7 +260,7 @@ class NumberMatchingGame {
 
     const prompt = document.getElementById('nmPrompt');
     if (prompt) prompt.textContent = `Try again. We counted ${this.round.target}.`;
-    this.context.speak('try again');
+    this.context.speakPraise('try again');
   }
 
   renderProgress() {

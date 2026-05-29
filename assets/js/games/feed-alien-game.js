@@ -90,7 +90,7 @@ class FeedAlienGame {
     this.renderProgress();
     this.updateInstruction();
 
-    this.context.speak(this.getRoundSpokenPrompt());
+    this.context.speakInstruction(this.getRoundSpokenPrompt());
     console.log(`[FeedAlien] Round ${this.currentRound + 1}: Need ${this.requiredCount}`);
   }
 
@@ -458,7 +458,7 @@ class FeedAlienGame {
       this._countTimer = null;
     }
     this._countTimer = setTimeout(() => {
-      this.context.speak(String(n));
+      this.context.speakInstruction(String(n));
       this._countTimer = null;
     }, 80);
   }

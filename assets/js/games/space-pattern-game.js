@@ -110,7 +110,7 @@ class SpacePatternGame {
 
     this.currentRound = 0;
     this._render();
-    this.context.speak('What comes next');
+    this.context.speakInstruction('What comes next');
   }
 
   /* ─── Render ────────────────────────────────────────────── */
@@ -277,7 +277,7 @@ class SpacePatternGame {
       setTimeout(() => this._completeRound(), 720);
     } else {
       this.performance.wrong++;
-      this.context.speak('try again');
+      this.context.speakPraise('try again');
       btnEl.classList.remove('sp-answer--wrong');
       void btnEl.offsetWidth; // force reflow so animation restarts
       btnEl.classList.add('sp-answer--wrong');
@@ -295,7 +295,8 @@ class SpacePatternGame {
     this._hintUsed = true;
 
     document.getElementById('spHintBtn')?.classList.add('sp-hint-btn--used');
-    this.context.speak(round.hint);
+    // Op 9: generic TEACHER hint line (templated hints can't be pre-generated)
+    this.context.speakInstruction('pattern hint');
 
     // Bounce each sequence item in turn to highlight the pattern
     document.querySelectorAll('.sp-seq-item').forEach((el, i) => {

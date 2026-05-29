@@ -132,7 +132,7 @@ class ABCMatchGame {
     this._locked = false;
     this._render();
     const round = this.rounds[this.currentRound];
-    this.context.speak(`find ${round.letter}`);
+    this.context.speakInstruction(`find ${round.letter}`);
   }
 
   /* ─── Render ─────────────────────────────────────────────── */
@@ -338,7 +338,7 @@ class ABCMatchGame {
   /* ─── Wrong Response ──────────────────────────────────────── */
 
   _wrongResponse(tileEl) {
-    this.context.speak('try again');
+    this.context.speakPraise('try again');
     tileEl.classList.remove('am-tile--shake');
     void tileEl.offsetWidth;
     tileEl.classList.add('am-tile--shake');

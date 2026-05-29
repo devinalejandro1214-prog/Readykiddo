@@ -246,7 +246,7 @@ class NumberLineGame {
     } else {
       this.performance.wrongAttempts++;
       originEl.dataset.hadWrongAttempt = '1';
-      this.context.speak('try again');
+      this.context.speakPraise('try again');
       this._springBack(clone, originEl, originRect, () => {
         originEl.removeEventListener('pointermove', this._onDragMove);
         originEl.removeEventListener('pointerup', this._onDragEnd);
@@ -377,7 +377,7 @@ class NumberLineGame {
 
   _speakActivePrompt() {
     const target = this.sequence[this.gapPositions[this.activeGapIdx]];
-    if (target) this.context.speak(`Where does ${target} go?`);
+    if (target) this.context.speakInstruction(`Where does ${target} go?`);
   }
 
   _buildRandomSequence() {

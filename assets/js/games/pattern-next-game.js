@@ -152,7 +152,7 @@ class PatternNextGame {
 
     this.currentRound = 0;
     this._render();
-    this.context.speak('What comes next');
+    this.context.speakInstruction('What comes next');
   }
 
   /* ─── Render ────────────────────────────────────────────── */
@@ -323,7 +323,7 @@ class PatternNextGame {
   }
 
   _wrongResponse(btnEl) {
-    this.context.speak('try again');
+    this.context.speakPraise('try again');
     btnEl.classList.remove('lq-answer--wrong');
     void btnEl.offsetWidth; // force reflow so animation restarts
     btnEl.classList.add('lq-answer--wrong');
@@ -351,7 +351,9 @@ class PatternNextGame {
       }, i * 160);
     });
 
-    this.context.speak(round.hint);
+    // Op 9: hints use the generic TEACHER hint line (templated item-name
+    // hints can't be pre-generated; round.hint kept for any visual use).
+    this.context.speakInstruction('pattern hint');
   }
 
   /* ─── Round completion ──────────────────────────────────── */

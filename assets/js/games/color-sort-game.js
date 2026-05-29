@@ -141,7 +141,7 @@ class ColorSortGame {
         }
       }, 3000);
 
-      this.context.speakAndWait('match the colors').then(() => {
+      this.context.speakInstructionAndWait('match the colors').then(() => {
         clearTimeout(_safetyUnlock);
         if (!this.ended) {
           this.callOutNextColor();
@@ -149,7 +149,7 @@ class ColorSortGame {
         }
       });
     } else {
-      this.context.speak('match the colors');
+      this.context.speakInstruction('match the colors');
     }
   }
 
@@ -165,7 +165,7 @@ class ColorSortGame {
 
     const instruction = document.getElementById('colorInstruction');
     if (instruction) instruction.textContent = `Find ${this.targetColor}!`;
-    this.context.speak(`find ${this.targetColor}`);
+    this.context.speakInstruction(`find ${this.targetColor}`);
   }
 
   /* ── Rendering ──────────────────────────────────────────── */
@@ -365,7 +365,7 @@ class ColorSortGame {
       setTimeout(() => zone.classList.remove('flash-wrong'), 450);
       item.classList.remove('cs-selected');
       this.selectedItem = null;
-      this.context.speak('try again');
+      this.context.speakPraise('try again');
       const instruction = document.getElementById('colorInstruction');
       if (instruction) instruction.textContent = 'Tap a color!';
     }
@@ -431,7 +431,7 @@ class ColorSortGame {
         setTimeout(() => itemEl.classList.remove('wrong'), 450);
       }
       const wrongPhrases = ['try again', 'aww man'];
-      this.context.speak(wrongPhrases[Math.floor(Math.random() * wrongPhrases.length)]);
+      this.context.speakPraise(wrongPhrases[Math.floor(Math.random() * wrongPhrases.length)]);
       // If in Round 2 and they dragged the right tile to the wrong zone, remind them
       if (isRound2 && isColorMatch && !isCallout) {
         const instruction = document.getElementById('colorInstruction');

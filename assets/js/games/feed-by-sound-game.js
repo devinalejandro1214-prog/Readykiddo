@@ -139,7 +139,7 @@ class FeedBySoundGame {
     this._clearHintTimer();
     this._render(cfg);
     // Speak after paint so the UI is visible first
-    setTimeout(() => this.context.speak(cfg.speakPrompt), 500);
+    setTimeout(() => this.context.speakInstruction(cfg.speakPrompt), 500);
   }
 
   /* ═══════════════════════════════════════════════════════

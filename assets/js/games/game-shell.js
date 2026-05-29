@@ -57,6 +57,9 @@ class GameShell {
       playSound: (soundKey) => this.playSound(soundKey),
       speak: (text) => this.speak(text),
       speakAndWait: (text) => this.speakAndWait(text),
+      speakInstruction: (text) => this.speakInstruction(text),
+      speakInstructionAndWait: (text) => this.speakInstructionAndWait(text),
+      speakPraise: (text) => this.speakPraise(text),
       characterAnimation: (type) => this.characterAnimation(type),
       saveSession: (data) => this.saveSession(data),
       goToNextGame: (nextGameType) => this.goToNextGame(nextGameType),
@@ -89,6 +92,31 @@ class GameShell {
       return RKAudio.speakAndWait(text);
     }
     // Fallback: regular speak + small buffer
+    return this.speak(text);
+  }
+
+  /* ── Op 9: intent-aware audio ────────────────────────────────
+     speakInstruction → the TEACHER voice (directions / what to do)
+     speakPraise       → the CHARACTER voice (encouragement / reactions)
+     Both gracefully fall back to speak() when RKAudio is unavailable. */
+  async speakInstruction(text) {
+    if (window.RKAudio && window.RKAudio.speakInstruction) {
+      return RKAudio.speakInstruction(text);
+    }
+    return this.speak(text);
+  }
+
+  async speakInstructionAndWait(text) {
+    if (window.RKAudio && window.RKAudio.speakInstructionAndWait) {
+      return RKAudio.speakInstructionAndWait(text);
+    }
+    return this.speakAndWait(text);
+  }
+
+  async speakPraise(text) {
+    if (window.RKAudio && window.RKAudio.speakPraise) {
+      return RKAudio.speakPraise(text);
+    }
     return this.speak(text);
   }
 
