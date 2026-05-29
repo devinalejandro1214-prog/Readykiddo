@@ -523,6 +523,47 @@ footer {
   .opt .thumb { aspect-ratio: unset; height: 70px; }
   .age-thumb   { min-height: unset; }
   .age-icon    { font-size: 2.2rem; margin: 4px 0 2px; }
+
+  /* ── Option steps (world / vibe / style / age): no name inputs, so let the
+        preview window fill the empty middle space and grow the tiles ───── */
+  body[data-step="ageGroup"] main,
+  body[data-step="theme"] main,
+  body[data-step="vibe"] main,
+  body[data-step="style"] main { place-items: stretch center; }
+
+  body[data-step="ageGroup"] .stage-body,
+  body[data-step="theme"] .stage-body,
+  body[data-step="vibe"] .stage-body,
+  body[data-step="style"] .stage-body {
+    height: 100%;
+    justify-content: center;
+  }
+
+  /* Display window fills the available middle space (auto-adapts to height) */
+  body[data-step="ageGroup"] .hero,
+  body[data-step="theme"] .hero,
+  body[data-step="vibe"] .hero,
+  body[data-step="style"] .hero {
+    width: min(94%, 380px);
+    max-width: 380px;
+    height: 100%;
+    max-height: 100%;
+    aspect-ratio: auto;
+    border-radius: 20px;
+  }
+
+  /* Bigger tiles on the option steps */
+  body[data-step="theme"] .opt .thumb,
+  body[data-step="vibe"] .opt .thumb,
+  body[data-step="style"] .opt .thumb { height: 92px; }
+  body[data-step="theme"] .opt .lbl,
+  body[data-step="vibe"] .opt .lbl,
+  body[data-step="style"] .opt .lbl { font-size: 13px; padding: 8px 6px; }
+
+  /* Age step: only 2 cards — use 2 wide columns so they're big and balanced */
+  body[data-step="ageGroup"] .options-row { grid-template-columns: repeat(2, 1fr); }
+  body[data-step="ageGroup"] .age-thumb { min-height: 96px; }
+  body[data-step="ageGroup"] .age-icon  { font-size: 2.8rem; }
 }
 
 @media (max-width: 380px) {

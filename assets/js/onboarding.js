@@ -163,6 +163,7 @@ function renderStep() {
   optsLabelEl.textContent = s.optsLabel;
   stepCountEl.textContent = `Step ${stepIdx+1} of ${steps.length}`;
   backBtn.hidden = stepIdx === 0;
+  document.body.dataset.step = s.id;
   cancelAdvance();
 
   // Replay fade-up animation on each step change
