@@ -49,6 +49,9 @@ body::after {
   height: 100vh; height: 100dvh;
   display: grid;
   grid-template-rows: auto 1fr auto;
+  grid-template-columns: minmax(0, 1fr); /* constrain the single column so a
+    wide child (the character carousel) can't blow the grid past the viewport;
+    it scrolls within instead */
   padding: 18px 28px;
   gap: 8px;
   overflow-x: hidden; /* prevent any child from triggering horizontal scroll */
@@ -98,6 +101,8 @@ main {
   grid-template-rows: auto 1fr;
   gap: 14px;
   min-height: 0;
+  min-width: 0;   /* allow grid item to shrink so the character carousel
+                     scrolls (overflow-x:auto) instead of stretching the page */
   max-width: 1100px;
   width: 100%;
   margin: 0 auto;
@@ -288,6 +293,7 @@ footer {
   gap: 12px;
   padding: 6px 12px 8px;
   max-width: 100%;
+  min-width: 0;   /* let the flex carousel shrink to its column and scroll */
   overflow-x: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(9,57,95,0.18) transparent;
@@ -419,6 +425,7 @@ footer {
   animation: fadeUp .42s cubic-bezier(.2,.9,.3,1.2) both;
   width: 100%;     /* always fill its grid cell so children can size off it */
   max-width: 100%;
+  min-width: 0;    /* shrink with the grid cell so the carousel scrolls */
 }
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(10px); }

@@ -93,6 +93,17 @@ const GAME_REGISTRY = {
     cssPath: 'assets/css/abc-match-game.css',
     isActive: true,
     order: 10
+  },
+  'draw-it': {
+    name: 'Draw It. Snap It.',
+    description: 'Draw a mission together, then snap it into your world!',
+    class: 'DrawItGame',
+    scriptPath: 'assets/js/games/draw-it-game.js',
+    cssPath: 'assets/css/draw-it-game.css',
+    worldCategory: 'Family',
+    difficulty: 'All Ages',
+    isActive: true,
+    order: 11
   }
 };
 

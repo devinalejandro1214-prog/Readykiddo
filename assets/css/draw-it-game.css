@@ -1,0 +1,271 @@
+/* ─────────────────────────────────────────────────────────
+   ReadyKiddo — Draw It. Snap It.  (Game #11) styles
+   All selectors are scoped under .drawit-* so they never collide
+   with other games. Ported from the DrawItSnapIt.html prototype.
+   ───────────────────────────────────────────────────────── */
+
+.drawit-game {
+  --drawit-navy: #0D3B66;
+  --drawit-navy-2: #16548c;
+  --drawit-orange: #FF9933;
+  --drawit-orange-2: #ffb866;
+  --drawit-cream: #F5F1E8;
+  --drawit-ink: #1f2d3d;
+  --drawit-muted: #5a6b7b;
+  --drawit-green: #3CA04A;
+  --drawit-line: rgba(13, 59, 102, 0.12);
+  --drawit-shadow: 0 18px 40px rgba(13, 59, 102, 0.16);
+
+  /* The host #gameArea (.game-area) is already full-height, centered and
+     clipped (overflow:hidden). So this fills that box rather than forcing
+     its own 100vh — which previously overflowed and clipped the mission
+     gallery with no way to scroll. */
+  box-sizing: border-box;
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 1080px;
+  height: 100%;
+  margin: 0 auto;
+  padding: 2px 4px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: "Poppins", "Fredoka", "Segoe UI", sans-serif;
+  color: var(--drawit-ink);
+}
+.drawit-game * { box-sizing: border-box; }
+
+/* ── Screens ──────────────────────────────────────────────── */
+.drawit-screen { display: none; }
+.drawit-screen.drawit-active {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;            /* fill the game column so centered screens
+                               actually center and don't leave dead space */
+  min-height: 0;
+  animation: drawitFadeUp .4s cubic-bezier(.2, .9, .3, 1.2) both;
+}
+/* The mission gallery can be taller than the viewport — let it scroll
+   internally instead of being clipped by the fixed-height host.
+   `safe center` vertically centres the gallery when it fits (no dead space
+   on wide desktops) but falls back to top-aligned + scrollable when it
+   overflows (mobile), so the first cards are never cut off. */
+#drawitHome.drawit-active { overflow-y: auto; overflow-x: hidden; justify-content: safe center; }
+/* The drawing/prep/complete screens are sized to fit; allow graceful
+   scroll on very short viewports rather than clipping controls. */
+#drawitDraw.drawit-active,
+#drawitPrep.drawit-active,
+#drawitComplete.drawit-active { overflow-y: auto; overflow-x: hidden; }
+@keyframes drawitFadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── Mission select ───────────────────────────────────────── */
+.drawit-hero { text-align: center; max-width: 680px; margin: 12px auto 22px; }
+.drawit-h1 { font-size: clamp(26px, 4vw, 38px); color: var(--drawit-navy); line-height: 1.05; margin-bottom: 8px; font-weight: 700; }
+.drawit-h1 .drawit-pop { color: var(--drawit-orange); }
+.drawit-sub { color: var(--drawit-muted); font-size: 15px; font-weight: 500; }
+
+.drawit-section-label {
+  font-weight: 700; color: var(--drawit-navy);
+  font-size: 14px; letter-spacing: 0.04em; margin: 4px 4px 12px;
+}
+
+.drawit-missions {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 18px;
+}
+.drawit-mission {
+  position: relative; text-align: left; appearance: none;
+  background: #fff; border: 2px solid var(--drawit-line); border-radius: 22px;
+  padding: 0; overflow: hidden; cursor: pointer;
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+  display: flex; flex-direction: column;
+}
+.drawit-mission:hover { transform: translateY(-4px); border-color: var(--drawit-orange-2); box-shadow: var(--drawit-shadow); }
+.drawit-mission:focus-visible { outline: none; box-shadow: 0 0 0 4px rgba(13, 59, 102, 0.28), var(--drawit-shadow); }
+.drawit-preview {
+  aspect-ratio: 4 / 3;
+  background: linear-gradient(180deg, #fbf6ea 0%, #ffffff 100%);
+  display: grid; place-items: center; padding: 14px;
+  border-bottom: 1.5px dashed var(--drawit-line);
+}
+.drawit-preview svg { width: 80%; height: 80%; }
+.drawit-meta { padding: 13px 15px 15px; }
+.drawit-title { font-weight: 700; font-size: 17px; color: var(--drawit-navy); }
+.drawit-chips { display: flex; align-items: center; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+.drawit-chip {
+  font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px;
+  background: rgba(13, 59, 102, 0.07); color: var(--drawit-navy);
+}
+.drawit-chip-world { background: rgba(255, 153, 51, 0.14); color: #b5651d; }
+.drawit-card-swatches { display: flex; gap: 5px; margin-top: 11px; }
+.drawit-card-swatch { width: 18px; height: 18px; border-radius: 6px; box-shadow: inset 0 0 0 1.5px rgba(0, 0, 0, 0.08); }
+
+/* ── Color prep ───────────────────────────────────────────── */
+.drawit-center { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px 0; }
+.drawit-prep-card,
+.drawit-complete-card {
+  background: #fff; border: 2px solid var(--drawit-line); border-radius: 28px;
+  padding: 34px 30px; max-width: 560px; width: 100%; box-shadow: var(--drawit-shadow);
+  text-align: center;
+}
+.drawit-kicker { text-transform: uppercase; letter-spacing: 0.16em; font-size: 11px; font-weight: 700; color: var(--drawit-orange); }
+.drawit-h2 { font-size: 26px; color: var(--drawit-navy); margin: 6px 0 4px; font-weight: 700; }
+.drawit-lead { color: var(--drawit-muted); font-size: 14px; font-weight: 500; margin-bottom: 22px; }
+.drawit-color-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+.drawit-color-row {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--drawit-cream); border-radius: 16px; padding: 12px 16px;
+  border: 1.5px solid var(--drawit-line);
+}
+.drawit-dot { width: 34px; height: 34px; border-radius: 11px; box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.08); flex-shrink: 0; }
+.drawit-color-label { font-weight: 700; font-size: 17px; color: var(--drawit-ink); text-align: left; }
+.drawit-color-note { margin-left: auto; font-size: 12px; font-weight: 600; color: var(--drawit-muted); }
+
+/* ── Buttons ──────────────────────────────────────────────── */
+.drawit-btn {
+  appearance: none; border: none; cursor: pointer;
+  font-family: inherit; font-weight: 700; font-size: 16px;
+  padding: 15px 26px; border-radius: 16px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease, color .2s ease;
+  white-space: nowrap;
+}
+.drawit-btn-primary {
+  color: #fff; background: linear-gradient(135deg, var(--drawit-navy) 0%, var(--drawit-navy-2) 100%);
+  box-shadow: 0 12px 24px rgba(13, 59, 102, 0.3);
+}
+.drawit-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 16px 30px rgba(13, 59, 102, 0.36); }
+.drawit-arrow {
+  width: 26px; height: 26px; border-radius: 50%; background: var(--drawit-orange);
+  display: grid; place-items: center; color: #fff; font-size: 15px;
+  transition: transform .2s ease;
+}
+.drawit-btn-primary:hover .drawit-arrow { transform: translateX(3px); }
+.drawit-btn-go {
+  color: #fff; background: linear-gradient(135deg, var(--drawit-orange) 0%, var(--drawit-orange-2) 100%);
+  box-shadow: 0 12px 24px rgba(255, 153, 51, 0.4);
+}
+.drawit-btn-go:hover { transform: translateY(-2px); box-shadow: 0 16px 30px rgba(255, 153, 51, 0.46); }
+.drawit-btn-ghost { background: rgba(13, 59, 102, 0.07); color: var(--drawit-navy); }
+.drawit-btn-ghost:hover { background: rgba(13, 59, 102, 0.13); }
+.drawit-btn:focus-visible { outline: none; box-shadow: 0 0 0 4px rgba(255, 153, 51, 0.4); }
+.drawit-block { width: 100%; }
+.drawit-prep-card .drawit-block + .drawit-block { margin-top: 12px; }
+
+/* ── Drawing step screen ──────────────────────────────────── */
+.drawit-draw-head { display: flex; align-items: center; gap: 14px; margin: 6px 0 14px; flex-wrap: wrap; }
+.drawit-step-counter {
+  font-weight: 700; color: var(--drawit-navy); font-size: 15px;
+  background: #fff; padding: 7px 14px; border-radius: 999px; border: 1.5px solid var(--drawit-line);
+}
+.drawit-dots { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.drawit-pdot { width: 11px; height: 11px; border-radius: 50%; background: rgba(13, 59, 102, 0.16); transition: all .3s ease; }
+.drawit-pdot.done { background: var(--drawit-green); }
+.drawit-pdot.active { width: 30px; border-radius: 6px; background: var(--drawit-orange); }
+
+.drawit-callout {
+  margin-left: auto; display: flex; align-items: center; gap: 11px;
+  background: #fff; border: 2px solid var(--drawit-line); border-radius: 999px;
+  padding: 7px 16px 7px 8px; box-shadow: 0 6px 14px rgba(13, 59, 102, 0.1);
+  transition: border-color .3s ease;
+}
+.drawit-swatch-lg {
+  width: 30px; height: 30px; border-radius: 50%;
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.1), 0 4px 10px rgba(0, 0, 0, 0.15);
+  transition: background .3s ease;
+}
+.drawit-cc-text { font-weight: 700; font-size: 14px; line-height: 1.15; text-align: left; }
+.drawit-cc-small { display: block; font-size: 10.5px; font-weight: 600; color: var(--drawit-muted); letter-spacing: 0.04em; text-transform: uppercase; }
+
+.drawit-stage {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; min-height: 0;
+}
+.drawit-canvas-frame {
+  position: relative;
+  width: min(440px, 82vw);
+  aspect-ratio: 1 / 1;
+  background: #fff;
+  border: 3px solid var(--drawit-line);
+  border-radius: 30px;
+  box-shadow: var(--drawit-shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+  overflow: hidden;
+}
+.drawit-canvas-frame::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0.5;
+  background-image:
+    linear-gradient(rgba(13, 59, 102, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(13, 59, 102, 0.05) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+.drawit-canvas-frame svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.drawit-draw-path { fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-width: 6; }
+.drawit-ghost-path { fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-width: 6; opacity: 0.3; }
+
+.drawit-instruction {
+  font-weight: 700; color: var(--drawit-navy);
+  font-size: clamp(18px, 2.4vw, 23px); text-align: center; max-width: 520px; line-height: 1.2;
+  min-height: 1.2em;
+}
+
+.drawit-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.drawit-ctl {
+  appearance: none; cursor: pointer; font-family: inherit; font-weight: 700; font-size: 14px;
+  background: #fff; border: 2px solid var(--drawit-line); color: var(--drawit-navy);
+  padding: 12px 18px; border-radius: 14px; display: inline-flex; align-items: center; gap: 8px;
+  transition: transform .2s ease, border-color .2s ease, background .2s ease;
+  box-shadow: 0 4px 10px rgba(13, 59, 102, 0.08);
+}
+.drawit-ctl:hover { border-color: var(--drawit-orange); background: #fff7ec; transform: translateY(-2px); }
+.drawit-ctl:focus-visible { outline: none; box-shadow: 0 0 0 4px rgba(255, 153, 51, 0.35); }
+
+/* ── Encouragement popup ──────────────────────────────────── */
+.drawit-encourage {
+  position: fixed; left: 50%; bottom: 34px; transform: translateX(-50%) translateY(80px);
+  z-index: 9300; background: var(--drawit-green); color: #fff;
+  padding: 14px 22px; border-radius: 16px; font-weight: 700; font-size: 15px;
+  font-family: "Poppins", "Fredoka", sans-serif;
+  box-shadow: 0 16px 36px rgba(60, 160, 74, 0.4);
+  opacity: 0; transition: opacity .3s ease, transform .4s cubic-bezier(.2, .9, .3, 1.2);
+  pointer-events: none;
+}
+.drawit-encourage.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── Completion screen ────────────────────────────────────── */
+.drawit-complete-card { max-width: 600px; }
+.drawit-burst { font-size: 46px; line-height: 1; margin-bottom: 6px; }
+.drawit-twin { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; margin: 8px 0 24px; }
+.drawit-slot { flex: 0 1 240px; max-width: 260px; }
+.drawit-frame {
+  background: var(--drawit-cream); border: 2.5px solid var(--drawit-line); border-radius: 20px;
+  aspect-ratio: 1 / 1; position: relative; overflow: hidden;
+  box-shadow: inset 0 2px 8px rgba(13, 59, 102, 0.08);
+}
+.drawit-frame svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.drawit-who { margin-top: 9px; font-weight: 700; font-size: 14px; color: var(--drawit-navy); }
+.drawit-complete-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+/* ── Confetti canvas ──────────────────────────────────────── */
+#drawitConfetti { position: fixed; inset: 0; z-index: 9250; pointer-events: none; }
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 560px) {
+  .drawit-game { padding: 16px 16px 32px; }
+  .drawit-missions { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+  .drawit-draw-head { gap: 10px; }
+  .drawit-callout { margin-left: 0; order: 3; width: 100%; justify-content: center; }
+  .drawit-prep-card, .drawit-complete-card { padding: 26px 20px; }
+  /* Full-width, evenly-sized completion buttons (match the prep screen)
+     instead of two uneven content-width pills. */
+  .drawit-complete-actions { flex-direction: column; align-items: stretch; }
+  .drawit-complete-actions .drawit-btn { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .drawit-game *, .drawit-game *::before, .drawit-game *::after {
+    animation-duration: .01ms !important; transition-duration: .01ms !important;
+  }
+}
