@@ -33,6 +33,11 @@ const LIGHT = {
 const sparkle = (x, y, s = 4, fill = 'white', op = 0.9) =>
   `<path d="M${x} ${y - s}L${x + s/3} ${y - s/3}L${x + s} ${y}L${x + s/3} ${y + s/3}L${x} ${y + s}L${x - s/3} ${y + s/3}L${x - s} ${y}L${x - s/3} ${y - s/3}z" fill="${fill}" opacity="${op}"/>`;
 
+// Small highlight dot. (Was used by the `number` generator but never defined —
+// caused "ReferenceError: dot is not defined" when number tiles rendered.)
+const dot = (x, y, r = 1.5, fill = 'white', op = 0.85) =>
+  `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}" opacity="${op}"/>`;
+
 /* ─────────────────────────────────────────────────────────
    Item Generators (color → SVG)
    ───────────────────────────────────────────────────────── */
