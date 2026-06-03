@@ -119,6 +119,10 @@ class ColorSortGame {
     this.renderItems();
     this.renderProgress();
 
+    // NOTE: this was previously referenced without being declared, throwing
+    // "instruction is not defined" and aborting beginRound — which silenced the
+    // round-1 voice prompt AND skipped the round-2 colour callout (→ "Find null").
+    const instruction = document.getElementById('colorInstruction');
     if (instruction) {
       instruction.textContent = isRound2
         ? 'Listen for the color to match!'
