@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReadyKiddo — Parent Sign In</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js"></script>
+  <script src="assets/js/supabase-client.js"></script>
+  <style>
+    :root {
+      --ready-blue:    #09395f;
+      --ready-blue-2:  #0b5f95;
+      --ready-orange:  #f28c18;
+      --ready-orange-2:#ffb23e;
+      --paper:         #fff7e8;
+      --ink:           #102338;
+      --muted:         #45596b;
+      --red:    #ef4444;
+      --green:  #22c55e;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family:'Fredoka','Segoe UI',sans-serif;
+      min-height:100vh;
+      background:
+        radial-gradient(120% 80% at 50% -10%, rgba(255,178,62,0.22), transparent 60%),
+        radial-gradient(80% 60% at 100% 110%, rgba(11,95,149,0.18), transparent 60%),
+        linear-gradient(180deg, #f6e9c8 0%, #f1d9a2 100%);
+      display:flex; align-items:center; justify-content:center;
+      padding:20px;
+    }
+
+    /* ── Stars bg ── */
+    .stars { position:fixed; inset:0; pointer-events:none; overflow:hidden; }
+    .star  { position:absolute; border-radius:50%; background:rgba(9,57,95,.18); animation:twinkle var(--d,3s) ease-in-out infinite; }
+    @keyframes twinkle { 0%,100%{opacity:.15} 50%{opacity:.7} }
+
+    /* ── Card ── */
+    .card {
+      position:relative; z-index:10;
+      background:#fff;
+      border-radius:28px;
+      border:2px solid rgba(9,57,95,0.08);
+      padding:36px 32px;
+      width:100%; max-width:420px;
+      box-shadow:0 12px 32px rgba(9,57,95,0.12);
+      animation:cardIn .5s ease both;
+    }
+    @keyframes cardIn { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+
+    /* ── Logo / Brand header ── */
+    .brand-header {
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:6px;
+      margin-bottom:28px;
+    }
+    .brand {
+      display:flex;
+      align-items:center;
+      gap:10px;
+      color:var(--ready-blue);
+      font-weight:700;
+    }
+    .brand-mark {
+      width:34px; height:34px;
+      border-radius:10px;
+      background:linear-gradient(135deg, var(--ready-orange), var(--ready-orange-2));
+      display:grid;
+      place-items:center;
+      box-shadow:0 6px 14px rgba(242,140,24,0.42);
+      transform:rotate(-6deg);
+      flex-shrink:0;
+    }
+    .brand-name {
+      font-family:'Fredoka',sans-serif;
+      font-size:18px;
+      font-weight:700;
+      color:var(--ready-blue);
+    }
+    .brand-sub {
+      font-size:13px;
+      font-weight:600;
+      color:var(--muted);
+      letter-spacing:0.04em;
+    }
+
+    /* ── Step indicator ── */
+    .steps {
+      display:flex; align-items:center; justify-content:center;
+      gap:8px; margin-bottom:24px;
+    }
+    .step-dot {
+      width:10px; height:10px; border-radius:50%;
+      background:rgba(9,57,95,0.18);
+      transition:background .3s, width .3s, border-radius .3s;
+    }
+    .step-dot.on {
+      width:30px;
+      border-radius:6px;
+      background:var(--ready-blue);
+    }
+    .step-dot.done { background:var(--ready-orange); }
+    .step-line { width:28px; height:2px; background:rgba(9,57,95,0.12); }
+
+    /* ── Section title ── */
+    .view-title {
+      font-size:22px; font-weight:700; color:var(--ink);
+      margin-bottom:4px;
+    }
+    .view-sub {
+      font-size:14px; color:var(--muted); margin-bottom:22px; line-height:1.5;
+    }
+
+    /* ── Form elements ── */
+    .field { margin-bottom:14px; }
+    label {
+      display:block;
+      font-size:11px; font-weight:700;
+      text-transform:uppercase; letter-spacing:0.12em;
+      color:var(--muted);
+      margin-bottom:6px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+      width:100%; padding:12px 14px;
+      border:2.5px solid rgba(9,57,95,0.10);
+      border-radius:14px;
+      font-family:'Fredoka',sans-serif; font-size:16px; font-weight:600; color:var(--ink);
+      transition:border-color .2s, box-shadow .2s;
+      outline:none;
+      background:#fff;
+    }
+    input:focus {
+      border-color:var(--ready-blue-2);
+      box-shadow:0 0 0 4px rgba(11,95,149,0.16);
+    }
+    input.err { border-color:var(--red); }
+
+    /* age range buttons */
+    .age-group {
+      display:grid; grid-template-columns:1fr 1fr; gap:10px;
+    }
+    .age-btn {
+      padding:14px 10px; border-radius:14px;
+      border:2.5px solid rgba(9,57,95,0.10); background:#fff;
+      font-family:'Fredoka',sans-serif; font-size:15px;
+      font-weight:700; color:var(--muted); cursor:pointer;
+      transition:all .2s; text-align:center;
+    }
+    .age-btn:hover   { border-color:var(--ready-orange); color:var(--ready-orange); }
+    .age-btn.sel     {
+      border-color:var(--ready-orange);
+      background:#fff4d8;
+      color:var(--ready-blue);
+      box-shadow:0 0 0 4px rgba(242,140,24,0.18);
+    }
+    .age-btn .emoji  { display:block; font-size:26px; margin-bottom:4px; }
+
+    /* avatar row */
+    .avatar-row { display:flex; gap:10px; }
+    .av-btn {
+      flex:1; padding:10px 6px; border-radius:14px;
+      border:2.5px solid rgba(9,57,95,0.10); background:#fff;
+      font-family:'Fredoka',sans-serif; font-size:13px;
+      font-weight:700; color:var(--muted); cursor:pointer;
+      transition:all .2s; text-align:center;
+    }
+    .av-btn:hover { border-color:var(--ready-orange); }
+    .av-btn.sel   {
+      border-color:var(--ready-orange);
+      background:#fff4d8;
+      color:var(--ready-blue);
+      box-shadow:0 0 0 4px rgba(242,140,24,0.18);
+    }
+    .av-btn .av-emoji { display:block; font-size:22px; margin-bottom:3px; }
+
+    /* COPPA consent box */
+    .coppa-box {
+      background:#fffbf0;
+      border:1.5px solid #fde68a;
+      border-radius:14px;
+      padding:14px 16px;
+      margin-bottom:16px;
+    }
+    .coppa-label {
+      display:flex; gap:10px; align-items:flex-start; cursor:pointer;
+    }
+    .coppa-label input[type="checkbox"] {
+      width:18px; height:18px; margin-top:2px; cursor:pointer;
+      accent-color:var(--ready-orange); flex-shrink:0;
+    }
+    .coppa-text { font-size:12px; color:var(--muted); line-height:1.6; }
+    .coppa-text strong { color:var(--ready-blue); }
+
+    /* Primary button */
+    .btn-primary {
+      width:100%; padding:16px 34px;
+      background:linear-gradient(135deg, var(--ready-orange), var(--ready-orange-2));
+      color:#fff; border:none; border-radius:22px;
+      font-family:'Fredoka',sans-serif; font-size:20px; font-weight:700;
+      cursor:pointer; transition:transform .2s, box-shadow .2s;
+      box-shadow:0 14px 30px rgba(242,140,24,0.35);
+      display:flex; align-items:center; justify-content:center; gap:8px;
+    }
+    .btn-primary:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 18px 36px rgba(242,140,24,.45); }
+    .btn-primary:disabled { opacity:.55; cursor:not-allowed; }
+    .btn-primary.blue {
+      background:linear-gradient(135deg, var(--ready-blue), var(--ready-blue-2));
+      box-shadow:0 14px 30px rgba(9,57,95,.28);
+    }
+    .btn-primary.blue:hover:not(:disabled) { box-shadow:0 18px 36px rgba(9,57,95,.36); }
+
+    /* Spinner */
+    .spinner {
+      width:18px; height:18px; border-radius:50%;
+      border:2.5px solid rgba(255,255,255,.3);
+      border-top-color:#fff;
+      animation:spin .7s linear infinite;
+    }
+    @keyframes spin { to{ transform:rotate(360deg) } }
+
+    /* Error message */
+    .error-msg {
+      background:#fef2f2; border:1.5px solid #fecaca;
+      border-radius:10px; padding:10px 14px;
+      font-size:13px; color:#b91c1c;
+      margin-bottom:14px; display:flex; align-items:center; gap:8px;
+    }
+
+    /* Success message */
+    .success-msg {
+      background:#f0fdf4; border:1.5px solid #bbf7d0;
+      border-radius:10px; padding:10px 14px;
+      font-size:13px; color:#166534;
+      margin-bottom:14px; display:flex; align-items:center; gap:8px;
+    }
+
+    /* Toggle link */
+    .toggle-row { text-align:center; margin-top:18px; font-size:14px; color:var(--muted); }
+    .toggle-link { color:var(--ready-orange); font-weight:700; cursor:pointer; text-decoration:none; }
+    .toggle-link:hover { text-decoration:underline; }
+
+    /* Divider */
+    .divider { display:flex; align-items:center; gap:10px; margin:16px 0; }
+    .divider hr { flex:1; border:none; border-top:1px solid rgba(9,57,95,0.10); }
+    .divider span { font-size:12px; color:var(--muted); }
+  </style>
+</head>
+<body>
+
+<!-- Stars -->
+<div class="stars" id="stars"></div>
+
+<!-- ══ Alpine App ══ -->
+<div class="card" x-data="authApp()" x-init="init()">
+
+  <!-- Brand Header -->
+  <div class="brand-header">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2l2.6 5.4L20 8l-4 4 1 6-5-2.7L7 18l1-6-4-4 5.4-.6L12 2z"
+                stroke="white" fill="none" stroke-width="2.6"
+                stroke-linejoin="round" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="brand-name">ReadyKiddo</span>
+    </div>
+    <span class="brand-sub">Parent Portal</span>
+  </div>
+
+  <!-- Step dots -->
+  <div class="steps" x-show="view !== 'login'">
+    <div class="step-dot" :class="view === 'signup' ? 'on' : (view === 'child' ? 'done' : '')"></div>
+    <div class="step-line"></div>
+    <div class="step-dot" :class="view === 'child' ? 'on' : ''"></div>
+  </div>
+
+  <!-- ── ERROR ── -->
+  <div class="error-msg" x-show="error" x-text="'⚠️  ' + error"></div>
+
+  <!-- ── SUCCESS ── -->
+  <div class="success-msg" x-show="success" x-text="'✅  ' + success"></div>
+
+
+  <!-- ════ LOGIN VIEW ════ -->
+  <div x-show="view === 'login'" x-transition>
+    <div class="view-title">Welcome back 👋</div>
+    <div class="view-sub">Sign in to see your child's progress.</div>
+
+    <div class="field">
+      <label>Email</label>
+      <input type="email" x-model="email" placeholder="you@example.com"
+             :class="error ? 'err' : ''" @keydown.enter="login()">
+    </div>
+
+    <div class="field">
+      <label>Password</label>
+      <input type="password" x-model="password" placeholder="••••••••"
+             :class="error ? 'err' : ''" @keydown.enter="login()">
+    </div>
+
+    <button class="btn-primary" @click="login()" :disabled="loading">
+      <span x-show="!loading">Sign In</span>
+      <span x-show="loading" class="spinner"></span>
+    </button>
+
+    <div class="toggle-row">
+      New here?
+      <span class="toggle-link" @click="switchTo('signup')">Create an account</span>
+    </div>
+  </div>
+
+
+  <!-- ════ SIGNUP VIEW ════ -->
+  <div x-show="view === 'signup'" x-transition>
+    <div class="view-title">Create your account</div>
+    <div class="view-sub">Step 1 of 2 — Your parent account</div>
+
+    <div class="field">
+      <label>Email</label>
+      <input type="email" x-model="email" placeholder="you@example.com"
+             :class="error ? 'err' : ''">
+    </div>
+
+    <div class="field">
+      <label>Password</label>
+      <input type="password" x-model="password" placeholder="At least 6 characters"
+             :class="error ? 'err' : ''">
+    </div>
+
+    <div class="field">
+      <label>Confirm Password</label>
+      <input type="password" x-model="confirmPassword" placeholder="••••••••"
+             :class="error ? 'err' : ''" @keydown.enter="signup()">
+    </div>
+
+    <!-- COPPA Consent -->
+    <div class="coppa-box">
+      <label class="coppa-label">
+        <input type="checkbox" x-model="coppa">
+        <span class="coppa-text">
+          <strong>Parental Consent (COPPA)</strong><br>
+          I confirm that I am a parent or legal guardian creating this account.
+          ReadyKiddo collects only my child's first name and age range to
+          personalize their learning experience. No advertising data, no
+          third-party tracking. I consent to this limited data collection on
+          behalf of my child.
+        </span>
+      </label>
+    </div>
+
+    <button class="btn-primary orange" @click="signup()" :disabled="loading || !coppa">
+      <span x-show="!loading">Create Account →</span>
+      <span x-show="loading" class="spinner"></span>
+    </button>
+
+    <div class="toggle-row">
+      Already have an account?
+      <span class="toggle-link" @click="switchTo('login')">Sign in</span>
+    </div>
+  </div>
+
+
+  <!-- ════ CHILD PROFILE VIEW ════ -->
+  <div x-show="view === 'child'" x-transition>
+    <div class="view-title">Set up your child 🧒</div>
+    <div class="view-sub">Step 2 of 2 — We only need two things.</div>
+
+    <div class="field">
+      <label>Child's First Name</label>
+      <input type="text" x-model="childName" placeholder="e.g. Maya"
+             :class="error ? 'err' : ''" @keydown.enter="createChild()" maxlength="30">
+    </div>
+
+    <div class="field">
+      <label>Age Range</label>
+      <div class="age-group">
+        <button class="age-btn" :class="childAge === '3-4' ? 'sel' : ''"
+                @click="childAge = '3-4'">
+          <span class="emoji">🌱</span>
+          3–4 years
+        </button>
+        <button class="age-btn" :class="childAge === '4-5' ? 'sel' : ''"
+                @click="childAge = '4-5'">
+          <span class="emoji">🌟</span>
+          4–5 years
+        </button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Choose a Character</label>
+      <div class="avatar-row">
+        <button class="av-btn" :class="childAvatar === 'Em' ? 'sel' : ''"
+                @click="childAvatar = 'Em'">
+          <span class="av-emoji">🧒</span>Em
+        </button>
+        <button class="av-btn" :class="childAvatar === 'Amara' ? 'sel' : ''"
+                @click="childAvatar = 'Amara'">
+          <span class="av-emoji">👧</span>Amara
+        </button>
+      </div>
+    </div>
+
+    <button class="btn-primary orange" @click="createChild()"
+            :disabled="loading || !childName.trim() || !childAge">
+      <span x-show="!loading">Let's Go! 🚀</span>
+      <span x-show="loading" class="spinner"></span>
+    </button>
+  </div>
+
+</div><!-- /card -->
+
+
+<script>
+  /* ── Stars ── */
+  const starsEl = document.getElementById('stars');
+  for (let i = 0; i < 50; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const sz = Math.random() * 3 + 1;
+    s.style.cssText = `width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${(Math.random()*3+2).toFixed(1)}s;animation-delay:${(Math.random()*4).toFixed(1)}s`;
+    starsEl.appendChild(s);
+  }
+
+  /* ── Alpine App ── */
+  function authApp() {
+    return {
+      view:          'login',   // 'login' | 'signup' | 'child'
+      email:         '',
+      password:      '',
+      confirmPassword: '',
+      coppa:         false,
+      childName:     '',
+      childAge:      '3-4',
+      childAvatar:   'Em',
+      loading:       false,
+      error:         '',
+      success:       '',
+
+      // ── Init: redirect if already logged in ──────────────────
+      async init() {
+        const user = await window.RK.getCurrentUser();
+        if (user) {
+          const { data: children } = await window.RK.getChildren(user.id);
+          if (children && children.length > 0) {
+            window.RK.setActiveChild(children[0]);
+            window.location.href = 'dashboard.html';
+          } else {
+            this.view = 'child';
+          }
+        }
+      },
+
+      switchTo(v) {
+        this.error = '';
+        this.success = '';
+        this.view = v;
+      },
+
+      // ── Login ────────────────────────────────────────────────
+      async login() {
+        this.error = '';
+        if (!this.email || !this.password) {
+          this.error = 'Please enter your email and password.'; return;
+        }
+        this.loading = true;
+        const { data, error } = await window.sb.auth.signInWithPassword({
+          email:    this.email,
+          password: this.password,
+        });
+        if (error) {
+          this.error = 'Incorrect email or password. Please try again.';
+          this.loading = false; return;
+        }
+        // Check for existing children
+        const { data: children } = await window.RK.getChildren(data.user.id);
+        if (children && children.length > 0) {
+          window.RK.setActiveChild(children[0]);
+          window.location.href = 'dashboard.html';
+        } else {
+          // Signed up previously but never completed child profile
+          this.loading = false;
+          this.view = 'child';
+        }
+      },
+
+      // ── Signup ───────────────────────────────────────────────
+      async signup() {
+        this.error = '';
+        if (!this.email || !this.password || !this.confirmPassword) {
+          this.error = 'Please fill in all fields.'; return;
+        }
+        if (this.password.length < 6) {
+          this.error = 'Password must be at least 6 characters.'; return;
+        }
+        if (this.password !== this.confirmPassword) {
+          this.error = 'Passwords do not match.'; return;
+        }
+        if (!this.coppa) {
+          this.error = 'Please confirm parental consent to continue.'; return;
+        }
+        this.loading = true;
+        const { data, error } = await window.sb.auth.signUp({
+          email:    this.email,
+          password: this.password,
+        });
+        if (error) {
+          this.error = error.message;
+          this.loading = false; return;
+        }
+        // If email confirmation is disabled in Supabase, user is immediately active.
+        // If enabled, show a message and wait.
+        if (data?.user?.identities?.length === 0) {
+          this.error = 'An account with this email already exists.';
+          this.loading = false; return;
+        }
+        if (!data?.session) {
+          this.success = 'Check your email for a confirmation link, then sign in.';
+          this.view = 'login';
+          this.loading = false; return;
+        }
+        this.loading = false;
+        this.view = 'child';
+      },
+
+      // ── Create child profile ─────────────────────────────────
+      async createChild() {
+        this.error = '';
+        if (!this.childName.trim()) {
+          this.error = 'Please enter your child\'s name.'; return;
+        }
+        this.loading = true;
+        const { data: { user } } = await window.sb.auth.getUser();
+        if (!user) {
+          this.error = 'Session expired. Please sign in again.';
+          this.loading = false; this.view = 'login'; return;
+        }
+        const { data, error } = await window.sb
+          .from('children')
+          .insert({
+            parent_id: user.id,
+            name:      this.childName.trim(),
+            age_range: this.childAge,
+            avatar:    this.childAvatar,
+          })
+          .select()
+          .single();
+        if (error) {
+          this.error = 'Could not create profile. Please try again.';
+          this.loading = false; return;
+        }
+        window.RK.setActiveChild(data);
+        window.location.href = 'dashboard.html';
+      },
+    };
+  }
+</script>
+</body>
+</html>

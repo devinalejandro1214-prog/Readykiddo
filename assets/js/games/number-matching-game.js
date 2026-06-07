@@ -309,6 +309,7 @@ class NumberMatchingGame {
     });
 
     this.context.randomEncouragement();
+    if (window.RK?.logGameSession) { await window.RK.logGameSession('number-matching', { attempts: this.performance.wrongAttempts }); }
     await this.context.showCelebration?.({
       accuracy,
       onContinue: () => this.context.goToNextGame('space-defender')

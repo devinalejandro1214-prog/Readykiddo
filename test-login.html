@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReadyKiddo — Dev Test Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --blue:#09395f; --blue2:#0b5f95; --orange:#f28c18; --paper:#fff7e8; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family:'Fredoka','Segoe UI',sans-serif;
+      background:var(--blue);
+      min-height:100vh;
+      display:flex; align-items:center; justify-content:center;
+      padding:20px;
+    }
+    .card {
+      background:#fff; border-radius:20px;
+      padding:32px 28px; width:100%; max-width:380px;
+      box-shadow:0 20px 56px rgba(0,0,0,.25);
+    }
+    .dev-tag {
+      display:inline-block;
+      background:#fef3c7; color:#d97706;
+      font-size:11px; font-weight:700;
+      padding:3px 10px; border-radius:20px;
+      margin-bottom:12px; letter-spacing:.5px;
+    }
+    .title { font-size:24px; font-weight:700; color:var(--blue); margin-bottom:4px; }
+    .sub   { font-size:13px; color:#888; margin-bottom:24px; line-height:1.5; }
+
+    .field { margin-bottom:14px; }
+    label  { display:block; font-size:12px; font-weight:700; color:var(--blue); margin-bottom:5px; }
+    input[type="text"] {
+      width:100%; padding:10px 12px;
+      border:2px solid #e5e7eb; border-radius:10px;
+      font-family:'Fredoka',sans-serif; font-size:15px;
+      outline:none; transition:border-color .2s;
+    }
+    input:focus { border-color:var(--orange); }
+
+    .age-row { display:flex; gap:8px; }
+    .age-btn {
+      flex:1; padding:10px 6px; border-radius:10px;
+      border:2px solid #e5e7eb; background:#fff;
+      font-family:'Fredoka',sans-serif; font-size:14px;
+      font-weight:700; color:#666; cursor:pointer;
+      transition:all .2s; text-align:center;
+    }
+    .age-btn.sel { border-color:var(--orange); background:#fff9f0; color:var(--orange); }
+
+    .dest-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:20px; }
+    .dest-btn {
+      padding:9px 6px; border-radius:10px;
+      border:2px solid #e5e7eb; background:#fff;
+      font-family:'Fredoka',sans-serif; font-size:12px;
+      font-weight:700; color:#666; cursor:pointer;
+      transition:all .2s; text-align:center;
+    }
+    .dest-btn.sel { border-color:var(--blue2); background:#eff8ff; color:var(--blue); }
+
+    .go-btn {
+      width:100%; padding:13px;
+      background:linear-gradient(135deg,var(--blue),var(--blue2));
+      color:#fff; border:none; border-radius:12px;
+      font-family:'Fredoka',sans-serif; font-size:17px; font-weight:700;
+      cursor:pointer; transition:transform .2s, box-shadow .2s;
+      box-shadow:0 6px 18px rgba(9,57,95,.25);
+    }
+    .go-btn:hover { transform:translateY(-2px); box-shadow:0 8px 22px rgba(9,57,95,.35); }
+
+    .note {
+      margin-top:14px; padding:10px 12px;
+      background:#f9fafb; border-radius:10px;
+      font-size:11px; color:#888; line-height:1.55;
+      text-align:center;
+    }
+    .divider { display:flex; align-items:center; gap:8px; margin:14px 0; }
+    .divider hr { flex:1; border:none; border-top:1px solid #e5e7eb; }
+    .divider span { font-size:11px; color:#ccc; }
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="dev-tag">🛠 DEV TEST MODE</div>
+  <div class="title">Quick Test Login</div>
+  <div class="sub">Sets a fake child session — no Supabase calls. Use this to confirm game flows, dashboard, and completion hooks without touching real data.</div>
+
+  <div class="field">
+    <label>Child Name</label>
+    <input type="text" id="childName" value="Test Kid" maxlength="30">
+  </div>
+
+  <div class="field">
+    <label>Age Range</label>
+    <div class="age-row">
+      <button class="age-btn sel" id="age34" onclick="selectAge('3-4')">🌱 3–4 yrs</button>
+      <button class="age-btn"    id="age45" onclick="selectAge('4-5')">🌟 4–5 yrs</button>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Go to</label>
+    <div class="dest-row">
+      <button class="dest-btn sel" id="destDash"   onclick="selectDest('dashboard.html')">📊 Dashboard</button>
+      <button class="dest-btn"     id="destHome"   onclick="selectDest('index.html')">🏠 Home</button>
+      <button class="dest-btn"     id="destOnboard" onclick="selectDest('onboarding.html')">🎮 Onboarding</button>
+      <button class="dest-btn"     id="destGame"   onclick="selectDest('game-loader.html?game=color-sort')">🎨 Color Sort</button>
+    </div>
+  </div>
+
+  <button class="go-btn" onclick="testLogin()">Enter Test Session →</button>
+
+  <div class="note">
+    ⚠️ Test sessions are stored in <code>sessionStorage</code> only.<br>
+    Game completions log to <strong>console</strong>, not Supabase.<br>
+    Close the tab or clear storage to reset.
+  </div>
+</div>
+
+<script>
+  let selectedAge  = '3-4';
+  let selectedDest = 'dashboard.html';
+
+  function selectAge(age) {
+    selectedAge = age;
+    document.getElementById('age34').classList.toggle('sel', age === '3-4');
+    document.getElementById('age45').classList.toggle('sel', age === '4-5');
+  }
+
+  function selectDest(dest) {
+    selectedDest = dest;
+    ['destDash','destHome','destOnboard','destGame'].forEach(id => {
+      document.getElementById(id).classList.remove('sel');
+    });
+    const map = {
+      'dashboard.html': 'destDash',
+      'index.html': 'destHome',
+      'onboarding.html': 'destOnboard',
+      'game-loader.html?game=color-sort': 'destGame',
+    };
+    if (map[dest]) document.getElementById(map[dest]).classList.add('sel');
+  }
+
+  function testLogin() {
+    const name = document.getElementById('childName').value.trim() || 'Test Kid';
+    const fakeChild = {
+      id:        'test-00000000-0000-0000-0000-000000000001',
+      parent_id: 'test-parent-000000000000000000000000001',
+      name:      name,
+      age_range: selectedAge,
+      avatar:    'Em',
+      theme:     'default',
+      _testMode: true,
+    };
+    sessionStorage.setItem('rk_child', JSON.stringify(fakeChild));
+    sessionStorage.setItem('rk_test_mode', 'true');
+    window.location.href = selectedDest;
+  }
+</script>
+</body>
+</html>

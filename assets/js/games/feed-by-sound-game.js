@@ -524,7 +524,8 @@ class FeedBySoundGame {
       </div>
     `;
 
-    document.getElementById('fbsNextBtn')?.addEventListener('click', () => {
+    document.getElementById('fbsNextBtn')?.addEventListener('click', async () => {
+      if (window.RK?.logGameSession) { await window.RK.logGameSession('feed-by-sound', { attempts: 1 }); }
       this.context.goToNextGame(nextGameType);
     });
   }

@@ -467,6 +467,7 @@ class ShapeRecognitionGame {
     // fully covers the character (z-index 5), so it would be invisible.
     this.context.randomEncouragement();
 
+    if (window.RK?.logGameSession) { await window.RK.logGameSession('shape-recognition', { attempts: 1 }); }
     await this.context.showCelebration({
       accuracy,
       onContinue: () => this.context.goToNextGame('space-defender')

@@ -317,7 +317,7 @@ class NumberLineGame {
     }, 1800);
   }
 
-  end() {
+  async end() {
     if (this._pupilHandler) {
       document.removeEventListener('pointermove', this._pupilHandler);
       this._pupilHandler = null;
@@ -340,6 +340,7 @@ class NumberLineGame {
         : 'world-reveal'
     });
 
+    if (window.RK?.logGameSession) { await window.RK.logGameSession('number-line', { attempts: this.performance.wrongAttempts }); }
     this._showEndScreen(accuracy);
   }
 

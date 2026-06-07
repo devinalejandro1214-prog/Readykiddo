@@ -551,6 +551,7 @@ class DrawItGame {
 
     this.context.randomEncouragement();
 
+    if (window.RK?.logGameSession) { await window.RK.logGameSession('draw-it', { attempts: 1 }); }
     await this.context.showCelebration({
       accuracy: 1,
       onContinue: () => this.context.goToNextGame('world-reveal')

@@ -711,6 +711,7 @@ class FeedAlienGame {
     // fully covers the character (z-index 5), so it would be invisible.
     this.context.randomEncouragement();
 
+    if (window.RK?.logGameSession) { await window.RK.logGameSession('feed-alien', { attempts: this.currentRound }); }
     await this.context.showCelebration({
       accuracy: this.performance.accuracy,
       onContinue: () => this.context.goToNextGame(nextGameType)

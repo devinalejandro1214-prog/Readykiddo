@@ -381,6 +381,7 @@ class SpaceDefenderGame {
       if (this.level >= this.maxLevels) {
         this.showLevelFlash('All levels cleared!');
         this.context.characterAnimation('celebrate');
+        if (window.RK?.logGameSession) { window.RK.logGameSession('space-defender', { attempts: 1 }); }
         setTimeout(() => this.showScreen('summary'), 900);
       } else {
         this.showLevelFlash(`Level ${this.level} clear!`);

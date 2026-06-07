@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReadyKiddo 2.0 — Meet Zoey</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --blue:   #09395f;
+      --blue2:  #0b5f95;
+      --orange: #f28c18;
+      --paper:  #fff7e8;
+      --green:  #22c55e;
+      --purple: #8b5cf6;
+      --red:    #ef4444;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family:'Fredoka','Nunito','Segoe UI',sans-serif;
+      background:var(--paper);
+      min-height:100vh;
+      overflow-x:hidden;
+    }
+
+    /* ─── LANDING ─── */
+    #landing {
+      position:fixed; inset:0;
+      background:linear-gradient(150deg,var(--blue) 0%,var(--blue2) 60%,#1a6fae 100%);
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      z-index:200;
+      transition:opacity .7s ease, transform .7s ease;
+    }
+    #landing.out { opacity:0; transform:scale(1.04); pointer-events:none; }
+
+    .landing-stars {
+      position:absolute; inset:0; overflow:hidden; pointer-events:none;
+    }
+    .star {
+      position:absolute; border-radius:50%;
+      background:rgba(255,255,255,0.6);
+      animation:twinkle var(--d,3s) ease-in-out infinite;
+    }
+    @keyframes twinkle {
+      0%,100%{opacity:.2;transform:scale(1)}
+      50%{opacity:.9;transform:scale(1.4)}
+    }
+
+    .landing-logo {
+      font-size:54px; font-weight:700; color:#fff;
+      text-align:center; line-height:1.1;
+      animation:fadeUp .6s ease .1s both;
+    }
+    .landing-logo span { color:var(--orange); }
+    .landing-sub {
+      font-size:20px; color:rgba(255,255,255,.75);
+      margin-top:8px; margin-bottom:10px;
+      animation:fadeUp .6s ease .2s both;
+    }
+    .zoey-badge {
+      display:inline-flex; align-items:center; gap:8px;
+      background:rgba(255,255,255,.12);
+      border:1.5px solid rgba(255,255,255,.25);
+      border-radius:50px; padding:8px 22px;
+      color:#fff; font-size:15px; margin-bottom:44px;
+      animation:fadeUp .6s ease .3s both;
+    }
+    .zoey-badge .dot {
+      width:8px; height:8px; border-radius:50%;
+      background:var(--orange);
+      animation:fabPulse 1.5s ease-in-out infinite;
+    }
+    .play-btn {
+      background:var(--orange); color:#fff; border:none;
+      border-radius:50px; padding:18px 56px;
+      font-family:'Fredoka',sans-serif; font-size:26px; font-weight:700;
+      cursor:pointer; display:flex; align-items:center; gap:14px;
+      box-shadow:0 8px 32px rgba(242,140,24,.55);
+      transition:transform .2s, box-shadow .2s;
+      animation:fadeUp .6s ease .4s both, idlePulse 2.5s ease-in-out 1.5s infinite;
+    }
+    .play-btn:hover { transform:translateY(-4px) scale(1.03); box-shadow:0 12px 40px rgba(242,140,24,.7); }
+    .play-icon {
+      width:38px; height:38px; background:rgba(255,255,255,.25);
+      border-radius:50%; display:flex; align-items:center; justify-content:center;
+      font-size:15px;
+    }
+
+    /* ─── DEMO WRAPPER ─── */
+    #demo { min-height:100vh; display:flex; flex-direction:column; }
+
+    .demo-topbar {
+      background:var(--blue); color:#fff;
+      padding:10px 32px;
+      display:flex; align-items:center; justify-content:space-between;
+      flex-shrink:0;
+    }
+    .topbar-logo { font-size:20px; font-weight:700; }
+    .topbar-logo span { color:var(--orange); }
+    .topbar-scene {
+      font-size:13px; color:rgba(255,255,255,.65);
+      background:rgba(255,255,255,.1); padding:4px 14px; border-radius:20px;
+    }
+    .topbar-restart {
+      background:rgba(255,255,255,.1); color:#fff; border:none;
+      border-radius:20px; padding:5px 16px;
+      font-family:'Fredoka',sans-serif; font-size:13px; cursor:pointer;
+      transition:background .2s;
+    }
+    .topbar-restart:hover { background:rgba(255,255,255,.2); }
+
+    /* progress stripe */
+    .prog-stripe { height:4px; background:rgba(9,57,95,.12); }
+    .prog-fill { height:100%; background:var(--orange); transition:width .5s ease; }
+
+    /* timer strip */
+    .timer-strip { height:3px; background:#f0e8d8; }
+    .timer-fill {
+      height:100%;
+      background:linear-gradient(90deg,var(--orange),#fbbf24);
+      transition:width linear;
+    }
+
+    /* ─── STAGE ─── */
+    .demo-stage {
+      flex:1; display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:0; max-width:1200px;
+      margin:0 auto; width:100%;
+      padding:36px 48px;
+      align-items:center;
+    }
+
+    /* Left narration */
+    .narration { padding-right:52px; }
+    .sc-num {
+      font-size:12px; font-weight:700; color:var(--orange);
+      text-transform:uppercase; letter-spacing:2.5px; margin-bottom:10px;
+      opacity:0; animation:fadeUp .4s ease .05s both;
+    }
+    .sc-title {
+      font-size:38px; font-weight:700; color:var(--blue);
+      line-height:1.15; margin-bottom:14px;
+      opacity:0; animation:fadeUp .4s ease .15s both;
+    }
+    .sc-desc {
+      font-size:17px; color:#556; line-height:1.65;
+      margin-bottom:22px;
+      opacity:0; animation:fadeUp .4s ease .25s both;
+    }
+    .pills {
+      display:flex; flex-wrap:wrap; gap:8px;
+      opacity:0; animation:fadeUp .4s ease .35s both;
+    }
+    .pill {
+      padding:5px 14px; border-radius:20px;
+      font-size:13px; font-weight:700; color:#fff;
+      background:var(--blue);
+    }
+    .pill.or { background:var(--orange); }
+    .pill.gr { background:var(--green); }
+    .pill.pu { background:var(--purple); }
+    .pill.re { background:var(--red); }
+    .pill.dk { background:#1a1a2e; }
+
+    /* Right device */
+    .device-wrap { display:flex; justify-content:center; align-items:center; }
+
+    .phone {
+      width:280px; height:560px;
+      background:#fff; border-radius:36px;
+      border:8px solid #1a1a2e;
+      box-shadow:0 28px 72px rgba(0,0,0,.28), inset 0 0 0 2px rgba(255,255,255,.08);
+      overflow:hidden; position:relative;
+    }
+    .phone-notch {
+      position:absolute; top:0; left:50%; transform:translateX(-50%);
+      width:72px; height:18px;
+      background:#1a1a2e; border-radius:0 0 12px 12px; z-index:20;
+    }
+    .phone-screen { width:100%; height:100%; overflow:hidden; position:relative; }
+
+    /* scene content */
+    .sc-frame {
+      position:absolute; inset:0;
+      display:flex; flex-direction:column;
+      opacity:0; pointer-events:none;
+      transform:translateX(18px);
+      transition:opacity .35s ease, transform .35s ease;
+    }
+    .sc-frame.active { opacity:1; pointer-events:all; transform:translateX(0); }
+
+    /* ─── BOTTOM NAV ─── */
+    .demo-nav {
+      display:flex; align-items:center; justify-content:center;
+      gap:14px; padding:18px 32px;
+      background:#fff; border-top:1px solid #eee; flex-shrink:0;
+    }
+    .nav-btn {
+      background:var(--blue); color:#fff; border:none;
+      border-radius:22px; padding:8px 22px;
+      font-family:'Fredoka',sans-serif; font-size:15px; font-weight:600;
+      cursor:pointer; transition:background .2s, opacity .2s;
+    }
+    .nav-btn:disabled { opacity:.3; cursor:not-allowed; }
+    .nav-btn.outline {
+      background:transparent; color:var(--blue);
+      border:2px solid var(--blue);
+    }
+    .nav-dots { display:flex; gap:8px; align-items:center; }
+    .ndot {
+      width:9px; height:9px; border-radius:50%;
+      background:#ddd; cursor:pointer;
+      transition:background .3s, transform .2s;
+    }
+    .ndot.on { background:var(--orange); transform:scale(1.4); }
+
+    /* ─── PHONE SCREENS ─── */
+
+    /* shared header util */
+    .ph { padding:26px 14px 12px; color:#fff; flex-shrink:0; }
+    .ph.blue { background:linear-gradient(135deg,var(--blue),var(--blue2)); }
+    .ph.gr   { background:linear-gradient(135deg,#16a34a,#22c55e); }
+    .ph.pu   { background:linear-gradient(135deg,#7c3aed,#8b5cf6); }
+    .ph.re   { background:linear-gradient(135deg,#b91c1c,var(--red)); }
+    .ph.dk   { background:linear-gradient(135deg,#0f0f1a,#1a1a2e); }
+    .ph.or   { background:linear-gradient(135deg,#c2620a,var(--orange)); }
+    .ph-title { font-size:15px; font-weight:700; }
+    .ph-sub   { font-size:11px; color:rgba(255,255,255,.7); margin-top:2px; }
+
+    .pBody {
+      flex:1; background:var(--paper);
+      padding:10px 10px; overflow-y:auto;
+    }
+
+    /* ── Scene 1: Dashboard ── */
+    .child-card {
+      background:rgba(255,255,255,.18);
+      border-radius:12px; padding:9px 12px;
+      margin-top:8px; display:flex; align-items:center; gap:10px;
+    }
+    .cav {
+      width:34px; height:34px; border-radius:50%;
+      background:var(--orange);
+      display:flex; align-items:center; justify-content:center;
+      font-size:17px; flex-shrink:0;
+    }
+    .cname { font-size:13px; font-weight:700; }
+    .cage  { font-size:11px; color:rgba(255,255,255,.7); }
+    .cprog { margin-left:auto; font-size:12px; font-weight:700; color:var(--orange); }
+
+    .slbl {
+      font-size:10px; font-weight:700; color:#aaa;
+      text-transform:uppercase; letter-spacing:1.2px;
+      margin:8px 0 5px;
+    }
+    .grow {
+      display:flex; align-items:center; gap:7px;
+      background:#fff; border-radius:9px;
+      padding:5px 8px; margin-bottom:4px;
+      box-shadow:0 1px 4px rgba(0,0,0,.05);
+    }
+    .gico { font-size:16px; width:22px; text-align:center; }
+    .gname { font-size:11px; font-weight:600; color:var(--blue); flex:1; }
+    .gtag {
+      font-size:9px; font-weight:700; padding:2px 7px;
+      border-radius:9px;
+    }
+    .done { background:#dcfce7; color:#16a34a; }
+    .prog { background:#fef3c7; color:#d97706; }
+    .lock { background:#f3f4f6; color:#9ca3af; }
+
+    .zoey-fab {
+      position:absolute; bottom:14px; right:14px;
+      width:42px; height:42px;
+      background:linear-gradient(135deg,var(--orange),#d97706);
+      border-radius:50%; display:flex; align-items:center; justify-content:center;
+      font-size:19px; box-shadow:0 4px 14px rgba(242,140,24,.55);
+      animation:fabPulse 2s ease-in-out infinite;
+    }
+
+    /* ── Scene 2: Zoey Chat ── */
+    .chat-row {
+      display:flex; align-items:center; gap:8px;
+    }
+    .zav {
+      width:32px; height:32px; border-radius:50%;
+      background:var(--orange);
+      display:flex; align-items:center; justify-content:center;
+      font-size:15px; flex-shrink:0;
+    }
+    .zname { font-size:14px; font-weight:700; }
+    .zonline { font-size:10px; color:rgba(255,255,255,.65); }
+
+    .chat-body {
+      flex:1; background:#f5f5f7;
+      padding:10px; display:flex; flex-direction:column;
+      gap:8px; overflow-y:auto;
+    }
+    .msg {
+      max-width:85%; padding:7px 11px;
+      border-radius:14px; font-size:11px; line-height:1.55;
+    }
+    .msg.u { background:var(--blue); color:#fff; align-self:flex-end; border-bottom-right-radius:3px; }
+    .msg.z { background:#fff; color:#333; align-self:flex-start; border-bottom-left-radius:3px; box-shadow:0 1px 4px rgba(0,0,0,.08); }
+    .typing {
+      display:flex; gap:4px; padding:7px 10px;
+      background:#fff; border-radius:14px; border-bottom-left-radius:3px;
+      align-self:flex-start; box-shadow:0 1px 4px rgba(0,0,0,.08);
+    }
+    .tdot {
+      width:6px; height:6px; border-radius:50%; background:#ccc;
+      animation:tdot 1.2s ease-in-out infinite;
+    }
+    .tdot:nth-child(2){animation-delay:.2s}
+    .tdot:nth-child(3){animation-delay:.4s}
+    @keyframes tdot{0%,100%{transform:translateY(0);background:#ccc}50%{transform:translateY(-4px);background:var(--orange)}}
+
+    .chat-bar {
+      background:#fff; padding:7px 10px;
+      display:flex; gap:7px; align-items:center;
+      border-top:1px solid #eee; flex-shrink:0;
+    }
+    .cbar-fake {
+      flex:1; background:#f3f4f6; border-radius:20px;
+      padding:5px 11px; font-size:10px; color:#aaa;
+    }
+    .csend {
+      width:26px; height:26px; background:var(--orange);
+      border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px;
+    }
+
+    /* ── Scene 3: Report ── */
+    .rcard {
+      background:#fff; border-radius:11px;
+      padding:10px 12px; margin-bottom:7px;
+      box-shadow:0 2px 7px rgba(0,0,0,.06);
+    }
+    .rc-lbl { font-size:9px; font-weight:700; color:var(--orange); text-transform:uppercase; letter-spacing:1px; margin-bottom:3px; }
+    .rc-txt { font-size:11px; color:#444; line-height:1.55; }
+
+    .stat-row { display:flex; gap:6px; margin-bottom:7px; }
+    .sbox {
+      flex:1; background:#fff; border-radius:10px;
+      padding:7px; text-align:center;
+      box-shadow:0 2px 7px rgba(0,0,0,.06);
+    }
+    .sval { font-size:20px; font-weight:700; color:var(--blue); }
+    .slb2 { font-size:9px; color:#aaa; }
+
+    /* ── Scene 4: Personalization ── */
+    .theme-grid {
+      display:grid; grid-template-columns:repeat(3,1fr);
+      gap:5px; margin-bottom:8px;
+    }
+    .titem {
+      background:#fff; border-radius:9px;
+      padding:7px 3px; text-align:center;
+      box-shadow:0 1px 5px rgba(0,0,0,.06); cursor:pointer;
+    }
+    .titem.sel { border:2px solid var(--orange); background:#fff9f0; }
+    .titem .ti { font-size:22px; display:block; }
+    .titem .tn { font-size:9px; color:#777; margin-top:2px; }
+
+    .apply-row {
+      background:#fff; border-radius:10px;
+      padding:9px 10px; display:flex; align-items:center; gap:8px;
+      box-shadow:0 2px 7px rgba(0,0,0,.06);
+    }
+    .ar-txt { font-size:10px; color:#555; flex:1; line-height:1.45; }
+    .ar-btn {
+      background:var(--orange); color:#fff;
+      padding:5px 10px; border-radius:7px;
+      font-size:10px; font-weight:700; white-space:nowrap;
+    }
+
+    /* ── Scene 5: Bug Reporter ── */
+    /* reuses chat styles */
+
+    /* ── Scene 6: Admin ── */
+    .admin-stat-row { display:flex; gap:5px; margin-bottom:7px; }
+    .abox {
+      flex:1; background:rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:9px; padding:8px;
+      text-align:center;
+    }
+    .aval { font-size:18px; font-weight:700; color:var(--orange); }
+    .albl { font-size:9px; color:rgba(255,255,255,.55); }
+
+    .admin-body {
+      flex:1; background:#0d1117;
+      padding:9px; display:flex; flex-direction:column; gap:6px;
+      overflow-y:auto;
+    }
+    .admin-msg {
+      max-width:90%; padding:7px 10px;
+      border-radius:12px; font-size:10.5px; line-height:1.55;
+    }
+    .admin-msg.u { background:#1e3a5f; color:#7dd3fc; align-self:flex-end; border-bottom-right-radius:3px; }
+    .admin-msg.z { background:#1a1a2e; color:#e2e8f0; align-self:flex-start; border-bottom-left-radius:3px; border:1px solid #2d2d40; }
+    .admin-tag {
+      display:inline-block; background:var(--orange);
+      color:#fff; font-size:9px; font-weight:700;
+      padding:1px 7px; border-radius:8px; margin-bottom:3px;
+    }
+
+    /* ── Scene 7: Summary ── */
+    .sum-body {
+      flex:1; background:var(--paper);
+      padding:10px; overflow-y:auto;
+    }
+    .sum-item {
+      display:flex; align-items:flex-start; gap:9px;
+      background:#fff; border-radius:10px;
+      padding:8px 10px; margin-bottom:5px;
+      box-shadow:0 1px 5px rgba(0,0,0,.06);
+    }
+    .sum-ico {
+      width:32px; height:32px; border-radius:9px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:15px; flex-shrink:0;
+    }
+    .sum-txt .st { font-size:11px; font-weight:700; color:var(--blue); }
+    .sum-txt .sd { font-size:10px; color:#888; line-height:1.45; }
+
+    /* ─── SHARED ANIMATIONS ─── */
+    @keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fabPulse{0%,100%{box-shadow:0 4px 14px rgba(242,140,24,.5)}50%{box-shadow:0 4px 22px rgba(242,140,24,.85),0 0 0 7px rgba(242,140,24,.12)}}
+    @keyframes idlePulse{0%,100%{box-shadow:0 8px 32px rgba(242,140,24,.55)}50%{box-shadow:0 10px 40px rgba(242,140,24,.75)}}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* ─── RESPONSIVE ─── */
+    @media(max-width:860px){
+      .demo-stage{grid-template-columns:1fr;padding:24px 20px}
+      .narration{padding-right:0;margin-bottom:28px}
+      .sc-title{font-size:28px}
+      .phone{width:240px;height:480px}
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════ LANDING ══════════ -->
+<div id="landing">
+  <div class="landing-stars" id="stars"></div>
+
+  <div class="landing-logo">Ready<span>Kiddo</span> 2.0</div>
+  <div class="landing-sub">The next chapter of early learning</div>
+
+  <div class="zoey-badge">
+    <span class="dot"></span>
+    Introducing Zoey — your AI learning companion
+  </div>
+
+  <button class="play-btn" onclick="startDemo()">
+    <span class="play-icon">▶</span>
+    Watch the Vision
+  </button>
+</div>
+
+<!-- ══════════ DEMO ══════════ -->
+<div id="demo" style="display:none">
+
+  <div class="demo-topbar">
+    <div class="topbar-logo">Ready<span>Kiddo</span></div>
+    <div class="topbar-scene" id="sceneLabel">Scene 1 of 7</div>
+    <button class="topbar-restart" onclick="restartDemo()">↩ Restart</button>
+  </div>
+
+  <div class="prog-stripe">
+    <div class="prog-fill" id="progFill" style="width:0%"></div>
+  </div>
+
+  <div class="timer-strip">
+    <div class="timer-fill" id="timerFill" style="width:0%"></div>
+  </div>
+
+  <div class="demo-stage">
+
+    <!-- LEFT: Narration (swapped by JS) -->
+    <div class="narration" id="narration"></div>
+
+    <!-- RIGHT: Phone -->
+    <div class="device-wrap">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+
+          <!-- ── Frame 1: Parent Dashboard ── -->
+          <div class="sc-frame" id="f1">
+            <div class="ph blue">
+              <div class="ph-title">Hi Sarah 👋</div>
+              <div class="ph-sub">Maya's learning dashboard</div>
+              <div class="child-card">
+                <div class="cav">🧒</div>
+                <div>
+                  <div class="cname">Maya</div>
+                  <div class="cage">Age 4 · Starter Track</div>
+                </div>
+                <div class="cprog">7 / 11 ✓</div>
+              </div>
+            </div>
+            <div class="pBody">
+              <div class="slbl">Recent Games</div>
+              <div class="grow"><span class="gico">🔷</span><span class="gname">Shape Recognition</span><span class="gtag done">Done ✓</span></div>
+              <div class="grow"><span class="gico">🎨</span><span class="gname">Color Sort</span><span class="gtag done">Done ✓</span></div>
+              <div class="grow"><span class="gico">🔢</span><span class="gname">Number Matching</span><span class="gtag prog">In Progress</span></div>
+              <div class="grow"><span class="gico">🔤</span><span class="gname">ABC Match</span><span class="gtag prog">In Progress</span></div>
+              <div class="grow"><span class="gico">✏️</span><span class="gname">Draw It</span><span class="gtag lock">Unlocks next</span></div>
+              <div class="slbl" style="margin-top:10px">Zoey says</div>
+              <div class="rcard">
+                <div class="rc-lbl">Today's tip</div>
+                <div class="rc-txt">Maya's crushing shapes! Numbers need a little more love — try counting her snacks together 🍎🍎🍎</div>
+              </div>
+            </div>
+            <div class="zoey-fab">✨</div>
+          </div>
+
+          <!-- ── Frame 2: Zoey Chat ── -->
+          <div class="sc-frame" id="f2">
+            <div class="ph blue">
+              <div class="chat-row">
+                <div class="zav">✨</div>
+                <div>
+                  <div class="zname">Zoey</div>
+                  <div class="zonline">● Online · Gemini 2.5 Flash</div>
+                </div>
+              </div>
+            </div>
+            <div class="chat-body" id="chatBody2">
+              <div class="msg u">Maya keeps getting frustrated with number recognition. Any tips?</div>
+              <div class="typing" id="typing2">
+                <div class="tdot"></div><div class="tdot"></div><div class="tdot"></div>
+              </div>
+            </div>
+            <div class="chat-bar">
+              <div class="cbar-fake">Ask Zoey anything…</div>
+              <div class="csend">➤</div>
+            </div>
+          </div>
+
+          <!-- ── Frame 3: Progress Report ── -->
+          <div class="sc-frame" id="f3">
+            <div class="ph gr">
+              <div class="ph-title">📋 Weekly Report</div>
+              <div class="ph-sub">Zoey's summary · Week of June 2</div>
+            </div>
+            <div class="pBody">
+              <div class="stat-row">
+                <div class="sbox"><div class="sval">7</div><div class="slb2">Games done</div></div>
+                <div class="sbox"><div class="sval">23</div><div class="slb2">Min played</div></div>
+                <div class="sbox"><div class="sval">4</div><div class="slb2">Streaks 🔥</div></div>
+              </div>
+              <div class="rcard">
+                <div class="rc-lbl">Zoey's Take</div>
+                <div class="rc-txt">Maya had a great week! She flew through shapes and colors 🎉 — first try on almost everything. Numbers are taking a few extra rounds, which is totally normal at 4. Her focus is impressive.</div>
+              </div>
+              <div class="rcard">
+                <div class="rc-lbl">Recommended next</div>
+                <div class="rc-txt">Number Line is unlocking soon. In the meantime, try counting objects at home — stairs, toys, fruit — keeps the concept fresh before the game introduces it.</div>
+              </div>
+              <div class="rcard">
+                <div class="rc-lbl">Milestone 🌟</div>
+                <div class="rc-txt">Maya completed her first full game set this week. That's a real milestone — celebrate it!</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Frame 4: Personalization ── -->
+          <div class="sc-frame" id="f4">
+            <div class="ph pu">
+              <div class="ph-title">🎨 Customize Maya's World</div>
+              <div class="ph-sub">Zoey picks from the learning library</div>
+            </div>
+            <div class="pBody">
+              <div class="slbl">Choose a Theme</div>
+              <div class="theme-grid">
+                <div class="titem sel"><span class="ti">🦕</span><span class="tn">Dinosaurs</span></div>
+                <div class="titem"><span class="ti">🚀</span><span class="tn">Space</span></div>
+                <div class="titem"><span class="ti">🌊</span><span class="tn">Ocean</span></div>
+                <div class="titem"><span class="ti">🦁</span><span class="tn">Safari</span></div>
+                <div class="titem"><span class="ti">🍎</span><span class="tn">Farm</span></div>
+                <div class="titem"><span class="ti">🏰</span><span class="tn">Kingdom</span></div>
+              </div>
+              <div class="apply-row">
+                <div class="ar-txt">Zoey will swap game items to dinosaur-themed content from our verified learning library. No new code — just your child's world.</div>
+                <div class="ar-btn">Apply ✓</div>
+              </div>
+              <div style="margin-top:8px">
+                <div class="slbl">Preview — Color Sort</div>
+                <div class="rcard" style="display:flex;gap:10px;align-items:center">
+                  <div style="font-size:24px">🦕 🦖 🦴 🥚 🌿</div>
+                  <div style="font-size:10px;color:#666">Dino items replace default tiles in all compatible games</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Frame 5: Bug Reporter ── -->
+          <div class="sc-frame" id="f5">
+            <div class="ph re">
+              <div class="ph-title">🐛 Something went wrong?</div>
+              <div class="ph-sub">Zoey will help you report it</div>
+            </div>
+            <div class="chat-body" id="chatBody5">
+              <div class="msg z">Hey! No worries. Which game were you playing when the issue happened?</div>
+              <div class="msg u">Color Sort — the second round said "Find null" instead of a color</div>
+              <div class="msg z">Got it. Did you hear the audio instructions at the start of that round?</div>
+              <div class="msg u">No, it was silent</div>
+              <div class="msg z">That's really helpful. I've tagged this as <strong>audio + round-2 text bug</strong> and sent a structured report to the dev team. You're helping make ReadyKiddo better 💙</div>
+              <div class="msg z" style="background:#f0fdf4;color:#166534;border:1px solid #bbf7d0">
+                ✅ Report sent · Bug #RK-041 · Priority: High
+              </div>
+            </div>
+            <div class="chat-bar">
+              <div class="cbar-fake">Reply to Zoey…</div>
+              <div class="csend">➤</div>
+            </div>
+          </div>
+
+          <!-- ── Frame 6: Admin Mode ── -->
+          <div class="sc-frame" id="f6">
+            <div class="ph dk">
+              <div style="display:flex;align-items:center;gap:6px">
+                <div class="ph-title">Admin Console</div>
+                <span style="background:var(--orange);color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:8px">ADMIN</span>
+              </div>
+              <div class="ph-sub">Zoey · Developer Mode</div>
+              <div class="admin-stat-row" style="margin-top:8px">
+                <div class="abox"><div class="aval">11</div><div class="albl">Active games</div></div>
+                <div class="abox"><div class="aval">3</div><div class="albl">Open bugs</div></div>
+                <div class="abox"><div class="aval">48</div><div class="albl">Players today</div></div>
+              </div>
+            </div>
+            <div class="admin-body" id="adminBody6">
+              <div class="admin-msg u">Which games have the highest retry rates this week?</div>
+              <div class="admin-msg z">
+                <span class="admin-tag">Analytics</span><br>
+                Number Line leads at 2.8 avg attempts, followed by ABC Match at 2.3. Both are in age-group 4–5 content — expected difficulty spike. Color Sort dropped to 1.4 after the Round 2 fix deployed Monday.
+              </div>
+              <div class="admin-msg u">Jump me to Color Sort for a live test</div>
+              <div class="admin-msg z">
+                <span class="admin-tag">Game Jump</span><br>
+                Opening Color Sort in admin test mode — Round 2 pre-loaded, audio logging enabled. Bug RK-041 is marked resolved ✓
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Frame 7: Summary ── -->
+          <div class="sc-frame" id="f7">
+            <div class="ph or">
+              <div class="ph-title">✨ Meet Zoey</div>
+              <div class="ph-sub">Everything she can do</div>
+            </div>
+            <div class="sum-body">
+              <div class="sum-item">
+                <div class="sum-ico" style="background:#eff6ff">💬</div>
+                <div class="sum-txt">
+                  <div class="st">Parent Advisor</div>
+                  <div class="sd">Answers parenting questions using your child's real progress as context</div>
+                </div>
+              </div>
+              <div class="sum-item">
+                <div class="sum-ico" style="background:#f0fdf4">📋</div>
+                <div class="sum-txt">
+                  <div class="st">Progress Narrator</div>
+                  <div class="sd">Turns raw data into warm, readable weekly reports</div>
+                </div>
+              </div>
+              <div class="sum-item">
+                <div class="sum-ico" style="background:#faf5ff">🎨</div>
+                <div class="sum-txt">
+                  <div class="st">Content Curator</div>
+                  <div class="sd">Selects from a verified item library to personalize each child's game world</div>
+                </div>
+              </div>
+              <div class="sum-item">
+                <div class="sum-ico" style="background:#fef2f2">🐛</div>
+                <div class="sum-txt">
+                  <div class="st">Bug Interviewer</div>
+                  <div class="sd">Guides parents through reporting issues, auto-formats structured reports</div>
+                </div>
+              </div>
+              <div class="sum-item">
+                <div class="sum-ico" style="background:#0f0f1a">🛠️</div>
+                <div class="sum-txt" style="color:#fff">
+                  <div class="st" style="color:#fff">Admin Console</div>
+                  <div class="sd" style="color:#aaa">Analytics, game jumping, and live test tooling — same Zoey, elevated context</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /phone-screen -->
+      </div><!-- /phone -->
+    </div><!-- /device-wrap -->
+
+  </div><!-- /demo-stage -->
+
+  <div class="demo-nav">
+    <button class="nav-btn outline" id="btnPrev" onclick="prevScene()">← Prev</button>
+    <div class="nav-dots" id="navDots"></div>
+    <button class="nav-btn" id="btnNext" onclick="nextScene()">Next →</button>
+  </div>
+
+</div><!-- /demo -->
+
+<script>
+  /* ── Stars ── */
+  const starsEl = document.getElementById('stars');
+  for(let i=0;i<55;i++){
+    const s=document.createElement('div');
+    s.className='star';
+    const sz=Math.random()*3+1;
+    s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${(Math.random()*3+2).toFixed(1)}s;animation-delay:${(Math.random()*3).toFixed(1)}s`;
+    starsEl.appendChild(s);
+  }
+
+  /* ── Scene Data ── */
+  const SCENES = [
+    {
+      num:'01',
+      title:'Parent Dashboard',
+      desc:'Parents sign in once and see everything about their child in one place — completed games, attempts, time played, and a tip from Zoey right on the home screen.',
+      pills:[
+        {t:'Child Profiles',c:''},
+        {t:'Game Progress',c:'gr'},
+        {t:'Supabase Auth',c:'or'},
+        {t:'COPPA Safe',c:'pu'},
+      ],
+      frame:'f1'
+    },
+    {
+      num:'02',
+      title:'Zoey — Parent Advisor',
+      desc:'A parent types a question in plain English. Zoey already knows the child\'s age, completed games, and struggle areas — so every answer is specific, not generic.',
+      pills:[
+        {t:'Gemini 2.5 Flash',c:''},
+        {t:'Child Context',c:'gr'},
+        {t:'Free Tier',c:'or'},
+        {t:'Proxy Secured',c:'pu'},
+      ],
+      frame:'f2'
+    },
+    {
+      num:'03',
+      title:'Weekly Progress Report',
+      desc:'Zoey reads the raw Supabase data and writes a warm, readable summary. A parent can understand their child\'s entire week in ten seconds — no charts, no clinical scores.',
+      pills:[
+        {t:'Auto-generated',c:'gr'},
+        {t:'Milestone Alerts',c:'or'},
+        {t:'Offline Tips',c:''},
+      ],
+      frame:'f3'
+    },
+    {
+      num:'04',
+      title:'Content Personalization',
+      desc:'A massive verified inventory of items (animals, objects, themes) lives behind the scenes. Parents pick a theme. Zoey selects and arranges — she can\'t invent things that aren\'t in the library, so hallucinations can\'t reach your child.',
+      pills:[
+        {t:'Curated Library',c:'pu'},
+        {t:'Guardrailed AI',c:''},
+        {t:'Zero Hallucination Risk',c:'gr'},
+      ],
+      frame:'f4'
+    },
+    {
+      num:'05',
+      title:'Bug Reporter',
+      desc:'Instead of a feedback form, Zoey interviews the parent. Two or three questions, and she auto-formats a structured bug report with priority and tags — routed straight to the admin dashboard.',
+      pills:[
+        {t:'Guided Interview',c:'re'},
+        {t:'Auto-tagged',c:''},
+        {t:'Admin Routed',c:'or'},
+      ],
+      frame:'f5'
+    },
+    {
+      num:'06',
+      title:'Admin Console',
+      desc:'The same Zoey, a different system prompt and elevated permissions. Jump directly to any game for live testing, query analytics in plain English, and triage bug reports without leaving a dashboard.',
+      pills:[
+        {t:'Game Jump',c:'dk'},
+        {t:'Live Analytics',c:'or'},
+        {t:'Dev Mode',c:''},
+      ],
+      frame:'f6'
+    },
+    {
+      num:'07',
+      title:'The full picture',
+      desc:'Zoey isn\'t a chatbot bolted on — she\'s the connective tissue between parents, the app, and the dev team. One model. Five roles. Built to grow.',
+      pills:[
+        {t:'One API Key',c:'or'},
+        {t:'Scales to Paid',c:'gr'},
+        {t:'Extensible',c:'pu'},
+      ],
+      frame:'f7'
+    },
+  ];
+
+  const INTERVAL = 9000; // ms per scene
+  let cur = 0;
+  let autoTimer = null;
+  let timerRaf = null;
+  let timerStart = null;
+
+  /* ── Init ── */
+  function buildDots(){
+    const el=document.getElementById('navDots');
+    el.innerHTML='';
+    SCENES.forEach((_,i)=>{
+      const d=document.createElement('div');
+      d.className='ndot'+(i===0?' on':'');
+      d.onclick=()=>goTo(i);
+      el.appendChild(d);
+    });
+  }
+
+  function startDemo(){
+    document.getElementById('landing').classList.add('out');
+    document.getElementById('demo').style.display='flex';
+    buildDots();
+    goTo(0);
+  }
+
+  function restartDemo(){
+    document.getElementById('demo').style.display='none';
+    document.getElementById('landing').classList.remove('out');
+    clearAuto();
+    cur=0;
+  }
+
+  /* ── Navigation ── */
+  function goTo(idx){
+    clearAuto();
+
+    // hide all frames
+    document.querySelectorAll('.sc-frame').forEach(f=>f.classList.remove('active'));
+    // show target
+    document.getElementById(SCENES[idx].frame).classList.add('active');
+
+    // narration
+    const n = SCENES[idx];
+    const nEl = document.getElementById('narration');
+    nEl.innerHTML = `
+      <div class="sc-num" style="opacity:0;animation:fadeUp .4s ease .05s both">${n.num} / 07</div>
+      <div class="sc-title" style="opacity:0;animation:fadeUp .4s ease .15s both">${n.title}</div>
+      <div class="sc-desc" style="opacity:0;animation:fadeUp .4s ease .25s both">${n.desc}</div>
+      <div class="pills" style="opacity:0;animation:fadeUp .4s ease .35s both">
+        ${n.pills.map(p=>`<span class="pill ${p.c}">${p.t}</span>`).join('')}
+      </div>
+    `;
+
+    // progress bar
+    document.getElementById('progFill').style.width = ((idx+1)/SCENES.length*100)+'%';
+
+    // label
+    document.getElementById('sceneLabel').textContent = `Scene ${idx+1} of ${SCENES.length}`;
+
+    // dots
+    document.querySelectorAll('.ndot').forEach((d,i)=>d.classList.toggle('on',i===idx));
+
+    // buttons
+    document.getElementById('btnPrev').disabled = idx===0;
+    document.getElementById('btnNext').textContent = idx===SCENES.length-1 ? '↩ Restart' : 'Next →';
+
+    cur = idx;
+
+    // scene-specific animations
+    if(idx===1) schedZoeyChat();
+    if(idx===5) schedAdminChat();
+
+    // auto-advance timer
+    startTimer();
+  }
+
+  function nextScene(){
+    if(cur===SCENES.length-1){ restartDemo(); return; }
+    goTo(cur+1);
+  }
+  function prevScene(){
+    if(cur>0) goTo(cur-1);
+  }
+
+  /* ── Auto-advance ── */
+  function startTimer(){
+    const fill = document.getElementById('timerFill');
+    fill.style.transition='none'; fill.style.width='0%';
+    requestAnimationFrame(()=>{
+      fill.style.transition=`width ${INTERVAL}ms linear`;
+      fill.style.width='100%';
+    });
+    autoTimer = setTimeout(()=>{
+      if(cur<SCENES.length-1) goTo(cur+1);
+    }, INTERVAL);
+  }
+  function clearAuto(){
+    clearTimeout(autoTimer);
+    const fill=document.getElementById('timerFill');
+    fill.style.transition='none'; fill.style.width='0%';
+  }
+
+  /* ── Zoey chat animation (scene 2) ── */
+  function schedZoeyChat(){
+    const body = document.getElementById('chatBody2');
+    const typing = document.getElementById('typing2');
+    // reset
+    body.innerHTML=`
+      <div class="msg u">Maya keeps getting frustrated with number recognition. Any tips?</div>
+      <div class="typing" id="typing2">
+        <div class="tdot"></div><div class="tdot"></div><div class="tdot"></div>
+      </div>
+    `;
+    setTimeout(()=>{
+      const t=document.getElementById('typing2');
+      if(!t) return;
+      t.remove();
+      const m=document.createElement('div');
+      m.className='msg z';
+      m.textContent='That\'s totally normal at 4! Maya has completed Number Line 3 times already — she\'s building the foundation. Try counting stairs or sorting snacks by number. Making it physical helps it click. She\'s closer than she thinks 🌟';
+      body.appendChild(m);
+      body.scrollTop=body.scrollHeight;
+    },2800);
+  }
+
+  /* ── Admin chat animation (scene 6) ── */
+  function schedAdminChat(){
+    // already static — just scroll
+    const ab=document.getElementById('adminBody6');
+    if(ab) setTimeout(()=>ab.scrollTop=ab.scrollHeight,400);
+  }
+</script>
+</body>
+</html>
