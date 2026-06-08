@@ -93,35 +93,12 @@
       opacity: 1;
     }
 
-    /*
-    ══════════════════════════════════════════════════════════════
-    ZOEY SVG PLACEHOLDER in companion overlay
-    Replace .zc-character inner content with your animated SVG:
-
-      <div class="zc-character">
-        <img src="assets/images/zoey.svg" alt="Zoey">
-      </div>
-    ══════════════════════════════════════════════════════════════
-    */
     .zc-character {
       width: 130px;
       height: 130px;
       display: flex;
       align-items: center;
       justify-content: center;
-      animation: zcFloat 2.5s ease-in-out infinite;
-    }
-    .zc-character img { width:100%; height:100%; object-fit:contain; }
-    .zc-char-placeholder {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #f28c18, #ffb23e);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 52px;
-      box-shadow: 0 6px 24px rgba(242,140,24,0.4);
     }
 
     .zc-bubble {
@@ -200,12 +177,7 @@
     <div class="zc-panel">
       <div class="zc-bubble" id="zcMsg">Great job!</div>
       <div class="zc-character">
-        <!--
-          ZOEY_SVG_PLACEHOLDER
-          Replace this div with your animated SVG, e.g.:
-          <img src="assets/images/zoey.svg" alt="Zoey">
-        -->
-        <div class="zc-char-placeholder">✨</div>
+        <zoey-avatar id="companionZoey" size="120"></zoey-avatar>
       </div>
       <div class="zc-sub" id="zcSub">Keep going!</div>
       <button class="zc-btn" id="zcBtn">Keep Playing 🚀</button>
@@ -224,11 +196,20 @@
     zcMsg.textContent = getMessage(completedCount);
     zcSub.textContent = pick(MESSAGES.nextPrompt);
     overlay.classList.add('zc-visible');
-    if (isMilestone) spawnConfetti();
+
+    // Animate Zoey
+    const zoeyEl = document.getElementById('companionZoey');
+    if (isMilestone) {
+      spawnConfetti();
+      zoeyEl?.celebrate(); // 🎉 milestone!
+    } else {
+      zoeyEl?.encourage(); // 💪 good job
+    }
   }
 
   function hideCompanion() {
     overlay.classList.remove('zc-visible');
+    document.getElementById('companionZoey')?.idle(); // return to idle as panel slides away
   }
 
   /* ── Confetti burst ─────────────────────────────────────────── */

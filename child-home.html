@@ -8,6 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js"></script>
   <script src="assets/js/supabase-client.js"></script>
+  <script src="assets/js/zoey-avatar.js"></script>
   <style>
     :root {
       --ready-blue:   #09395f;
@@ -79,35 +80,7 @@
       position: relative;
     }
 
-    /*
-    ═══════════════════════════════════════════════════════════════
-    ZOEY SVG PLACEHOLDER
-    Replace the contents of .zoey-stage with your animated SVG:
-
-      <div class="zoey-stage">
-        <!-- your SVG here -->
-      </div>
-
-    The .zoey-stage container is 200×200px, centered.
-    The float animation below will still apply to whatever you place inside.
-    ═══════════════════════════════════════════════════════════════
-    */
-    .zoey-placeholder {
-      width: 160px;
-      height: 160px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--ready-orange), var(--ready-orange-2));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 72px;
-      box-shadow: 0 8px 32px rgba(242,140,24,0.35);
-      animation: float 3s ease-in-out infinite;
-    }
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50%       { transform: translateY(-12px); }
-    }
+    /* zoey-avatar web component handles its own animation */
 
     /* ── Speech bubble ── */
     .speech-bubble {
@@ -238,12 +211,7 @@
 
           <!-- ── Zoey character ─────────────────────────────────────── -->
           <div class="zoey-stage">
-            <!--
-              ZOEY_SVG_PLACEHOLDER
-              Replace this div with your animated SVG file, e.g.:
-              <img src="assets/images/zoey.svg" alt="Zoey" style="width:100%;height:100%">
-            -->
-            <div class="zoey-placeholder">✨</div>
+            <zoey-avatar id="homeZoey" size="200"></zoey-avatar>
           </div>
 
           <!-- Speech bubble — changes based on state -->
@@ -324,6 +292,11 @@
           }
 
           this.loading = false;
+
+          // Zoey waves hello once the hub is ready
+          this.$nextTick(() => {
+            setTimeout(() => document.getElementById('homeZoey')?.wave(), 400);
+          });
         },
       };
     }
