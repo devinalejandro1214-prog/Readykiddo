@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReadyKiddo — Play</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js"></script>
+  <script src="assets/js/supabase-client.js"></script>
+  <style>
+    :root {
+      --ready-blue:   #09395f;
+      --ready-orange: #f28c18;
+      --ready-orange-2: #ffb23e;
+      --paper:        #fff7e8;
+      --ink:          #102338;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family:'Fredoka','Segoe UI',sans-serif;
+      background:
+        radial-gradient(120% 80% at 50% -10%, rgba(255,178,62,0.22), transparent 60%),
+        radial-gradient(80% 60% at 100% 110%, rgba(11,95,149,0.18), transparent 60%),
+        linear-gradient(180deg, #f6e9c8 0%, #f1d9a2 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* ── Parent padlock (top right) ── */
+    .parent-lock {
+      position: fixed;
+      top: 18px;
+      right: 18px;
+      z-index: 100;
+      background: rgba(255,255,255,0.55);
+      backdrop-filter: blur(8px);
+      border: 1.5px solid rgba(9,57,95,0.15);
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      cursor: pointer;
+      transition: transform 0.2s, background 0.2s;
+      text-decoration: none;
+    }
+    .parent-lock:hover { transform: scale(1.1); background: rgba(255,255,255,0.8); }
+
+    /* ── Main layout ── */
+    .home-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      padding: 24px 20px 40px;
+      width: 100%;
+      max-width: 480px;
+      text-align: center;
+    }
+
+    /* ── Zoey character placeholder ── */
+    .zoey-stage {
+      width: 200px;
+      height: 200px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /*
+    ═══════════════════════════════════════════════════════════════
+    ZOEY SVG PLACEHOLDER
+    Replace the contents of .zoey-stage with your animated SVG:
+
+      <div class="zoey-stage">
+        <!-- your SVG here -->
+      </div>
+
+    The .zoey-stage container is 200×200px, centered.
+    The float animation below will still apply to whatever you place inside.
+    ═══════════════════════════════════════════════════════════════
+    */
+    .zoey-placeholder {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--ready-orange), var(--ready-orange-2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 72px;
+      box-shadow: 0 8px 32px rgba(242,140,24,0.35);
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-12px); }
+    }
+
+    /* ── Speech bubble ── */
+    .speech-bubble {
+      background: white;
+      border-radius: 16px;
+      padding: 10px 18px;
+      font-family: 'Caveat', cursive;
+      font-size: 18px;
+      color: var(--ink);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      margin-bottom: 16px;
+      position: relative;
+      max-width: 280px;
+      animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    .speech-bubble::before {
+      content:'';
+      position:absolute;
+      top:-10px; left:50%;
+      transform:translateX(-50%);
+      border:10px solid transparent;
+      border-bottom-color:white;
+      border-top:none;
+    }
+    @keyframes popIn {
+      from { opacity:0; transform:scale(0.7); }
+      to   { opacity:1; transform:scale(1); }
+    }
+
+    /* ── Child name ── */
+    .child-greeting {
+      font-family: 'Caveat', cursive;
+      font-size: clamp(42px, 10vw, 64px);
+      color: var(--ready-blue);
+      line-height: 1;
+      margin-bottom: 6px;
+      animation: fadeUp 0.5s ease-out 0.1s both;
+    }
+
+    /* ── Star progress ── */
+    .stars-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 5px;
+      margin: 12px 0 6px;
+      animation: fadeUp 0.5s ease-out 0.2s both;
+    }
+    .star {
+      font-size: 26px;
+      transition: transform 0.2s;
+    }
+    .star.lit  { filter: drop-shadow(0 2px 6px rgba(242,140,24,0.6)); }
+    .star.dim  { opacity: 0.25; filter: grayscale(1); }
+    .stars-label {
+      font-size: 15px;
+      color: var(--ready-blue);
+      opacity: 0.65;
+      margin-bottom: 28px;
+      animation: fadeUp 0.5s ease-out 0.25s both;
+    }
+
+    /* ── Play button ── */
+    .play-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: linear-gradient(135deg, var(--ready-orange), var(--ready-orange-2));
+      color: white;
+      font-family: 'Fredoka', sans-serif;
+      font-size: clamp(22px, 5vw, 28px);
+      font-weight: 700;
+      padding: 18px 48px;
+      border-radius: 60px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 8px 28px rgba(242,140,24,0.45);
+      transition: transform 0.18s, box-shadow 0.18s;
+      animation: fadeUp 0.5s ease-out 0.35s both, pulse 2.5s ease-in-out 1.5s infinite;
+      letter-spacing: 0.01em;
+    }
+    .play-btn:hover {
+      transform: translateY(-4px) scale(1.03);
+      box-shadow: 0 14px 36px rgba(242,140,24,0.55);
+    }
+    .play-btn:active { transform: scale(0.97); }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 8px 28px rgba(242,140,24,0.45); }
+      50%       { box-shadow: 0 8px 40px rgba(242,140,24,0.7); }
+    }
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(20px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    /* Loading / redirect screen */
+    .loading-screen {
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:100vh;
+      font-family:'Fredoka',sans-serif;
+      font-size:20px;
+      color:var(--ready-blue);
+    }
+  </style>
+</head>
+<body>
+
+  <div x-data="childHome()" x-init="init()">
+
+    <!-- Redirect/loading state -->
+    <template x-if="loading">
+      <div class="loading-screen">Loading...</div>
+    </template>
+
+    <!-- Child hub -->
+    <template x-if="!loading">
+      <div>
+
+        <!-- Parent padlock (top right) -->
+        <a class="parent-lock" href="dashboard.html" title="Parent Dashboard">🔒</a>
+
+        <div class="home-wrap">
+
+          <!-- ── Zoey character ─────────────────────────────────────── -->
+          <div class="zoey-stage">
+            <!--
+              ZOEY_SVG_PLACEHOLDER
+              Replace this div with your animated SVG file, e.g.:
+              <img src="assets/images/zoey.svg" alt="Zoey" style="width:100%;height:100%">
+            -->
+            <div class="zoey-placeholder">✨</div>
+          </div>
+
+          <!-- Speech bubble — changes based on state -->
+          <div class="speech-bubble" x-text="bubble"></div>
+
+          <!-- Child's name -->
+          <div class="child-greeting" x-text="'Hi ' + child.name + '! 👋'"></div>
+
+          <!-- Star progress row (one star per game) -->
+          <div class="stars-row">
+            <template x-for="(game, i) in gameList" :key="game.id">
+              <span class="star" :class="completedIds.has(game.id) ? 'lit' : 'dim'">⭐</span>
+            </template>
+          </div>
+          <div class="stars-label"
+               x-text="completedCount + ' of ' + gameList.length + ' games done!'">
+          </div>
+
+          <!-- Play button -->
+          <a class="play-btn" href="game-loader.html">
+            Let's Play! 🚀
+          </a>
+
+        </div>
+      </div>
+    </template>
+
+  </div>
+
+  <script>
+    const GAME_LIST = [
+      { id:'shape-recognition' }, { id:'color-sort' },    { id:'number-matching' },
+      { id:'abc-match' },         { id:'space-pattern' }, { id:'space-defender' },
+      { id:'feed-alien' },        { id:'number-line' },   { id:'feed-by-sound' },
+      { id:'draw-it' },           { id:'candyland' },
+    ];
+
+    const BUBBLES = [
+      'Ready to learn today? 🌟',
+      'Let\'s go on an adventure! 🚀',
+      'I\'ve been waiting for you! 💫',
+      'Time to shine! ⭐',
+      'Let\'s play and learn! 🎉',
+    ];
+
+    function childHome() {
+      return {
+        loading:      true,
+        child:        { name: 'Friend', age_range: '4-5', avatar: 'Em' },
+        completedIds: new Set(),
+        gameList:     GAME_LIST,
+        bubble:       BUBBLES[Math.floor(Math.random() * BUBBLES.length)],
+
+        get completedCount() {
+          return [...this.completedIds].filter(id => GAME_LIST.some(g => g.id === id)).length;
+        },
+
+        async init() {
+          // Guard: must have a child session
+          const child = window.RK?.getActiveChild?.();
+          if (!child) {
+            window.location.href = 'auth.html';
+            return;
+          }
+          this.child = child;
+
+          // Personalise bubble if they have progress
+          const completed = await window.RK.getCompletedGameIds();
+          this.completedIds = completed;
+          window._rkCompletedIds = completed;
+
+          if (completed.size === 0) {
+            this.bubble = 'Ready for your first adventure? 🌟';
+          } else if (completed.size >= GAME_LIST.length) {
+            this.bubble = 'You\'ve done them ALL! You\'re a superstar! 🏆';
+          } else {
+            this.bubble = BUBBLES[Math.floor(Math.random() * BUBBLES.length)];
+          }
+
+          this.loading = false;
+        },
+      };
+    }
+  </script>
+</body>
+</html>

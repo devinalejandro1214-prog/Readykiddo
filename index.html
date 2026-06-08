@@ -23,16 +23,15 @@
         </div>
 
         <div class="landing-actions">
-        <button class="cta-button" id="startButton">
+          <button class="cta-button" id="startButton">
             <span class="cta-icon" aria-hidden="true">▶</span>
-            <span>Start your journey</span>
-        </button>
-        <button class="resume-world-button" id="resumeWorldButton" hidden>
-            <span>Resume World</span>
-        </button>
-        <p class="landing-sound-hint" aria-hidden="true">
+            <span class="cta-label">Start your journey</span>
+          </button>
+          <!-- hidden by default; main.js shows + labels it based on session state -->
+          <a class="parent-login-link" id="parentLoginLink" href="auth.html" hidden>Parent Login</a>
+          <p class="landing-sound-hint" aria-hidden="true">
             <span class="sound-note">♪</span> Sound on for the best experience
-        </p>
+          </p>
         </div>
     </div>
 
