@@ -1,13 +1,20 @@
 # ReadyKiddo 2.0 — Architecture & Build Status
 
-**Last Updated:** 2026-06-07  
-**Status:** Phase 3 Complete ✅ | Phase 4 Planned 🎯
+**Last Updated:** 2026-06-07
+**Status:** Phase 4 Complete ✅ | Phase 5 Planned 🎯
 
 ---
 
 ## Executive Summary
 
-ReadyKiddo 2.0 is a COPPA-compliant early learning app (ages 3–5) with 10 educational games, Supabase auth, and Zoey AI advisor powered by Gemini 2.5 Flash. The app separates child and parent experiences through test mode and smart routing.
+ReadyKiddo 2.0 is a COPPA-compliant early learning app (ages 3–5) with 10 educational games, Supabase auth, and **Zoey** — a dual-persona AI/companion character. Zoey exists in two modes:
+
+| Mode | Audience | Engine | Purpose |
+|------|----------|--------|---------|
+| **Zoey AI Advisor** | Parent (dashboard) | Gemini 2.5 Flash via Netlify Function | Answers parent questions about child's progress |
+| **Zoey Companion** | Child (games) | Scripted JS — zero API calls | Encouragement overlay after each game completes |
+
+The two modes share the same visual character but are completely separate systems. No child data ever reaches an external API.
 
 ---
 
@@ -20,14 +27,15 @@ ReadyKiddo 2.0 is a COPPA-compliant early learning app (ages 3–5) with 10 educ
 | **1** | auth.html | ✅ Complete | COPPA signup + login + child profile setup |
 | **2** | dashboard.html | ✅ Complete | Parent progress tracker, warm design system |
 | **2** | Game session hooks | ✅ Complete | All 10 games wired; test mode logs to console |
-| **3** | zoey-client.js | ✅ Complete | Client wrapper for Zoey API |
-| **3** | netlify/functions/zoey.js | ✅ Complete | Gemini 2.5 Flash proxy with COPPA scrubbing |
-| **3** | Zoey chat UI | ✅ Complete | Full Alpine.js chat component in dashboard |
-| **4** | Landing page overhaul | 🎯 Planned | Remove Resume, smart routing |
-| **4** | Child home (child-home.html) | 🎯 Planned | Child-friendly hub with star progress |
-| **4** | Zoey child companion | 🎯 Planned | Scripted (no API), animated guide |
-| **4** | Item library system | 🎯 Planned | Themed cosmetics for game personalization |
-| **4** | Admin console | 🎯 Planned | Game jump, bug reporter, analytics |
+| **3** | zoey-client.js | ✅ Complete | Client wrapper for Zoey AI API |
+| **3** | netlify/functions/zoey.js | ✅ Complete | Gemini 2.5 Flash proxy + COPPA name scrubbing |
+| **3** | Zoey chat UI | ✅ Complete | Full Alpine.js chat in parent dashboard |
+| **4A** | Landing page router | ✅ Complete | Smart session detection; Resume button removed |
+| **4B** | child-home.html | ✅ Complete | Child hub: stars, greeting, play button, padlock |
+| **4C** | Zoey child companion | ✅ Complete | Scripted overlay in game-loader; SVG placeholder ready |
+| **4D** | Parent ↔ child handoff | ✅ Complete | "Hand to Child" on dashboard; padlock on child home |
+| **5** | Item library + themes | 🎯 Planned | Themed cosmetic packs; Zoey curates recommendations |
+| **5** | Admin console | 🎯 Planned | Game jump, bug reporter, analytics |
 
 ---
 
@@ -35,82 +43,268 @@ ReadyKiddo 2.0 is a COPPA-compliant early learning app (ages 3–5) with 10 educ
 
 ```
 readykiddo.com
-├── index.html (landing)
-│   ├── [child session] → child-home.html → games
-│   └── [no session] → auth.html → dashboard.html
 │
-├── Assets Layer
-│   ├── CSS (design system, themes)
-│   ├── Games (10 vanilla JS class-based)
-│   └── JS helpers (Supabase, Zoey, auth)
+├── index.html  (smart landing)
+│   ├── [rk_child in sessionStorage] → button: "Play as [name] 🎮" → child-home.html
+│   └── [no session]                 → button: "Start your journey" → auth.html
+│                                       link:   "Parent Login"      → auth.html
 │
-├── Server Layer (Netlify Functions)
-│   └── /api/zoey → Gemini 2.5 Flash proxy
+├── auth.html          Sign up / login / child profile (COPPA)
+│   └──────────────────────────────────────────────────────→ dashboard.html
 │
-└── Data Layer (Supabase)
-    ├── auth.users (Supabase managed)
-    ├── profiles (parent metadata)
-    ├── children (child profiles)
-    └── game_sessions (completion log)
+├── dashboard.html     Parent hub
+│   ├── Zoey AI chat (Gemini 2.5 Flash via /api/zoey)
+│   ├── Progress tracker (game_sessions from Supabase)
+│   └── "Hand to Child 🧒" ────────────────────────────────→ child-home.html
+│
+├── child-home.html    Child hub
+│   ├── Zoey character (SVG placeholder)
+│   ├── Speech bubble (scripted)
+│   ├── Star progress row
+│   ├── "Let's Play! 🚀" ──────────────────────────────────→ game-loader.html
+│   └── 🔒 padlock ─────────────────────────────────────────→ dashboard.html
+│
+├── game-loader.html   Game runner
+│   ├── Loads supabase-client.js  (session + hooks)
+│   ├── Loads zoey-companion.js   (scripted overlay)
+│   └── [game completes] → logGameSession → Zoey companion appears
+│
+└── Server / Data
+    ├── Netlify Function: /api/zoey  (Gemini 2.5 Flash proxy)
+    └── Supabase: profiles, children, game_sessions
 ```
 
 ---
 
-## File Structure & Locations
+## File Structure
 
 ### Root Pages
 
 ```
-index.html                    # Landing / smart router
-auth.html                     # Sign in, sign up, child setup (COPPA)
-dashboard.html                # Parent dashboard + Zoey chat
-test-login.html               # Dev bypass; sets sessionStorage
-zoey-demo.html                # Standalone pitch demo (7 animated scenes)
-child-home.html               # [PLANNED] Child hub with progress
-game-loader.html              # Game selector (existing, untouched)
+index.html          Landing — smart router (child session vs new visitor)
+auth.html           Parent sign in / sign up / COPPA / child profile setup
+dashboard.html      Parent hub: progress, Zoey AI chat, handoff button
+child-home.html     Child hub: greeting, stars, play button, padlock
+test-login.html     Dev bypass — sets sessionStorage, no Supabase needed
+game-loader.html    Game runner — loads all games via URL param
+zoey-demo.html      Standalone pitch demo (7 animated scenes, no auth)
+ARCHITECTURE.md     This file
 ```
 
-### Assets
+### JavaScript
 
 ```
 assets/js/
-├── supabase-client.js         # Shared Supabase init + RK API
-├── zoey-client.js             # Zoey.ask() wrapper
-├── games/
-│   ├── color-sort-game.js     # ✅ Hook added
-│   ├── number-matching-game.js # ✅ Hook added
-│   ├── shape-recognition-game.js # ✅ Hook added
-│   ├── abc-match-game.js      # ✅ Hook added
-│   ├── space-pattern-game.js  # ✅ Hook added
-│   ├── space-defender-game.js # ✅ Hook added (no await)
-│   ├── feed-alien-game.js     # ✅ Hook added
-│   ├── number-line-game.js    # ✅ Hook added
-│   ├── feed-by-sound-game.js  # ✅ Hook added (async arrow)
-│   └── draw-it-game.js        # ✅ Hook added
-└── [PLANNED] theme-loader.js  # Item library CSS swapper
+├── supabase-client.js      Supabase init + window.RK helper API
+├── zoey-client.js          window.Zoey.ask() — calls /api/zoey
+├── zoey-companion.js       Scripted child companion overlay (no API)
+├── main.js                 Landing smart router
+├── audio-manager.js        Background music + SFX
+├── feedback-widget.js      In-app feedback form
+└── games/
+    ├── color-sort-game.js          ✅ logGameSession hook
+    ├── number-matching-game.js     ✅ logGameSession hook
+    ├── shape-recognition-game.js   ✅ logGameSession hook
+    ├── abc-match-game.js           ✅ logGameSession hook
+    ├── space-pattern-game.js       ✅ logGameSession hook
+    ├── space-defender-game.js      ✅ logGameSession hook (fire-and-forget)
+    ├── feed-alien-game.js          ✅ logGameSession hook
+    ├── number-line-game.js         ✅ logGameSession hook
+    ├── feed-by-sound-game.js       ✅ logGameSession hook (async arrow)
+    ├── draw-it-game.js             ✅ logGameSession hook
+    ├── game-shell.js               GameShell context API
+    ├── game-registry.js            Game routing
+    ├── session-manager.js          Session tracking
+    ├── item-data.js                Game item definitions
+    └── shape-definitions.js        Shape data
+```
 
+### CSS
+
+```
 assets/css/
-├── onboarding.css             # Warm design system (existing)
-├── [PLANNED] themes/           # Per-theme CSS files
+├── style.css               Landing page styles + parent-login-link
+├── onboarding.css          Warm design system (shared tokens)
+├── audio.css               Mute button
+├── feedback.css            Feedback widget
+├── session-manager.css     Session UI
+├── [PLANNED] themes/       Per-theme CSS files (Phase 5)
 │   ├── coral-reef.css
 │   ├── jungle.css
 │   └── ...
+└── [game-specific].css     One per game
 ```
 
-### Server (Netlify)
+### Server
 
 ```
 netlify/
 ├── functions/
-│   └── zoey.js                # Gemini 2.5 Flash API proxy
-└── netlify.toml               # Redirects /api/* → /.netlify/functions/:splat
+│   └── zoey.js             Gemini 2.5 Flash API proxy (COPPA-safe)
+└── netlify.toml            Redirects: /api/* → /.netlify/functions/:splat
 ```
 
 ### Database
 
 ```
-supabase/schema.sql            # DDL: tables, RLS, trigger
+supabase/schema.sql         DDL: CREATE TABLEs, RLS policies, auto-profile trigger
 ```
+
+---
+
+## Zoey — Full Character Spec
+
+Zoey is ReadyKiddo's mascot and AI advisor. She appears in two completely separate contexts.
+
+---
+
+### Zoey Persona 1: Parent AI Advisor (dashboard.html)
+
+**What she does:**
+Answers parent questions about their child's learning progress, suggests offline activities, explains developmental milestones, and recommends next games — all grounded in the child's actual completion data.
+
+**Technology:**
+- Client: `window.Zoey.ask(message, completedIds)` → `POST /api/zoey`
+- Server: `netlify/functions/zoey.js` → Gemini 2.5 Flash REST API
+- Model string: `gemini-2.5-flash`
+- Response length: `maxOutputTokens: 256` (2–4 sentences, parent-friendly)
+
+**System prompt context sent to Gemini:**
+```
+- Age range: [child age_range from Supabase]
+- Games completed (N of 11): [list of game IDs]
+```
+
+**What is NOT sent to Gemini (COPPA):**
+- Child's name — system prompt says "your child" only
+- Any parent email or identifying info
+- Session timestamps or behavioral data
+
+**Behavior rules baked into system prompt:**
+- Keep responses to 2–4 sentences (parents are busy)
+- Never suggest increasing screen time
+- Refer medical/clinical concerns to pediatrician
+- Reference specific completed games when relevant
+
+**COPPA compliance note:**
+Free tier of Gemini uses data to improve Google products. Child name is scrubbed before any API call. When you move to paid tier, set billing in Google AI Studio — the `GEMINI_API_KEY` env var in Netlify stays the same, just billing is activated.
+
+**Dashboard chat UI (Alpine.js `zoeyChat()` component):**
+- 4 starter prompts shown before first message
+- Typing indicator (3 animated dots) while Gemini responds
+- Auto-scrolling message history
+- Auto-resizing textarea (max 120px height)
+- Enter = send, Shift+Enter = new line
+- Error messages displayed inline if API fails
+
+---
+
+### Zoey Persona 2: Child Companion (game-loader.html)
+
+**What she does:**
+Appears as an animated overlay after each game completes with a scripted encouraging message. Celebrates milestones with confetti. Prompts the child to keep playing.
+
+**Technology:**
+- `assets/js/zoey-companion.js` — pure vanilla JS, zero API calls
+- Hooks into `window.RK.logGameSession` by wrapping it after page load
+- All messages are pre-written strings, chosen by a simple counter rule
+- Fully COPPA-safe: nothing leaves the device
+
+**Trigger flow:**
+```
+Child completes game
+    ↓
+Game calls window.RK.logGameSession('game-id', {...})
+    ↓
+zoey-companion.js intercepts after the original call
+    ↓
+Counts total completed games (from window._rkCompletedIds)
+    ↓
+Picks scripted message based on count
+    ↓
+800ms delay (lets game celebration finish first)
+    ↓
+Companion overlay slides up from bottom
+    ↓
+Child taps "Keep Playing 🚀" → overlay dismisses
+```
+
+**Message rules:**
+| Trigger | Message bank |
+|---------|-------------|
+| `completedCount === 1` | First game messages (extra celebratory) |
+| `completedCount === 3` | Milestone 3 messages |
+| `completedCount === 5` | Milestone 5 messages |
+| `completedCount >= 10` | All done messages |
+| All others | General encouragement pool (7 messages) |
+
+**Confetti burst:** fires automatically at counts 1, 3, 5, and 10.
+
+---
+
+### Zoey SVG Character — Integration Guide
+
+Zoey appears in **3 locations**. Each has a clearly marked placeholder.
+
+#### Location 1: `child-home.html` — main character stage
+
+```html
+<!-- Find this block in child-home.html (~line 115) -->
+<div class="zoey-stage">
+  <!--
+    ZOEY_SVG_PLACEHOLDER
+    Replace this div with your animated SVG file, e.g.:
+    <img src="assets/images/zoey.svg" alt="Zoey" style="width:100%;height:100%">
+  -->
+  <div class="zoey-placeholder">✨</div>
+</div>
+```
+
+**Container specs:**
+- `.zoey-stage`: 200×200px, flex-centered
+- `.zoey-placeholder`: 160px circle, floats up/down (CSS `float` keyframe, 3s loop)
+- Swap the inner div with your SVG — the float animation applies to whatever is inside
+
+#### Location 2: `assets/js/zoey-companion.js` — in-game overlay
+
+```html
+<!-- Find this block in zoey-companion.js (~line 100, inside the overlay innerHTML) -->
+<div class="zc-character">
+  <!--
+    ZOEY_SVG_PLACEHOLDER
+    Replace this div with your animated SVG, e.g.:
+    <img src="assets/images/zoey.svg" alt="Zoey">
+  -->
+  <div class="zc-char-placeholder">✨</div>
+</div>
+```
+
+**Container specs:**
+- `.zc-character`: 130×130px, flex-centered
+- `.zc-char-placeholder`: 100px circle placeholder with orange gradient
+- SVG will animate with `.zcFloat` keyframe (float + sway, 2.5s loop)
+
+#### Location 3: `dashboard.html` — Zoey chat header
+
+The parent dashboard shows a text-only Zoey header (✨ emoji + name). If you want the SVG here too, find the `.zoey-header` block (~line 477):
+
+```html
+<div class="zoey-header">
+  <div class="zoey-icon">✨</div>  <!-- replace with small SVG (32×32px) -->
+  <div>
+    <div class="zoey-name">Zoey</div>
+    <div class="zoey-tagline">AI Learning Advisor · powered by Gemini 2.5</div>
+  </div>
+</div>
+```
+
+#### SVG recommendations
+
+- **Format:** Inline SVG or `<img src="assets/images/zoey.svg">` both work
+- **Recommended size:** 200×200px viewport (scales via CSS container)
+- **Animation:** Use SMIL `<animate>` or CSS keyframes inside the SVG
+- **File location:** `assets/images/zoey.svg` (conventional, referenced in placeholders above)
+- **Accessibility:** Add `alt="Zoey"` or `aria-label="Zoey"` to the image/SVG
 
 ---
 
@@ -119,150 +313,62 @@ supabase/schema.sql            # DDL: tables, RLS, trigger
 ### 1. Supabase Integration
 
 **Tables:**
-- `profiles` — parent account metadata (UUID, email, created_at)
-- `children` — child profile (id, parent_id, name, age_range, avatar, theme, created_at)
-- `game_sessions` — completion log (child_id, game_id, completed, attempts, time_spent_sec, score, played_at)
-
-**RLS (Row-Level Security):**
-- Users can only read/write their own children
-- Game sessions are read by parent auth context
-
-**Auto-Profile Trigger:**
-- When new Supabase auth user is created, auto-insert into profiles table
-
-**Setup Steps:**
-1. Run SQL Step 1: CREATE TABLEs
-2. Run SQL Step 2: RLS policies + trigger
-
-### 2. Auth Flow (Parent)
-
-```
-index.html "Get Started"
-    ↓
-auth.html (Alpine.js modal carousel)
-    ├── View 1: Login (email + password)
-    ├── View 2: Sign up (email + password + COPPA checkbox)
-    └── View 3: Child setup (name + age_range 3-4/4-5 + avatar)
-    ↓
-Supabase creates auth.user → profiles auto-trigger
-    ↓
-sessionStorage.setItem('rk_child', {...})
-sessionStorage.setItem('rk_user', {...})
-    ↓
-dashboard.html
-    ↓
-window.RK.requireAuth() checks Supabase session
-    ↓
-dashApp loads child + game_sessions + completedIds
-    ↓
-Zoey available with child context
+```sql
+profiles      (id uuid PK → auth.users, email, created_at)
+children      (id uuid PK, parent_id → profiles, name, age_range, avatar, theme, created_at)
+game_sessions (id uuid PK, child_id → children, game_id, completed, attempts, time_spent_sec, score, played_at)
 ```
 
-### 3. Auth Flow (Child — Test Mode)
+**RLS:** Users can only access their own rows. Game sessions are read by parent auth context.
 
+**Auto-Profile Trigger:** On new `auth.users` insert → auto-insert into `profiles`.
+
+**Setup:** Run `supabase/schema.sql` in two steps in the Supabase SQL Editor (Step 1: CREATE TABLEs, Step 2: RLS + trigger).
+
+---
+
+### 2. Auth Flows
+
+#### Parent (real auth)
 ```
-test-login.html
-    ↓
-sessionStorage.setItem('rk_test_mode', 'true')
-sessionStorage.setItem('rk_child', { id, name, age_range, avatar, _testMode: true })
-sessionStorage.setItem('rk_user', { id, email })
-    ↓
-dashboard.html OR child-home.html
-    ↓
-window.RK.requireAuth() detects rk_test_mode flag
-    ↓
-Returns mock user object (no Supabase call)
-    ↓
-Game sessions logged to console only (skips Supabase insert)
+index.html → auth.html
+    ├── Login  → Supabase session → dashboard.html
+    └── Signup → email + COPPA checkbox → child profile setup → dashboard.html
 ```
 
-**Key:** `logGameSession()` checks `child._testMode || rk_test_mode === 'true'` and logs to console instead of DB.
+#### Child (session-based, no login)
+```
+dashboard.html "Hand to Child" → child-home.html
+    → game-loader.html → games
+    → 🔒 padlock → dashboard.html
+```
 
-### 4. Game Session Logging
+#### Test mode (dev bypass)
+```
+test-login.html → sets sessionStorage flags → any page
+    ├── rk_test_mode = 'true'
+    ├── rk_child = { id, name, age_range, avatar, _testMode: true }
+    └── rk_user  = { id, email }
+```
+`requireAuth()` detects `rk_test_mode` and skips Supabase entirely.
+`logGameSession()` detects `_testMode` and logs to console only.
 
-**Hook Pattern (in all 10 games):**
+---
+
+### 3. Game Session Logging
+
+**Hook pattern (all 10 games):**
 ```js
-// Before showCelebration() or goToNextGame():
 if (window.RK?.logGameSession) {
-  await window.RK.logGameSession('game-id', { attempts: ATTEMPTS_VAR });
+  await window.RK.logGameSession('game-id', { attempts: N });
 }
 ```
 
-**Special Cases:**
-- `space-defender-game.js` — non-async game loop; hook is fire-and-forget (no `await`)
-- `feed-by-sound-game.js` — click handler wrapped in `async () => {}`
+**Special cases:**
+- `space-defender-game.js` — non-async game loop; no `await` (fire-and-forget)
+- `feed-by-sound-game.js` — click handler changed to `async () => {}`
 
-**Attempts variables used per game:**
-- `number-matching`, `number-line`: `this.performance.wrongAttempts`
-- `feed-alien`: `this.currentRound`
-- Others: literal `1`
-
-### 5. Zoey AI (Parent Facing)
-
-**Client-side (`zoey-client.js`):**
-```js
-window.Zoey.ask(message, completedIds)
-  ↓
-POST /api/zoey
-  {
-    message: "What activities help with numbers?",
-    childContext: {
-      ageRange: "4-5",
-      completedGames: ["color-sort", "number-matching"],
-      totalSessions: 2
-    }
-  }
-  ↓
-Returns { reply: "..." }
-```
-
-**Server-side (`netlify/functions/zoey.js`):**
-- Reads `process.env.GEMINI_API_KEY` (set in Netlify env vars, NEVER in code)
-- Builds system prompt with child context (name scrubbed for COPPA)
-- Calls Gemini 2.5 Flash REST API
-- `generationConfig: { maxOutputTokens: 256, temperature: 0.7, topP: 0.9 }`
-- Safety settings: `BLOCK_MEDIUM_AND_ABOVE` for all harm categories
-- Handles 429 rate limit gracefully
-- Returns reply or error
-
-**COPPA Data Scrubbing:**
-- Child **name** is NOT sent to Gemini API
-- System prompt refers to "your child" only
-- Parent sees real name in UI (dashboard) but Google never does
-
-**Cost (Free Tier):**
-- Gemini 2.5 Flash free tier = ~$0 per month at typical usage (tens of requests)
-- When paid: $0.075 per 1M input tokens
-
-### 6. Dashboard (`dashboard.html`)
-
-**Alpine.js Components:**
-- `dashApp()` — auth guard, child load, progress tracker
-- `zoeyChat()` — message history, typing indicator, auto-scroll
-
-**Features:**
-- Child hero card with avatar + age stamp
-- Progress pills (game list with ✓ Done / Not yet badges)
-- Zoey chat section with 4 starter prompts
-- Sign out button
-
-**Warm Design System:**
-- Background: paper gradient (warm orange + cool blue radials)
-- Fredoka font (bodies) + Caveat font (display)
-- Brand mark: rotated orange star
-- Button primary: orange gradient
-- Selected states: `#fff4d8` background + orange border
-
-### 7. Test Mode Architecture
-
-**Bypass without Supabase:**
-- `test-login.html` sets sessionStorage flags
-- `requireAuth()` detects `rk_test_mode === 'true'` and returns mock user
-- `logGameSession()` detects `_testMode` flag and logs to console only
-- Game hooks execute but DB writes are skipped
-- Perfect for local dev + testing without Supabase writes
-
-**Console Output Example:**
+**Test mode output:**
 ```
 [ReadyKiddo TEST] logGameSession → game:color-sort
 { child: 'Test Kid', completed: true, attempts: 1, timeSec: 0 }
@@ -270,42 +376,89 @@ Returns { reply: "..." }
 
 ---
 
+### 4. Landing Smart Router (`index.html` + `main.js`)
+
+```
+Page loads
+    ↓
+main.js reads sessionStorage.rk_child
+    │
+    ├── child exists → button text: "Play as [name] 🎮"
+    │                  button href: child-home.html
+    │                  parent link: "🔒 Parent Dashboard" → dashboard.html
+    │
+    └── no child    → button text: "Start your journey"
+                       button href: auth.html
+                       parent link: "Parent Login" → auth.html
+```
+
+Resume World button is permanently hidden (auth flow owns navigation).
+
+---
+
+### 5. Netlify Function — Zoey AI
+
+**Endpoint:** `POST /api/zoey`
+
+**Request body:**
+```json
+{
+  "message": "What activities help with number recognition?",
+  "childContext": {
+    "ageRange": "4-5",
+    "completedGames": ["color-sort", "number-matching"],
+    "totalSessions": 2
+  }
+}
+```
+
+**Response:**
+```json
+{ "reply": "Counting everyday objects together is a great way..." }
+```
+
+**Error responses:**
+- `400` — message missing or too long (>500 chars)
+- `429` — Gemini rate limit hit
+- `500` — `GEMINI_API_KEY` env var not set
+- `502` — Gemini API unreachable
+
+**Gemini config:**
+```js
+generationConfig: { maxOutputTokens: 256, temperature: 0.7, topP: 0.9 }
+safetySettings:   BLOCK_MEDIUM_AND_ABOVE for all 4 harm categories
+```
+
+---
+
 ## Deployment & Environment
 
-### Netlify Setup
+### Netlify
 
 - **Site:** readykiddo.com
 - **Site ID:** d2a1a8ee-a5ba-4c40-9cbb-6963b835897d
-- **Build:** Automatic git sync (main branch)
-- **Redirects:** `/api/*` → `/.netlify/functions/:splat`
+- **Redirects:** `/api/*` → `/.netlify/functions/:splat` (in netlify.toml)
+- **Deploy:** MANUAL — git push does NOT auto-deploy. Must click "Trigger deploy" in Netlify UI.
 
-### Environment Variables (Netlify Dashboard)
+### Required Environment Variables
 
-```
-GEMINI_API_KEY = <your Google AI Studio API key>
-```
-
-**To get the key:**
-1. Go to aistudio.google.com
-2. Click "Get API key"
-3. Create new key in any project
-4. Copy + paste into Netlify Dashboard → Site → Environment variables
+| Key | Value | Where |
+|-----|-------|--------|
+| `GEMINI_API_KEY` | Google AI Studio key | Netlify → Site → Environment variables |
 
 ### Git Workflow
 
-```
-# Commit locally
-git add files...
-git commit -m "..."
+```bash
+# Stage and commit
+git add <files>
+git commit -m "description"
 
-# Push (using PAT for multi-account):
+# Push (multi-account PAT required)
 git push https://devinalejandro1214-prog:YOUR_PAT@github.com/devinalejandro1214-prog/Readykiddo.git main
 
-# Deploy (manual trigger in Netlify)
-Netlify Dashboard → Deploys → Trigger deploy
+# Deploy
+Netlify Dashboard → Deploys → Trigger deploy → Deploy site
 ```
-
-**No auto-deploy on git push** — must manually trigger in Netlify UI.
 
 ---
 
@@ -326,279 +479,146 @@ Netlify Dashboard → Deploys → Trigger deploy
 
 ### Fonts
 
-- **Body:** Fredoka (400, 500, 600, 700)
-- **Display:** Caveat (600, 700)
-- **Source:** Google Fonts CDN
+- **Body/UI:** Fredoka (400, 500, 600, 700) — Google Fonts CDN
+- **Display/Handwriting:** Caveat (600, 700) — Google Fonts CDN
 
-### Backgrounds
+### Warm Background (shared across all pages)
 
 ```css
-radial-gradient(120% 80% at 50% -10%, rgba(255,178,62,0.22), transparent 60%),
-radial-gradient(80% 60% at 100% 110%, rgba(11,95,149,0.18), transparent 60%),
-linear-gradient(180deg, #f6e9c8 0%, #f1d9a2 100%)
+background:
+  radial-gradient(120% 80% at 50% -10%, rgba(255,178,62,0.22), transparent 60%),
+  radial-gradient(80% 60% at 100% 110%, rgba(11,95,149,0.18), transparent 60%),
+  linear-gradient(180deg, #f6e9c8 0%, #f1d9a2 100%);
 ```
 
 ### Components
 
-- Cards: white, rounded, subtle shadow, warm padding
-- Buttons: orange gradient primary, blue secondary
-- Selected states: warm highlight (`#fff4d8`) + orange border
-- Pips (progress indicators): `30px wide, 6px border-radius` (rectangles, not circles)
+- **Cards:** white, 20px radius, `0 4px 20px rgba(0,0,0,0.07)` shadow
+- **Buttons (primary):** orange gradient `#f28c18 → #ffb23e`, white text, 50px radius
+- **Selected states:** `#fff4d8` background + `#f28c18` border + `rgba(242,140,24,0.18)` shadow
+- **Progress pips:** 30px wide, 6px radius (rectangles, not circles)
+- **Brand mark:** rotated orange star SVG in 34×34px rounded square
 
 ---
 
-## Current Live Testing
+## Testing Guide
 
-### Happy Path (Test Mode)
+### Test Mode (no Supabase, no real auth)
 
-1. Navigate to `https://readykiddo.com/test-login.html`
-2. Set child name, age, avatar
-3. Select destination: "Dashboard" or "Home" or game name
+1. Open `https://readykiddo.com/test-login.html`
+2. Set child name + age range
+3. Pick destination: Dashboard, Home, or a specific game
 4. Click "Enter Test Session →"
-5. Lands in target page with session set
-6. Game hooks log to browser console (no Supabase writes)
-7. Dashboard loads with mock completedIds (empty on first test)
+5. Session is set in `sessionStorage`, no DB writes occur
+6. Open browser console — game completions log as `[ReadyKiddo TEST]`
+7. Zoey companion overlay fires 800ms after any game completion
 
-### Parent Flow (Real Auth)
+### Child Home Test
 
-1. Navigate to `https://readykiddo.com`
-2. Click "Get Started"
-3. Sign up (COPPA consent required)
-4. Set child profile
-5. Redirected to dashboard
-6. Chat with Zoey; ask about child's progress
-7. Zoey responds with real Gemini advice
+1. Set test session (test-login → Dashboard)
+2. Navigate manually to `readykiddo.com/child-home.html`
+3. Should show child name, star row (empty on first test), "Let's Play!" button
+4. Padlock → dashboard.html
 
-### Zoey API Direct Test
+### Zoey AI Test (direct API call)
 
-```javascript
-const res = await fetch('https://readykiddo.com/api/zoey', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    message: 'What activities help with number recognition?',
-    childContext: { ageRange: '4-5', completedGames: ['color-sort'], totalSessions: 1 }
-  })
-});
-const data = await res.json();
-console.log(data.reply); // Gemini response
+```js
+// Paste in browser console on any readykiddo.com page
+(async () => {
+  const res = await fetch('/api/zoey', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      message: 'What activities help with number recognition?',
+      childContext: { ageRange: '4-5', completedGames: ['color-sort'], totalSessions: 1 }
+    })
+  });
+  console.log(await res.json());
+})()
 ```
 
-**Status:** ✅ 200 OK, Gemini 2.5 responding live
+### Zoey Companion Test
+
+```js
+// Trigger manually from browser console while on game-loader.html
+ZoeyCompanion.show(3, true) // shows milestone 3 with confetti
+ZoeyCompanion.show(1, true) // shows first-game message with confetti
+ZoeyCompanion.hide()        // dismisses
+```
 
 ---
 
-## Phase 4 — Next Steps
+## Phase 5 — Next Steps
 
-### 4A: Landing Page Overhaul
+### 5A: Item Library + Theme System
 
-**Changes:**
-- Remove "Resume Jungle" button (auth flow owns navigation now)
-- Smart router: if `rk_child` exists → show "Welcome back [name]! Play now →"
-- If no session → two buttons: "Get Started" (auth) + "Parent Login" (auth)
-- Onboarding animation plays on first visit only (check sessionStorage flag)
+**Goal:** Children unlock themed cosmetic packs (backgrounds, UI colors) based on progress. Zoey AI recommends packs to parents.
 
-**Files to update:**
-- `index.html` — router logic + conditional rendering
-- Update onboarding so it chains into auth instead of dead-ending
+**Components to build:**
+1. `assets/data/item-library.json` — 5–8 themed packs, ~100 items (GenAI task)
+2. `assets/css/themes/*.css` — one file per theme, CSS custom properties
+3. `assets/js/theme-loader.js` — reads `children.theme` from Supabase, swaps CSS class
+4. Dashboard: theme selector UI (Zoey recommends based on completedGames)
+5. game-loader.html: load active theme on init
 
-### 4B: Child Home (`child-home.html`)
+**Sample themes:** 🌊 Coral Reef · 🌳 Jungle · 🍭 Candy Land · 🌙 Night Sky · 🦕 Dinosaur
 
-**New file:** Child-friendly hub (full-screen, no text except names)
+### 5B: Admin Console (`admin.html`)
 
-**Features:**
-- Large avatar (tap to... stay? no interaction)
-- "Hi Maya! Ready to play? 🚀" (Caveat font, big)
-- Star progress (visual stars for completed games, not numbers)
-- "Play Games" button → game-loader
-- Small padlock icon (corner) → "View Parent Dashboard" (tap to open parent dashboard, optional PIN)
+- Log in as admin (separate Supabase role or env-var PIN)
+- Jump to any game directly
+- View all bug reports (from feedback widget)
+- See aggregate game completion stats across all users
+- Trigger test notifications
 
-**Design:**
-- Inherit warm paper gradient + brand mark
-- Large colorful buttons
-- Animated Zoey mascot (waves, blinks) — scripted messages only, no API
+### 5C: Zoey Curation in Dashboard
 
-### 4C: Zoey Child Companion
-
-**Scope:** Animated character in game-loader, between games
-
-**Behavior (scripted, no API):**
-- After game completes: Zoey appears with pre-written message
-- Rules (hardcoded):
-  - "You're on fire! 🔥" if 3+ games done today
-  - "Want to try something harder?" if same difficulty 5+ times
-  - "Great job! Take a break?" if 30+ min played
-  - "Let's try colors next?" based on completion order
-
-**No child data leaves device** — all logic local, all text pre-written
-
-**Implementation:**
-- `assets/js/zoey-companion.js` — script only, CSS animations
-- Insert into game-loader.html as optional modal/overlay
-
-### 4D: Parent ↔ Child Handoff
-
-**Parent dashboard:**
-- Add "Hand to Child →" button
-- Opens child-home.html in same session
-- Parent can tap padlock to come back to dashboard
-
-**Child home:**
-- Padlock icon (top right corner) tappable
-- Confirmation: "Hand back to parent? Tap padlock again to confirm."
-- Returns to dashboard.html
-
-**Optional enhancement:**
-- 4-digit PIN to prevent kids from accessing parent dashboard
-- Parent sets PIN during child setup
-- PIN entry on second padlock tap
+- After chat, if child has unlocked a milestone → Zoey proactively suggests a theme pack
+- "Your child just hit 5 games! 🎉 Want to unlock the Coral Reef theme for them?"
+- Parent taps → `children.theme` updated in Supabase → child sees new theme on next play
 
 ---
 
-## Phase 4 — Item Library System
+## Tasks for Delegation (Codex / Anti-Gravity)
 
-### Concept
+| # | Task | Input | Output | Files |
+|---|------|-------|--------|-------|
+| 1 | Item Library JSON | Phase 5A spec (this doc) | 5–8 packs, ~100 items, Zoey rules | `assets/data/item-library.json` |
+| 2 | CSS Theme Files | item-library.json | CSS custom properties per theme | `assets/css/themes/*.css` |
+| 3 | Theme Loader JS | item-library.json + children.theme in Supabase | Reads theme, swaps CSS class | `assets/js/theme-loader.js` |
+| 4 | Admin Console | Phase 5B spec | New HTML page with game jump + stats | `admin.html` |
+| 5 | Zoey SVG Integration | SVG file at `assets/images/zoey.svg` | Replace placeholders in 3 locations | `child-home.html`, `zoey-companion.js`, `dashboard.html` |
 
-**Goal:** Personalize game visuals without changing mechanics. Children unlock themed cosmetics based on progress.
-
-**Components:**
-1. **Item Library** (JSON) — 5–8 themed packs, each with 10–15 cosmetic items
-2. **CSS Themes** — Per-pack stylesheets (colors, gradients, fonts)
-3. **Zoey Curation** — AI recommends packs based on child progress
-4. **Theme Switcher** — One-line CSS class change applies entire theme to all games
-
-### Sample Themes
-
-```
-🌊 Coral Reef   (blues, teals, fish, calm)
-🌳 Jungle       (greens, oranges, vines, vibrant)
-🍭 Candy Land   (pinks, purples, sweets, playful)
-🌙 Night Sky    (deep purples, stars, midnight mode)
-🦕 Dinosaur     (browns, greens, prehistoric, adventure)
-```
-
-### Per-Pack Items
-
-Example: Coral Reef pack
-```json
-{
-  "id": "coral-reef",
-  "name": "🌊 Coral Reef",
-  "colors": {
-    "--primary": "#1B8A96",
-    "--accent": "#FF6B6B",
-    "--bg": "#E8F4F8"
-  },
-  "items": [
-    { "id": "bubbles-bg", "name": "Bubbles", "type": "background-animation" },
-    { "id": "fish-mascot", "name": "Fish Friend", "type": "character" },
-    { "id": "sea-sound", "name": "Ocean Waves", "type": "audio-theme" }
-  ],
-  "unlockAt": "5 games completed",
-  "recommendedFor": "visual learners, color explorers"
-}
-```
-
-### Zoey Curation Rules
-
-```json
-{
-  "condition": "completedCount >= 5 && !hasUnlockedCoral",
-  "action": "recommend",
-  "pack": "coral-reef",
-  "message": "I noticed you've completed 5 games! 🎉 Want to try the Coral Reef theme? It's calming and beautiful. 🌊"
-}
-```
-
-### Implementation Steps
-
-1. **Generate item library** (GenAI task) — 5–8 packs, ~100 items total
-2. **Build CSS theme files** — One CSS file per pack with CSS custom properties
-3. **Create theme-loader.js** — Swaps CSS classes to apply theme globally
-4. **Wire to dashboard** — Show theme selector; store choice in children.theme column
-5. **Wire to game-loader** — Load active theme on page init
-
----
-
-## Tasks for Delegation
-
-### To Codex / Anti-Gravity / Another LLM
-
-**Task 1: Item Library Generator**
-- **Input:** Framework brief (in ARCHITECTURE.md Phase 4 section)
-- **Output:** JSON file with 5–8 themed packs, 50–120 items, Zoey curation rules
-- **Files to create:** `assets/data/item-library.json`
-
-**Task 2: CSS Themes from Library**
-- **Input:** item-library.json
-- **Output:** One CSS file per theme with CSS custom properties (--primary, --accent, etc.)
-- **Files to create:** `assets/css/themes/*.css`
-
-**Task 3: Landing Page Router**
-- **Input:** Current index.html + logic specs (Phase 4A)
-- **Output:** Updated index.html with smart sessionStorage detection + conditional rendering
-- **Files to update:** `index.html`
-
-**Task 4: Child Home Page**
-- **Input:** Design system (warm, Fredoka + Caveat, brand mark) + features list (Phase 4B)
-- **Output:** New HTML page (Alpine.js for progress stars + button states)
-- **Files to create:** `child-home.html`
-
-**Task 5: Zoey Child Companion**
-- **Input:** Scripted message rules (Phase 4C) + CSS animation specs
-- **Output:** JS script + CSS for modal overlay
-- **Files to create:** `assets/js/zoey-companion.js` + styles in dashboard.html
+**For Task 5 (SVG swap), the exact 3 locations are documented in the Zoey SVG Character section above.**
 
 ---
 
 ## Known Constraints
 
-- **No npm/build step** — all vanilla JS, CDN-loaded libraries only
-- **COPPA compliance** — no child data to external APIs, parental consent required
-- **Test mode** — sessionStorage-based bypass for local dev, no Supabase writes
-- **Deploy manual** — Netlify requires manual "Trigger deploy" click; git push alone won't deploy
-- **No auth header in games** — games are standalone classes; they don't know about login
-- **Assets large** — ~306MB; zip-and-build not viable
+- **No npm / no build step** — all vanilla JS, CDN-loaded libraries only
+- **COPPA** — no child PII to external APIs; name scrubbed before Gemini; parental consent at signup
+- **Test mode** — sessionStorage bypass; no Supabase writes; game hooks log to console
+- **Manual deploy** — Netlify requires "Trigger deploy" click after each push
+- **Games are standalone** — class-based, loaded by game-shell.js; they don't know about auth
+- **Assets ~306MB** — zip-and-build not viable; Netlify git-based deploy only
+- **Multi-account GitHub** — push requires PAT embedded in URL (see Git Workflow above)
 
 ---
 
-## Support Resources
-
-- **Supabase Docs:** https://supabase.com/docs
-- **Alpine.js:** https://alpinejs.dev
-- **Gemini API:** https://ai.google.dev/gemini-api
-- **Netlify Functions:** https://docs.netlify.com/functions/overview
-
----
-
-## Quick Reference: Common Commands
+## Quick Reference
 
 ```bash
-# Test mode (no Supabase needed)
-# 1. Open test-login.html
-# 2. Set child, pick destination
-# 3. Check console for game logs
+# Live URLs
+https://readykiddo.com                  Landing
+https://readykiddo.com/auth.html        Parent login / signup
+https://readykiddo.com/dashboard.html   Parent dashboard + Zoey AI
+https://readykiddo.com/child-home.html  Child hub
+https://readykiddo.com/test-login.html  Dev test bypass
+https://readykiddo.com/game-loader.html?game=color-sort   Launch a game
 
-# Check game hooks
-# In browser console while playing:
-document.body.textContent.includes('logGameSession') ? 'Found' : 'Not found'
+# Zoey companion manual test (paste in browser console on game-loader.html)
+ZoeyCompanion.show(5, true)
 
-# Direct Zoey API test
-curl -X POST https://readykiddo.com/api/zoey \
-  -H "Content-Type: application/json" \
-  -d '{"message":"Help with colors?","childContext":{"ageRange":"4-5","completedGames":[],"totalSessions":0}}'
-
-# Git push (with PAT)
-git push https://devinalejandro1214-prog:TOKEN@github.com/devinalejandro1214-prog/Readykiddo.git main
-
-# Deploy (manual, in Netlify UI)
-# Netlify Dashboard → Deploys → Trigger deploy
+# Zoey AI direct test (paste in browser console on any readykiddo.com page)
+(async()=>{const r=await fetch('/api/zoey',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'Help with colors?',childContext:{ageRange:'4-5',completedGames:[],totalSessions:0}})});console.log(await r.json())})()
 ```
-
----
-
-## Summary
-
-ReadyKiddo 2.0 is **production-ready for Phase 3** (Supabase auth + Zoey chat working live). Phase 4 (landing, child home, item library, child companion) can be built in parallel by handing off tasks to external LLMs using this document as the source of truth.
-
-All code is vanilla, COPPA-compliant, and requires only a Netlify deployment + Supabase account + Gemini API key.
