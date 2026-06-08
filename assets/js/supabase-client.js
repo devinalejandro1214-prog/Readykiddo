@@ -37,6 +37,11 @@ const SUPABASE_ANON_KEY = 'sb_publishable_98989PcVfsmBlZhzVxszVg_f-zMjzEG';
 
   /** Redirects to auth.html if no active session */
   async function requireAuth(redirectTo = 'auth.html') {
+    // Test mode bypass — no real Supabase session needed
+    if (sessionStorage.getItem('rk_test_mode') === 'true') {
+      const child = getActiveChild();
+      if (child) return { id: child.parent_id ?? 'test-parent-001', email: 'test@readykiddo.com' };
+    }
     const user = await getCurrentUser();
     if (!user) {
       window.location.href = redirectTo;
