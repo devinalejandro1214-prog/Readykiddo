@@ -125,13 +125,55 @@ function advance() {
     stepIdx++;
     renderStep();
   } else {
-    // All steps complete — save profile then navigate to world reveal
-    localStorage.setItem('userProfile', JSON.stringify(choices));
-    $('toastChild').textContent = choices.childName || 'Adventurer';
-    toastEl.classList.add('show');
-    launchConfetti();
-    setTimeout(() => { window.location.href = 'world-reveal.html'; }, 1800);
+    finishOnboarding();
   }
+}
+
+/* All steps complete — celebrate, save the profile for the games, persist
+   the child to the parent's account (if signed in), then go to the world
+   reveal. The Supabase write is best-effort: if the parent isn't signed in
+   (e.g. previewing the flow), we still save locally and continue. */
+async function finishOnboarding() {
+  // 1. Local profile — the games read theme/character/style from here.
+  localStorage.setItem('userProfile', JSON.stringify(choices));
+
+  // 2. Celebrate immediately (don't wait on the network).
+  $('toastChild').textContent = choices.childName || 'Adventurer';
+  toastEl.classList.add('show');
+  launchConfetti();
+
+  // 3. Persist to the parent's account, if one is active.
+  try {
+    if (window.RK && window.sb) {
+      const user = await window.RK.getCurrentUser();
+      if (user) {
+        const { data, error } = await window.sb
+          .from('children')
+          .insert({
+            parent_id: user.id,
+            name:      choices.childName.trim(),
+            age_range: choices.ageGroup,
+            avatar:    choices.character || 'Em',
+            character: choices.character,
+            theme:     choices.theme,
+            vibe:      choices.vibe,
+            style:     choices.style,
+          })
+          .select()
+          .single();
+        if (!error && data) {
+          window.RK.setActiveChild(data);
+        } else if (error) {
+          console.warn('[Onboarding] could not save child to account:', error.message);
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('[Onboarding] account save skipped:', e && e.message);
+  }
+
+  // 4. On to the world-opening reveal.
+  setTimeout(() => { window.location.href = 'world-reveal.html'; }, 1800);
 }
 
 function isStepComplete() {

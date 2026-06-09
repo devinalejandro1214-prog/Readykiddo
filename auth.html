@@ -530,7 +530,10 @@
           this.loading = false; return;
         }
         this.loading = false;
-        this.view = 'child';
+        // Account + parental consent done — hand off to the full
+        // Build-Your-World onboarding (character, world, vibe, costume,
+        // then the world-opening reveal). It saves the child to this account.
+        window.location.href = 'onboarding.html';
       },
 
       // ── Create child profile ─────────────────────────────────

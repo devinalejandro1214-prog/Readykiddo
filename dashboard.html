@@ -585,7 +585,8 @@
             window.RK.setActiveChild(children[0]);
             this.child = children[0];
           } else {
-            window.location.href = 'auth.html';
+            // Signed in but no child yet — finish Build-Your-World.
+            window.location.href = 'onboarding.html';
             return;
           }
         } else {

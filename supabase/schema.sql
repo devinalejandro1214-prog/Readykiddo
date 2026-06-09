@@ -25,6 +25,10 @@ create table if not exists public.children (
   age_range  text not null check (age_range in ('3-4', '4-5')),
   avatar     text default 'Em',
   theme      text default 'default',
+  -- Build-Your-World personalization (set by the onboarding flow)
+  character  text,
+  vibe       text,
+  style      text,
   created_at timestamptz default now()
 );
 
@@ -99,3 +103,14 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
+
+
+-- ════════════════════════════════════════════════════════════
+--  MIGRATION — run this if your `children` table was created
+--  BEFORE Build-Your-World was reconnected (adds the columns the
+--  onboarding flow now saves). Safe to run more than once.
+-- ════════════════════════════════════════════════════════════
+
+alter table public.children add column if not exists character text;
+alter table public.children add column if not exists vibe      text;
+alter table public.children add column if not exists style     text;

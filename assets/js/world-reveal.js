@@ -65,7 +65,9 @@ async function startGameWithWelcome(profile) {
 
     localStorage.setItem('gameProfile', JSON.stringify(profile));
     setTimeout(() => {
-        window.location.href = 'game-loader.html?game=color-sort';
+        // Land in the child's hub (Zoey + star progress + Let's Play),
+        // the single play entry point shared by every path into the app.
+        window.location.href = 'child-home.html';
     }, 300);
 }
 
