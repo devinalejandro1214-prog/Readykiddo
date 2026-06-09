@@ -163,6 +163,10 @@ async function finishOnboarding() {
           .single();
         if (!error && data) {
           window.RK.setActiveChild(data);
+          // Key the local profile to the real account child id so game
+          // sessions and progress all land on the same child row.
+          choices.childId = data.id;
+          localStorage.setItem('userProfile', JSON.stringify(choices));
         } else if (error) {
           console.warn('[Onboarding] could not save child to account:', error.message);
         }

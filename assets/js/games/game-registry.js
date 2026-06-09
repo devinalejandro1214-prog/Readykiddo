@@ -187,66 +187,45 @@ function loadScript(path) {
    Error Display
    ───────────────────────────────────────────────────────── */
 
-function showGameNotFound(gameType) {
-  const container = document.getElementById('gameArea') || document.body;
+/* All failure paths prefer the kid-friendly Zoey error screen when the
+   host page provides one (game-loader.html). The inline fallback only
+   renders on legacy pages without it — and must NEVER wipe document.body,
+   which would destroy the host page's overlays. */
+
+function rkFallbackErrorScreen(title, sub) {
+  if (window.showKidGameError) { window.showKidGameError(); return; }
+  const container = document.getElementById('gameArea');
+  if (!container) return; // no game area yet — host page handles messaging
   container.innerHTML = `
-    <div style="text-align: center; padding: 40px; color: #333;">
-      <h2>Game Not Found</h2>
-      <p>The game "${gameType}" could not be found.</p>
-      <a href="world-reveal.html" style="
+    <div style="text-align: center; padding: 40px; color: #fff; font-family: 'Fredoka', sans-serif;">
+      <h2>${title}</h2>
+      <p>${sub}</p>
+      <a href="child-home.html" style="
         display: inline-block;
         padding: 12px 24px;
-        background: #0b5f95;
+        background: #f28c18;
         color: white;
         text-decoration: none;
         border-radius: 8px;
         margin-top: 20px;">
-        Back to World
+        Back to my world 🚀
       </a>
     </div>
   `;
+}
+
+function showGameNotFound(gameType) {
+  rkFallbackErrorScreen('Oops! That one\'s napping. 😴', 'Let\'s pick a different adventure instead!');
 }
 
 function showGameNotAvailable(gameType) {
-  const container = document.getElementById('gameArea') || document.body;
   const gameName = GAME_REGISTRY[gameType]?.name || gameType;
-  container.innerHTML = `
-    <div style="text-align: center; padding: 40px; color: #333;">
-      <h2>Coming Soon!</h2>
-      <p>${gameName} is not yet available.</p>
-      <a href="world-reveal.html" style="
-        display: inline-block;
-        padding: 12px 24px;
-        background: #0b5f95;
-        color: white;
-        text-decoration: none;
-        border-radius: 8px;
-        margin-top: 20px;">
-        Back to World
-      </a>
-    </div>
-  `;
+  rkFallbackErrorScreen('Coming Soon!', `${gameName} isn't ready yet — let's play another one!`);
 }
 
 function showGameError(gameType, errorMessage) {
-  const container = document.getElementById('gameArea') || document.body;
-  container.innerHTML = `
-    <div style="text-align: center; padding: 40px; color: #333;">
-      <h2>Oops! An Error Occurred</h2>
-      <p>We had trouble loading the game.</p>
-      <p style="font-size: 12px; color: #999; margin-top: 10px;">Error: ${errorMessage}</p>
-      <a href="world-reveal.html" style="
-        display: inline-block;
-        padding: 12px 24px;
-        background: #0b5f95;
-        color: white;
-        text-decoration: none;
-        border-radius: 8px;
-        margin-top: 20px;">
-        Back to World
-      </a>
-    </div>
-  `;
+  console.error(`[GameRegistry] ${gameType} failed:`, errorMessage);
+  rkFallbackErrorScreen('Oops! That one\'s napping. 😴', 'Let\'s pick a different adventure instead!');
 }
 
 /* ─────────────────────────────────────────────────────────

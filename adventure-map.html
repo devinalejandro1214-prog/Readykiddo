@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReadyKiddo — Adventure Map</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/supabase-client.js"></script>
+  <style>
+    :root {
+      --ready-blue:   #09395f;
+      --ready-orange: #f28c18;
+      --ready-orange-2: #ffb23e;
+      --ink:          #102338;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family: 'Fredoka', 'Segoe UI', sans-serif;
+      background: linear-gradient(180deg, #f6e9c8 0%, #f1d9a2 100%);
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      min-height: 100vh;
+      min-height: 100dvh;
+    }
+    /* Child's world behind a light veil so landmarks stay readable */
+    body.world-bg {
+      background-image:
+        linear-gradient(rgba(255,247,232,0.45), rgba(255,247,232,0.45)),
+        var(--world-bg);
+    }
+
+    /* ── Top bar ── */
+    .map-top {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      pointer-events: none;
+    }
+    .map-back {
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.8);
+      backdrop-filter: blur(8px);
+      border: 1.5px solid rgba(9,57,95,0.15);
+      border-radius: 50px;
+      padding: 10px 18px;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--ready-blue);
+      text-decoration: none;
+    }
+    .map-title {
+      pointer-events: auto;
+      background: rgba(255,255,255,0.8);
+      backdrop-filter: blur(8px);
+      border-radius: 50px;
+      padding: 10px 20px;
+      font-family: 'Caveat', cursive;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--ready-blue);
+    }
+
+    /* ── The trail ── */
+    .trail {
+      position: relative;
+      max-width: 480px;
+      margin: 0 auto;
+      height: 1500px;
+      padding-top: 80px;
+    }
+    .trail-path {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    .trail-path polyline {
+      fill: none;
+      stroke: rgba(9,57,95,0.35);
+      stroke-width: 4;
+      stroke-dasharray: 2 10;
+      stroke-linecap: round;
+    }
+
+    /* ── Landmarks ── */
+    .landmark {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .lm-circle {
+      position: relative;
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.92);
+      border: 3.5px solid rgba(9,57,95,0.22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 18px rgba(9,57,95,0.22);
+      transition: transform 0.15s;
+    }
+    .landmark:hover .lm-circle,
+    .landmark:active .lm-circle { transform: scale(1.08); }
+    .lm-circle img {
+      width: 54px;
+      height: 54px;
+      object-fit: contain;
+    }
+    .lm-label {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ready-blue);
+      background: rgba(255,255,255,0.85);
+      border-radius: 30px;
+      padding: 3px 12px;
+      white-space: nowrap;
+    }
+
+    /* Completed: golden ring + star badge */
+    .landmark.done .lm-circle {
+      border-color: var(--ready-orange);
+      box-shadow: 0 0 0 4px rgba(242,140,24,0.25), 0 6px 18px rgba(9,57,95,0.22);
+    }
+    .lm-star {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      font-size: 24px;
+      filter: drop-shadow(0 2px 5px rgba(242,140,24,0.6));
+      display: none;
+    }
+    .landmark.done .lm-star { display: block; }
+
+    /* Today's quest: gentle pulse */
+    .landmark.quest .lm-circle {
+      animation: questPulse 2s ease-in-out infinite;
+      border-color: var(--ready-orange);
+    }
+    @keyframes questPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(242,140,24,0.55), 0 6px 18px rgba(9,57,95,0.22); }
+      50%       { box-shadow: 0 0 0 14px rgba(242,140,24,0), 0 6px 18px rgba(9,57,95,0.22); }
+    }
+    .lm-quest-tag {
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+      background: linear-gradient(135deg, var(--ready-orange), var(--ready-orange-2));
+      border-radius: 30px;
+      padding: 2px 10px;
+      display: none;
+    }
+    .landmark.quest .lm-quest-tag { display: block; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="map-top">
+    <a class="map-back" href="child-home.html">← Home</a>
+    <div class="map-title" id="mapTitle">My Adventure Map</div>
+  </div>
+
+  <div class="trail" id="trail">
+    <svg class="trail-path" id="trailPath" preserveAspectRatio="none" aria-hidden="true"></svg>
+  </div>
+
+  <script>
+    /* Landmarks: id, label, icon (existing item art), and trail position (%) */
+    const LANDMARKS = [
+      { id:'shape-recognition', label:'Shape Spotter',  icon:'gem',       x:30, y:8  },
+      { id:'color-sort',        label:'Color Sort',     icon:'paintblob', x:68, y:16 },
+      { id:'number-matching',   label:'Number Match',   icon:'fruit',     x:32, y:25 },
+      { id:'abc-match',         label:'ABC Match',      icon:'note',      x:66, y:33 },
+      { id:'space-pattern',     label:'Space Patterns', icon:'star',      x:30, y:42 },
+      { id:'space-defender',    label:'Space Defender', icon:'rocket',    x:68, y:50 },
+      { id:'feed-alien',        label:'Feed the Alien', icon:'planet',    x:32, y:58 },
+      { id:'number-line',       label:'Number Line',    icon:'shell',     x:66, y:66 },
+      { id:'feed-by-sound',     label:'Sound Hunt',     icon:'flower',    x:30, y:75 },
+      { id:'draw-it',           label:'Draw It',        icon:'brush',     x:68, y:83 },
+      { id:'candyland',         label:'Candy Land',     icon:'lollipop',  x:48, y:92 },
+    ];
+
+    function slugify(str) {
+      return String(str || '').trim().toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    }
+
+    async function init() {
+      // Guard: child session required (same rule as child-home)
+      const child = window.RK?.getActiveChild?.();
+      if (!child) { window.location.href = 'auth.html'; return; }
+
+      // Their world as the map backdrop
+      let profile = {};
+      try { profile = JSON.parse(localStorage.getItem('userProfile') || '{}'); } catch (e) {}
+      if (profile.theme) {
+        document.body.style.setProperty('--world-bg',
+          `url("assets/images/world-backgrounds/${slugify(profile.theme)}/vibes/${slugify(profile.vibe || 'cozy')}/background.webp")`);
+        document.body.classList.add('world-bg');
+      }
+      document.getElementById('mapTitle').textContent =
+        `${child.name}'s Adventure Map`;
+
+      // Progress lights the trail
+      let completed = new Set();
+      try { completed = await window.RK.getCompletedGameIds(); } catch (e) {}
+
+      // Today's quest: deterministic per day among unfinished (matches child-home)
+      const remaining = LANDMARKS.filter(l => !completed.has(l.id));
+      const pool = remaining.length ? remaining : LANDMARKS;
+      const now = new Date();
+      const daySeed = now.getFullYear() * 366 +
+        Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+      const questId = pool[daySeed % pool.length].id;
+
+      const trail = document.getElementById('trail');
+
+      // Dotted path through the landmarks
+      const svg = document.getElementById('trailPath');
+      svg.setAttribute('viewBox', '0 0 100 100');
+      const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+      poly.setAttribute('points', LANDMARKS.map(l => `${l.x},${l.y}`).join(' '));
+      poly.setAttribute('vector-effect', 'non-scaling-stroke');
+      svg.appendChild(poly);
+
+      // Landmark buttons
+      LANDMARKS.forEach(l => {
+        const btn = document.createElement('button');
+        btn.className = 'landmark'
+          + (completed.has(l.id) ? ' done' : '')
+          + (l.id === questId ? ' quest' : '');
+        btn.style.left = l.x + '%';
+        btn.style.top  = l.y + '%';
+        btn.setAttribute('aria-label',
+          l.label + (completed.has(l.id) ? ' — done!' : '') + (l.id === questId ? " — today's adventure" : ''));
+        btn.innerHTML = `
+          <div class="lm-circle">
+            <img src="assets/images/games/items/${l.icon}.png" alt=""
+                 onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'⭐',style:'font-size:34px'}))">
+            <span class="lm-star" aria-hidden="true">⭐</span>
+          </div>
+          <span class="lm-quest-tag">Today!</span>
+          <span class="lm-label">${l.label}</span>
+        `;
+        btn.addEventListener('click', () => {
+          window.location.href = `game-loader.html?game=${l.id}`;
+        });
+        trail.appendChild(btn);
+      });
+
+      // Open with today's quest in view
+      document.querySelector('.landmark.quest')
+        ?.scrollIntoView({ block: 'center', behavior: 'auto' });
+    }
+
+    init();
+  </script>
+</body>
+</html>

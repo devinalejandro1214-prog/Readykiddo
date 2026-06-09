@@ -18,7 +18,18 @@ class GameShell {
 
   createGameContext() {
     const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
-    if (!profile.childId) {
+
+    // Prefer the real account child (sessionStorage rk_child) so sessions
+    // log against the same row the dashboard reads. Fall back to the
+    // onboarding profile's childId, and only fabricate a local id as a
+    // last resort (offline/preview play).
+    const activeChild = window.RK?.getActiveChild?.();
+    if (activeChild?.id) {
+      profile.childId = activeChild.id;
+      if (!profile.childName) profile.childName = activeChild.name;
+      if (!profile.ageGroup)  profile.ageGroup  = activeChild.age_range;
+      localStorage.setItem('userProfile', JSON.stringify(profile));
+    } else if (!profile.childId) {
       profile.childId = `child_${Date.now()}`;
       localStorage.setItem('userProfile', JSON.stringify(profile));
     }
@@ -75,6 +86,7 @@ class GameShell {
      ───────────────────────────────────────────────────────── */
 
   async speak(text) {
+    this.showCaption(text);
     if (window.RKAudio) {
       return RKAudio.speak(text);
     }
@@ -88,6 +100,7 @@ class GameShell {
   // Returns a Promise that resolves when the clip *finishes* playing.
   // Use when you need to chain audio back-to-back without overlapping.
   async speakAndWait(text) {
+    this.showCaption(text);
     if (window.RKAudio && window.RKAudio.speakAndWait) {
       return RKAudio.speakAndWait(text);
     }
@@ -100,6 +113,7 @@ class GameShell {
      speakPraise       → the CHARACTER voice (encouragement / reactions)
      Both gracefully fall back to speak() when RKAudio is unavailable. */
   async speakInstruction(text) {
+    this.showCaption(text);
     if (window.RKAudio && window.RKAudio.speakInstruction) {
       return RKAudio.speakInstruction(text);
     }
@@ -107,6 +121,7 @@ class GameShell {
   }
 
   async speakInstructionAndWait(text) {
+    this.showCaption(text);
     if (window.RKAudio && window.RKAudio.speakInstructionAndWait) {
       return RKAudio.speakInstructionAndWait(text);
     }
@@ -114,14 +129,71 @@ class GameShell {
   }
 
   async speakPraise(text) {
+    this.showCaption(text);
     if (window.RKAudio && window.RKAudio.speakPraise) {
       return RKAudio.speakPraise(text);
     }
     return this.speak(text);
   }
 
+  /* ─────────────────────────────────────────────────────────
+     Caption bar — mirrors every spoken line as text so the
+     game stays playable with sound off (muted devices, deaf/
+     hard-of-hearing kids, noisy rooms).
+     ───────────────────────────────────────────────────────── */
+
+  showCaption(text) {
+    if (!text || typeof text !== 'string') return;
+    let bar = document.getElementById('rkCaptionBar');
+    if (!bar) {
+      const css = document.createElement('style');
+      css.textContent = `
+        #rkCaptionBar {
+          position: fixed;
+          left: 50%;
+          bottom: 14px;
+          transform: translateX(-50%);
+          z-index: 8500;
+          max-width: min(560px, 92vw);
+          background: rgba(9, 20, 40, 0.82);
+          color: #fff;
+          font-family: 'Fredoka', system-ui, sans-serif;
+          font-size: clamp(15px, 3.6vw, 19px);
+          font-weight: 600;
+          line-height: 1.35;
+          text-align: center;
+          padding: 10px 20px;
+          border-radius: 16px;
+          pointer-events: none;
+          opacity: 0;
+          transition: opacity 0.25s ease;
+        }
+        #rkCaptionBar.rk-cap-show { opacity: 1; }
+      `;
+      document.head.appendChild(css);
+      bar = document.createElement('div');
+      bar.id = 'rkCaptionBar';
+      bar.setAttribute('role', 'status');
+      bar.setAttribute('aria-live', 'polite');
+      document.body.appendChild(bar);
+    }
+    bar.textContent = text;
+    bar.classList.add('rk-cap-show');
+    clearTimeout(this._captionTimer);
+    // Linger long enough to be read aloud by a parent (~70ms/char, min 3.5s)
+    const ms = Math.max(3500, text.length * 70);
+    this._captionTimer = setTimeout(() => bar.classList.remove('rk-cap-show'), ms);
+  }
+
   playSound(soundKey) {
     if (!this.audioEnabled) return;
+
+    // Kind-mistake choreography: a wrong answer gets a gentle nod from the
+    // character and a warm caption — never a buzzer, never silence.
+    if (soundKey === 'wrong') {
+      this.characterAnimation('nod');
+      this.showCaption('Almost! Try again 💛');
+    }
 
     if (window.RKAudio && window.RKAudio.playSfx && window.RKAudio.playSfx(soundKey)) {
       return;
@@ -268,7 +340,25 @@ class GameShell {
     const gameConfig = (typeof GAME_REGISTRY !== 'undefined' && GAME_REGISTRY[this.gameType]) || {};
     const topicIcon    = topic?.icon    || '⭐';
     const topicName    = topic?.name    || gameConfig.name        || 'Get Ready!';
-    const topicSubline = topic?.subline || gameConfig.description || 'Your adventure is about to begin.';
+
+    // Story framing: the learning is the means, the story is the goal.
+    // Each game opens with a "why" instead of a lesson description.
+    const charName = this.getCharacterName();
+    const STORY_INTROS = {
+      'shape-recognition': `${charName} is on a shape treasure hunt — help find them all!`,
+      'color-sort':        `Oh no, ${charName}'s boxes got all mixed up — help sort them out!`,
+      'number-matching':   `${charName} is counting snacks for the party — match them up!`,
+      'abc-match':         `${charName} found secret letters — help crack the code!`,
+      'space-pattern':     `The stars made a secret pattern — can you copy it?`,
+      'space-defender':    `Protect ${charName}'s ship from the silly space rocks!`,
+      'feed-alien':        `The little alien is SO hungry — feed it just the right amount!`,
+      'number-line':       `Help ${charName} hop across the number bridge!`,
+      'feed-by-sound':     `Listen close — feed the friend whose sound you hear!`,
+      'draw-it':           `${charName} needs an artist — trace the magic shapes!`,
+      'candyland':         `Sweet! Help ${charName} explore Candy Land!`,
+    };
+    const topicSubline = STORY_INTROS[this.gameType] || topic?.subline
+      || gameConfig.description || 'Your adventure is about to begin.';
 
     return new Promise(resolve => {
       const overlay = document.createElement('div');

@@ -62,6 +62,48 @@
     return pick(MESSAGES.general);
   }
 
+  /* ── Costume unlocks ────────────────────────────────────────────
+     Milestones earn outfits the child doesn't have yet (all 36
+     character/costume images already exist). Unlocked styles are
+     kept in localStorage; child-home shows them as outfit choices. */
+  const UNLOCK_MILESTONES = [3, 5, 8, 11];
+  const STYLE_ORDER = ['hero', 'explorer', 'wizard', 'artist', 'scientist'];
+  const STYLE_LABELS = {
+    hero: 'Hero', explorer: 'Explorer', wizard: 'Wizard',
+    artist: 'Artist', scientist: 'Scientist',
+  };
+
+  function slugStyle(v) {
+    return String(v || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  }
+
+  function getProfile() {
+    try { return JSON.parse(localStorage.getItem('userProfile') || '{}'); }
+    catch { return {}; }
+  }
+
+  function getUnlockedStyles() {
+    let arr = null;
+    try { arr = JSON.parse(localStorage.getItem('rk_unlocked_styles')); } catch {}
+    if (!Array.isArray(arr) || arr.length === 0) {
+      arr = ['plain'];
+      const chosen = slugStyle(getProfile().style);
+      if (chosen && !arr.includes(chosen)) arr.push(chosen);
+    }
+    return arr;
+  }
+
+  /* Returns the newly unlocked style slug, or null. */
+  function tryUnlockCostume(completedCount) {
+    if (!UNLOCK_MILESTONES.includes(completedCount)) return null;
+    const unlocked = getUnlockedStyles();
+    const next = STYLE_ORDER.find(s => !unlocked.includes(s));
+    if (!next) return null;
+    unlocked.push(next);
+    localStorage.setItem('rk_unlocked_styles', JSON.stringify(unlocked));
+    return next;
+  }
+
   /* ── Inject companion CSS ───────────────────────────────────── */
   const style = document.createElement('style');
   style.textContent = `
@@ -170,36 +212,68 @@
   `;
   document.head.appendChild(style);
 
-  /* ── Build overlay DOM ──────────────────────────────────────── */
-  const overlay = document.createElement('div');
-  overlay.className = 'zc-overlay';
-  overlay.innerHTML = `
-    <div class="zc-panel">
-      <div class="zc-bubble" id="zcMsg">Great job!</div>
-      <div class="zc-character">
-        <zoey-avatar id="companionZoey" size="120"></zoey-avatar>
+  /* ── Build overlay DOM ──────────────────────────────────────────
+     Deferred until <body> exists: this script is included in <head>,
+     where document.body is still null — appending eagerly would throw
+     and kill the whole companion (the bug that silenced celebrations). */
+  let overlay = null, zcMsg = null, zcSub = null, zcBtn = null;
+
+  function buildOverlay() {
+    if (overlay || !document.body) return;
+    overlay = document.createElement('div');
+    overlay.className = 'zc-overlay';
+    overlay.innerHTML = `
+      <div class="zc-panel">
+        <div class="zc-bubble" id="zcMsg">Great job!</div>
+        <div class="zc-character">
+          <zoey-avatar id="companionZoey" size="120"></zoey-avatar>
+        </div>
+        <img id="zcUnlockImg" hidden alt=""
+             style="height:130px;width:auto;object-fit:contain;margin-top:6px;
+                    filter:drop-shadow(0 6px 14px rgba(0,0,0,0.3));">
+        <div class="zc-sub" id="zcSub">Keep going!</div>
+        <button class="zc-btn" id="zcBtn">Keep Playing 🚀</button>
       </div>
-      <div class="zc-sub" id="zcSub">Keep going!</div>
-      <button class="zc-btn" id="zcBtn">Keep Playing 🚀</button>
-    </div>
-  `;
-  document.body.appendChild(overlay);
+    `;
+    document.body.appendChild(overlay);
 
-  const zcMsg = document.getElementById('zcMsg');
-  const zcSub = document.getElementById('zcSub');
-  const zcBtn = document.getElementById('zcBtn');
+    zcMsg = document.getElementById('zcMsg');
+    zcSub = document.getElementById('zcSub');
+    zcBtn = document.getElementById('zcBtn');
+    zcBtn.addEventListener('click', hideCompanion);
+  }
 
-  zcBtn.addEventListener('click', hideCompanion);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', buildOverlay);
+  } else {
+    buildOverlay();
+  }
 
   /* ── Show / hide ────────────────────────────────────────────── */
   function showCompanion(completedCount, isMilestone) {
-    zcMsg.textContent = getMessage(completedCount);
-    zcSub.textContent = pick(MESSAGES.nextPrompt);
+    buildOverlay();
+    if (!overlay) return;
+    const unlockImg = document.getElementById('zcUnlockImg');
+    unlockImg.hidden = true;
+
+    // Milestone may earn a new outfit — that becomes the headline
+    const newStyle = tryUnlockCostume(completedCount);
+    if (newStyle) {
+      const charSlug = slugStyle(getProfile().character || 'mica');
+      zcMsg.textContent = `You unlocked the ${STYLE_LABELS[newStyle]} outfit! 🎁`;
+      zcSub.textContent = 'Try it on from your home screen!';
+      unlockImg.src = `assets/images/characters/${charSlug}/${newStyle}.png`;
+      unlockImg.alt = `Your character in the new ${STYLE_LABELS[newStyle]} outfit`;
+      unlockImg.hidden = false;
+    } else {
+      zcMsg.textContent = getMessage(completedCount);
+      zcSub.textContent = pick(MESSAGES.nextPrompt);
+    }
     overlay.classList.add('zc-visible');
 
     // Animate Zoey
     const zoeyEl = document.getElementById('companionZoey');
-    if (isMilestone) {
+    if (isMilestone || newStyle) {
       spawnConfetti();
       zoeyEl?.celebrate(); // 🎉 milestone!
     } else {
@@ -208,7 +282,7 @@
   }
 
   function hideCompanion() {
-    overlay.classList.remove('zc-visible');
+    overlay?.classList.remove('zc-visible');
     document.getElementById('companionZoey')?.idle(); // return to idle as panel slides away
   }
 
@@ -247,7 +321,7 @@
         ids.add(gameId); // optimistically add current game
         window._rkCompletedIds = ids;
         const count = ids.size;
-        const isMilestone = [1, 3, 5, 10].includes(count);
+        const isMilestone = [1, 3, 5, 8, 10, 11].includes(count);
         // Small delay so celebration animation finishes first
         setTimeout(() => showCompanion(count, isMilestone), 800);
       } catch { /* silent — companion is optional */ }

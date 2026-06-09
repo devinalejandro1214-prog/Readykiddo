@@ -461,15 +461,28 @@
             <div class="spinner"></div>
           </template>
           <template x-if="!sessionsLoading">
-            <div class="prog-list">
-              <template x-for="game in gameList" :key="game.id">
-                <div class="prog-row">
-                  <span class="prog-icon" x-text="game.icon"></span>
-                  <span class="prog-name" x-text="game.name"></span>
-                  <span class="prog-badge" :class="completedIds.has(game.id) ? 'done' : 'none'"
-                        x-text="completedIds.has(game.id) ? '✓ Done' : 'Not yet'"></span>
-                </div>
-              </template>
+            <div>
+              <!-- The story, not just the table -->
+              <p class="prog-story" x-text="storySentence"
+                 style="font-size:15px;line-height:1.5;color:var(--ink);
+                        background:#fff7e8;border-radius:12px;padding:12px 16px;
+                        margin-bottom:14px;"></p>
+
+              <div class="prog-list">
+                <template x-for="game in gameList" :key="game.id">
+                  <div class="prog-row">
+                    <span class="prog-icon" x-text="game.icon"></span>
+                    <span class="prog-name" x-text="game.name"></span>
+                    <span class="prog-badge" :class="completedIds.has(game.id) ? 'done' : 'none'"
+                          x-text="completedIds.has(game.id) ? '✓ Done' : 'Not yet'"></span>
+                  </div>
+                </template>
+              </div>
+
+              <button class="play-btn" x-show="completedCount > 0" @click="shareCard()"
+                      style="margin-top:14px;font-size:16px;padding:12px 24px;">
+                Save a milestone card 📸
+              </button>
             </div>
           </template>
         </div>
@@ -567,6 +580,90 @@
         if (h < 12) return 'Good morning ☀️';
         if (h < 17) return 'Good afternoon 👋';
         return 'Good evening 🌙';
+      },
+
+      /* One celebratory sentence above the table — the story first. */
+      get storySentence() {
+        const n = this.child.name || 'Your explorer';
+        const c = this.completedCount;
+        if (c === 0) {
+          return `${n} hasn't started yet — hand them the screen and watch the first star appear! ⭐`;
+        }
+        let latest = '';
+        try {
+          const last = JSON.parse(localStorage.getItem('lastGameSession') || 'null');
+          const game = last && GAME_LIST.find(g => g.id === (last.gameType || last.gameId));
+          if (game) latest = ` Their latest adventure was ${game.name}.`;
+        } catch (e) { /* optional flourish only */ }
+        if (c >= GAME_LIST.length) {
+          return `${n} has finished ALL ${GAME_LIST.length} adventures — that's a superstar! 🏆`;
+        }
+        return `${n} has earned ${c} star${c === 1 ? '' : 's'} across ${GAME_LIST.length} adventures.${latest} 🎉`;
+      },
+
+      /* Milestone share card: character + their world + the headline,
+         composed on a canvas and saved as a PNG. Parent-initiated. */
+      async shareCard() {
+        let profile = {};
+        try { profile = JSON.parse(localStorage.getItem('userProfile') || '{}'); } catch (e) {}
+        const slug = s => String(s || '').trim().toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+
+        const W = 1200, H = 630;
+        const canvas = document.createElement('canvas');
+        canvas.width = W; canvas.height = H;
+        const ctx = canvas.getContext('2d');
+
+        // Backdrop: their world, or brand gradient fallback
+        const loadImg = src => new Promise(res => {
+          const im = new Image();
+          im.onload = () => res(im);
+          im.onerror = () => res(null);
+          im.src = src;
+        });
+        const theme = slug(profile.theme);
+        const vibe  = slug(profile.vibe || 'cozy');
+        const bg = theme
+          ? await loadImg(`assets/images/world-backgrounds/${theme}/vibes/${vibe}/background.webp`)
+          : null;
+        if (bg) {
+          const scale = Math.max(W / bg.width, H / bg.height);
+          ctx.drawImage(bg, (W - bg.width * scale) / 2, (H - bg.height * scale) / 2,
+                        bg.width * scale, bg.height * scale);
+          ctx.fillStyle = 'rgba(9,30,55,0.45)';
+          ctx.fillRect(0, 0, W, H);
+        } else {
+          const g = ctx.createLinearGradient(0, 0, W, H);
+          g.addColorStop(0, '#09395f'); g.addColorStop(1, '#0b5f95');
+          ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+        }
+
+        // Their character, right side
+        if (profile.character) {
+          const ch = await loadImg(
+            `assets/images/characters/${slug(profile.character)}/${slug(profile.style || 'plain')}.png`);
+          if (ch) {
+            const chH = 480, chW = chH * (ch.width / ch.height);
+            ctx.drawImage(ch, W - chW - 70, H - chH - 40, chW, chH);
+          }
+        }
+
+        // Headline
+        ctx.fillStyle = '#fff';
+        ctx.font = '700 64px Fredoka, sans-serif';
+        ctx.fillText(`${this.child.name} earned`, 70, 240);
+        ctx.fillStyle = '#ffb23e';
+        ctx.font = '700 96px Fredoka, sans-serif';
+        ctx.fillText(`${this.completedCount} ⭐ star${this.completedCount === 1 ? '' : 's'}!`, 70, 350);
+        ctx.fillStyle = 'rgba(255,255,255,0.85)';
+        ctx.font = '600 36px Fredoka, sans-serif';
+        ctx.fillText('Learning through play on ReadyKiddo', 70, 430);
+
+        // Download
+        const a = document.createElement('a');
+        a.download = `${slug(this.child.name) || 'readykiddo'}-milestone.png`;
+        a.href = canvas.toDataURL('image/png');
+        a.click();
       },
 
       async init() {

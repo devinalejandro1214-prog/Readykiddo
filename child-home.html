@@ -26,6 +26,8 @@
         radial-gradient(120% 80% at 50% -10%, rgba(255,178,62,0.22), transparent 60%),
         radial-gradient(80% 60% at 100% 110%, rgba(11,95,149,0.18), transparent 60%),
         linear-gradient(180deg, #f6e9c8 0%, #f1d9a2 100%);
+      background-size: cover;
+      background-position: center;
       min-height: 100vh;
       min-height: 100dvh;
       display: flex;
@@ -35,6 +37,22 @@
          viewports (e.g. phone/tablet in landscape) so the Play button is
          always reachable. margin:auto on .home-wrap handles the centering. */
       overflow-y: auto;
+    }
+
+    /* The child's chosen world becomes the hub backdrop (set via JS once
+       the profile loads). A soft paper veil keeps text readable on busy art. */
+    body.world-bg {
+      background-image:
+        linear-gradient(rgba(255,247,232,0.62), rgba(255,247,232,0.62)),
+        var(--world-bg);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
     }
 
     /* ── Parent padlock (top right) ── */
@@ -59,6 +77,67 @@
     }
     .parent-lock:hover { transform: scale(1.1); background: rgba(255,255,255,0.8); }
 
+    /* ── Parent gate (grown-ups only) ── */
+    .gate-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      background: rgba(9,57,95,0.55);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .gate-card {
+      background: #fff;
+      border-radius: 24px;
+      padding: 28px 26px;
+      max-width: 340px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.25);
+    }
+    .gate-title { font-size: 20px; font-weight: 700; color: var(--ready-blue); margin-bottom: 6px; }
+    .gate-sub   { font-size: 14px; color: rgba(16,35,56,0.65); margin-bottom: 18px; }
+    .gate-hold {
+      position: relative;
+      width: 96px;
+      height: 96px;
+      margin: 0 auto 14px;
+      border-radius: 50%;
+      border: none;
+      background: conic-gradient(var(--ready-orange) calc(var(--p,0)*1%), rgba(9,57,95,0.12) 0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .gate-hold::after {
+      content: '🔓';
+      width: 78px;
+      height: 78px;
+      background: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+    }
+    .gate-cancel {
+      background: none;
+      border: none;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: rgba(16,35,56,0.55);
+      cursor: pointer;
+      padding: 8px 14px;
+    }
+
     /* ── Main layout ── */
     .home-wrap {
       display: flex;
@@ -73,15 +152,48 @@
       margin: auto;   /* vertically center when there is room; scroll when not */
     }
 
-    /* ── Zoey character placeholder ── */
+    /* ── Zoey + the child's own character, side by side ── */
     .zoey-stage {
-      width: 200px;
       height: 200px;
       margin-bottom: 8px;
       display: flex;
-      align-items: center;
+      align-items: flex-end;
       justify-content: center;
+      gap: 4px;
       position: relative;
+    }
+    .my-character {
+      height: 170px;
+      width: auto;
+      max-width: 140px;
+      object-fit: contain;
+      filter: drop-shadow(0 8px 16px rgba(9,57,95,0.25));
+      animation: fadeUp 0.5s ease-out 0.15s both;
+    }
+
+    /* ── Outfit switcher (unlocked costumes) ── */
+    .outfit-row {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      animation: fadeUp 0.5s ease-out 0.2s both;
+    }
+    .outfit-btn {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: 2.5px solid rgba(9,57,95,0.15);
+      background: rgba(255,255,255,0.75);
+      padding: 4px;
+      cursor: pointer;
+      transition: transform 0.15s, border-color 0.15s;
+    }
+    .outfit-btn img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
+    .outfit-btn:hover { transform: scale(1.1); }
+    .outfit-btn.sel {
+      border-color: var(--ready-orange);
+      box-shadow: 0 0 0 3px rgba(242,140,24,0.25);
     }
 
     /* zoey-avatar web component handles its own animation */
@@ -174,6 +286,18 @@
     }
     .play-btn:active { transform: scale(0.97); }
 
+    /* ── Today's adventure (daily quest) label ── */
+    .quest-label {
+      margin-top: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--ready-blue);
+      background: rgba(255,255,255,0.65);
+      border-radius: 30px;
+      padding: 6px 16px;
+      animation: fadeUp 0.5s ease-out 0.45s both;
+    }
+
     @keyframes pulse {
       0%, 100% { box-shadow: 0 8px 28px rgba(242,140,24,0.45); }
       50%       { box-shadow: 0 8px 40px rgba(242,140,24,0.7); }
@@ -209,36 +333,76 @@
     <template x-if="!loading">
       <div>
 
-        <!-- Parent padlock (top right) -->
-        <a class="parent-lock" href="dashboard.html" title="Parent Dashboard">🔒</a>
+        <!-- Parent padlock (top right) — opens the grown-ups gate -->
+        <a class="parent-lock" href="dashboard.html" title="Parent Dashboard"
+           @click.prevent="gateOpen = true" aria-label="Parents only">🔒</a>
+
+        <!-- Parent gate: hold to unlock (kids can't, parents can) -->
+        <template x-if="gateOpen">
+          <div class="gate-overlay" @click.self="closeGate()" role="dialog" aria-label="Grown-ups only">
+            <div class="gate-card">
+              <div class="gate-title">Grown-ups only 🛡️</div>
+              <div class="gate-sub">Press and <strong>hold</strong> the circle for 3 seconds to open the parent dashboard.</div>
+              <button class="gate-hold" :style="'--p:' + holdPct"
+                      @pointerdown.prevent="startHold()"
+                      @pointerup="cancelHold()" @pointerleave="cancelHold()"
+                      @pointercancel="cancelHold()"
+                      aria-label="Press and hold for 3 seconds"></button>
+              <button class="gate-cancel" @click="closeGate()">Back to playing</button>
+            </div>
+          </div>
+        </template>
 
         <div class="home-wrap">
 
-          <!-- ── Zoey character ─────────────────────────────────────── -->
+          <!-- ── Zoey + the child's own character ───────────────────── -->
           <div class="zoey-stage">
-            <zoey-avatar id="homeZoey" size="200"></zoey-avatar>
+            <zoey-avatar id="homeZoey" size="180"></zoey-avatar>
+            <img class="my-character" x-show="characterSrc" :src="characterSrc"
+                 :alt="profile.character ? profile.character + ' — your character' : ''"
+                 @error="characterSrc = ''">
+          </div>
+
+          <!-- Outfit switcher: shows once a second costume is unlocked -->
+          <div class="outfit-row" x-show="unlockedStyles.length > 1" role="radiogroup" aria-label="Choose an outfit">
+            <template x-for="s in unlockedStyles" :key="s">
+              <button class="outfit-btn" :class="currentStyle === s ? 'sel' : ''"
+                      role="radio" :aria-checked="String(currentStyle === s)"
+                      :aria-label="s + ' outfit'"
+                      @click="wearOutfit(s)">
+                <img :src="'assets/images/buttons/styles/' + s + '.png'" alt=""
+                     onerror="this.parentElement.style.display='none'">
+              </button>
+            </template>
           </div>
 
           <!-- Speech bubble — changes based on state -->
-          <div class="speech-bubble" x-text="bubble"></div>
+          <div class="speech-bubble" x-text="bubble" aria-live="polite"></div>
 
           <!-- Child's name -->
           <div class="child-greeting" x-text="'Hi ' + child.name + '! 👋'"></div>
 
           <!-- Star progress row (one star per game) -->
-          <div class="stars-row">
+          <div class="stars-row" role="img"
+               :aria-label="completedCount + ' of ' + gameList.length + ' games done'">
             <template x-for="(game, i) in gameList" :key="game.id">
-              <span class="star" :class="completedIds.has(game.id) ? 'lit' : 'dim'">⭐</span>
+              <span class="star" :class="completedIds.has(game.id) ? 'lit' : 'dim'" aria-hidden="true">⭐</span>
             </template>
           </div>
           <div class="stars-label"
                x-text="completedCount + ' of ' + gameList.length + ' games done!'">
           </div>
 
-          <!-- Play button -->
-          <a class="play-btn" href="game-loader.html">
+          <!-- Play button → today's adventure -->
+          <a class="play-btn" :href="'game-loader.html?game=' + nextGame.id">
             Let's Play! 🚀
           </a>
+          <div class="quest-label"
+               x-text="'⭐ Today\'s adventure: ' + nextGame.label"></div>
+
+          <!-- Adventure map: pick any game -->
+          <a class="quest-label" href="adventure-map.html"
+             style="text-decoration:none;cursor:pointer;">🗺️ See my Adventure Map</a>
 
         </div>
       </div>
@@ -248,10 +412,17 @@
 
   <script>
     const GAME_LIST = [
-      { id:'shape-recognition' }, { id:'color-sort' },    { id:'number-matching' },
-      { id:'abc-match' },         { id:'space-pattern' }, { id:'space-defender' },
-      { id:'feed-alien' },        { id:'number-line' },   { id:'feed-by-sound' },
-      { id:'draw-it' },           { id:'candyland' },
+      { id:'shape-recognition', label:'Shape Spotter' },
+      { id:'color-sort',        label:'Color Sort' },
+      { id:'number-matching',   label:'Number Match' },
+      { id:'abc-match',         label:'ABC Match' },
+      { id:'space-pattern',     label:'Space Patterns' },
+      { id:'space-defender',    label:'Space Defender' },
+      { id:'feed-alien',        label:'Feed the Alien' },
+      { id:'number-line',       label:'Number Line' },
+      { id:'feed-by-sound',     label:'Sound Hunt' },
+      { id:'draw-it',           label:'Draw It' },
+      { id:'candyland',         label:'Candy Land' },
     ];
 
     const BUBBLES = [
@@ -262,6 +433,11 @@
       'Let\'s play and learn! 🎉',
     ];
 
+    function slugify(str) {
+      return String(str || '').trim().toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    }
+
     function childHome() {
       return {
         loading:      true,
@@ -269,9 +445,30 @@
         completedIds: new Set(),
         gameList:     GAME_LIST,
         bubble:       BUBBLES[Math.floor(Math.random() * BUBBLES.length)],
+        profile:      {},
+        characterSrc: '',
+        nextGame:     GAME_LIST[0],
+        unlockedStyles: [],
+        currentStyle:   'plain',
+        // parent gate
+        gateOpen:     false,
+        holdPct:      0,
+        _holdTimer:   null,
+        _idleTimer:   null,
 
         get completedCount() {
           return [...this.completedIds].filter(id => GAME_LIST.some(g => g.id === id)).length;
+        },
+
+        /* Today's adventure: deterministic per day, picked from the games
+           the child hasn't finished yet (variety without randomness whiplash). */
+        pickNextGame() {
+          const remaining = GAME_LIST.filter(g => !this.completedIds.has(g.id));
+          const pool = remaining.length ? remaining : GAME_LIST;
+          const now = new Date();
+          const daySeed = now.getFullYear() * 366 +
+            Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+          this.nextGame = pool[daySeed % pool.length];
         },
 
         async init() {
@@ -283,25 +480,92 @@
           }
           this.child = child;
 
+          // Their built world follows them: background + their character
+          try { this.profile = JSON.parse(localStorage.getItem('userProfile') || '{}'); }
+          catch (e) { this.profile = {}; }
+          if (this.profile.theme) {
+            const w = slugify(this.profile.theme);
+            const v = slugify(this.profile.vibe || 'cozy');
+            document.body.style.setProperty('--world-bg',
+              `url("assets/images/world-backgrounds/${w}/vibes/${v}/background.webp")`);
+            document.body.classList.add('world-bg');
+          }
+          if (this.profile.character) {
+            const c = slugify(this.profile.character);
+            const s = slugify(this.profile.style || 'plain');
+            this.characterSrc = `assets/images/characters/${c}/${s}.png`;
+            this.currentStyle = s;
+          }
+
+          // Unlocked outfits (earned at game milestones)
+          try {
+            const u = JSON.parse(localStorage.getItem('rk_unlocked_styles'));
+            this.unlockedStyles = Array.isArray(u) && u.length
+              ? u
+              : ['plain', this.currentStyle].filter((v, i, a) => a.indexOf(v) === i);
+          } catch (e) {
+            this.unlockedStyles = ['plain'];
+          }
+
           // Personalise bubble if they have progress
           const completed = await window.RK.getCompletedGameIds();
           this.completedIds = completed;
           window._rkCompletedIds = completed;
+          this.pickNextGame();
 
           if (completed.size === 0) {
             this.bubble = 'Ready for your first adventure? 🌟';
           } else if (completed.size >= GAME_LIST.length) {
             this.bubble = 'You\'ve done them ALL! You\'re a superstar! 🏆';
           } else {
-            this.bubble = BUBBLES[Math.floor(Math.random() * BUBBLES.length)];
+            // Zoey remembers: name the next adventure
+            this.bubble = `${this.completedCount} stars already! Want to try ${this.nextGame.label}? 🌟`;
           }
 
           this.loading = false;
 
-          // Zoey waves hello once the hub is ready
+          // Zoey waves hello once the hub is ready, and nudges if idle
           this.$nextTick(() => {
             setTimeout(() => document.getElementById('homeZoey')?.wave(), 400);
+            this._idleTimer = setTimeout(() => {
+              const z = document.getElementById('homeZoey');
+              if (z?.encourage) z.encourage();
+              this.bubble = `Tap the big orange button to play ${this.nextGame.label}! 👇`;
+            }, 9000);
           });
+        },
+
+        /* ── Outfit switcher ── */
+        wearOutfit(s) {
+          this.currentStyle = s;
+          this.profile.style = s.charAt(0).toUpperCase() + s.slice(1);
+          localStorage.setItem('userProfile', JSON.stringify(this.profile));
+          if (this.profile.character) {
+            this.characterSrc =
+              `assets/images/characters/${slugify(this.profile.character)}/${s}.png`;
+          }
+          this.bubble = 'Looking good! ✨';
+        },
+
+        /* ── Parent gate: press-and-hold 3 seconds ── */
+        startHold() {
+          this.cancelHold();
+          const t0 = Date.now();
+          this._holdTimer = setInterval(() => {
+            this.holdPct = Math.min(100, ((Date.now() - t0) / 3000) * 100);
+            if (this.holdPct >= 100) {
+              clearInterval(this._holdTimer);
+              window.location.href = 'dashboard.html';
+            }
+          }, 50);
+        },
+        cancelHold() {
+          clearInterval(this._holdTimer);
+          this.holdPct = 0;
+        },
+        closeGate() {
+          this.cancelHold();
+          this.gateOpen = false;
         },
       };
     }

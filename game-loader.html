@@ -185,8 +185,15 @@
       align-items: center;
       justify-content: center;
       background: rgba(10, 20, 40, 0.9);
+      background-size: cover;
+      background-position: center;
       z-index: 100;
       animation: fadeOut 0.5s ease-out 2s forwards;
+    }
+    /* Themed loading: child's world behind a dark veil for contrast */
+    .loading-spinner.themed {
+      background-blend-mode: multiply;
+      background-color: rgba(10, 20, 40, 0.55);
     }
 
     .spinner {
@@ -264,6 +271,47 @@
     @media (orientation: landscape) and (max-height: 600px) {
       .rotate-guard { display: flex; }
     }
+
+    /* ── Kid-friendly error screen ── */
+    .game-error {
+      position: fixed;
+      inset: 0;
+      z-index: 9500;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      padding: 32px;
+      text-align: center;
+      background: radial-gradient(120% 100% at 50% 0%, #123a63 0%, #0a1428 70%);
+      color: #fff;
+    }
+    .game-error.show { display: flex; }
+    .game-error__title { font-size: 26px; font-weight: 700; }
+    .game-error__sub   { font-size: 17px; opacity: 0.85; max-width: 26ch; line-height: 1.4; }
+    .game-error__btn {
+      margin-top: 8px;
+      background: linear-gradient(135deg, #f28c18, #ffb23e);
+      color: #fff;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      padding: 16px 38px;
+      border-radius: 50px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(242,140,24,0.45);
+      text-decoration: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
   </style>
   <link rel="stylesheet" href="assets/css/feedback.css">
   <link rel="stylesheet" href="assets/css/audio.css">
@@ -279,8 +327,8 @@
 </head>
 <body>
   <!-- Rotate-to-portrait guard (shown via CSS only on short landscape) -->
-  <div class="rotate-guard" id="rotateGuard" aria-hidden="true">
-    <div class="rotate-guard__icon">📱</div>
+  <div class="rotate-guard" id="rotateGuard" role="status">
+    <div class="rotate-guard__icon" aria-hidden="true">📱</div>
     <div class="rotate-guard__title">Turn me upright!</div>
     <div class="rotate-guard__sub">Hold your phone or tablet straight up and down to play. 🚀</div>
   </div>
@@ -288,8 +336,16 @@
   <div class="loading-spinner" id="loadingSpinner">
     <div>
       <div class="spinner"></div>
-      <div class="loading-text">Loading your adventure...</div>
+      <div class="loading-text" id="loadingText">Loading your adventure...</div>
     </div>
+  </div>
+
+  <!-- Kid-friendly error screen (replaces silent redirect) -->
+  <div class="game-error" id="gameError" role="alert">
+    <zoey-avatar size="140"></zoey-avatar>
+    <div class="game-error__title">Oops! That one's napping. 😴</div>
+    <div class="game-error__sub">Let's pick a different adventure instead!</div>
+    <a class="game-error__btn" href="child-home.html">Back to my world 🚀</a>
   </div>
 
   <!-- Scripts in order -->
@@ -305,6 +361,40 @@
        Game Initialization
        ───────────────────────────────────────────────────────── */
 
+    /* Kid-friendly error screen. Exposed on window so game-registry's
+       failure paths can use it instead of their legacy body-wipe screens. */
+    function showKidGameError() {
+      document.getElementById('loadingSpinner')?.remove();
+      document.getElementById('gameError')?.classList.add('show');
+    }
+    window.showKidGameError = showKidGameError;
+
+    /* Themed loading: show the child's own world behind the spinner with a
+       playful line, instead of a flat dark overlay. */
+    function themeLoadingScreen(profile) {
+      try {
+        const p = typeof profile === 'string' ? JSON.parse(profile) : profile;
+        if (!p?.theme) return;
+        const slug = s => String(s || '').trim().toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        const el = document.getElementById('loadingSpinner');
+        if (!el) return;
+        el.classList.add('themed');
+        el.style.backgroundImage =
+          `url("assets/images/world-backgrounds/${slug(p.theme)}/vibes/${slug(p.vibe || 'cozy')}/background.webp")`;
+        const lines = {
+          'space':      'Fueling the rocket... 🚀',
+          'jungle':     'Waking up the monkeys... 🐒',
+          'beach':      'Building a sandcastle... 🏖️',
+          'castle':     'Lowering the drawbridge... 🏰',
+          'studio':     'Setting up the stage... 🎬',
+          'candy-land': 'Sprinkling the sprinkles... 🍭',
+        };
+        const txt = document.getElementById('loadingText');
+        if (txt) txt.textContent = lines[slug(p.theme)] || 'Loading your adventure...';
+      } catch (e) { /* cosmetic only */ }
+    }
+
     async function initializeGame() {
       try {
         // Get game type from URL parameter or default to color-sort
@@ -313,33 +403,39 @@
 
         console.log(`[Game Loader] Initializing game: ${gameType}`);
 
-        // Check if user profile exists (from onboarding)
+        // Profile must come from onboarding. The fabricated test profile is
+        // dev-only (rk_test_mode) — a real child with no profile goes back
+        // to child-home, whose guard routes them properly.
         let profile = localStorage.getItem('userProfile');
         if (!profile) {
-          console.warn('No user profile found, setting default test profile...');
-          profile = JSON.stringify({
-            childName: "TestPilot",
-            theme: "space",
-            character: "mica",
-            style: "plain",
-            vibe: "cozy"
-          });
-          localStorage.setItem('userProfile', profile);
+          if (sessionStorage.getItem('rk_test_mode')) {
+            console.warn('No user profile found, setting default test profile...');
+            profile = JSON.stringify({
+              childName: "TestPilot",
+              theme: "space",
+              character: "mica",
+              style: "plain",
+              vibe: "cozy"
+            });
+            localStorage.setItem('userProfile', profile);
+          } else {
+            window.location.href = 'child-home.html';
+            return;
+          }
         }
+
+        themeLoadingScreen(profile);
 
         // Load and start the game
         const game = await loadGame(gameType);
 
         if (!game) {
           console.error('Failed to initialize game');
-          // Fallback to world-reveal
-          setTimeout(() => {
-            window.location.href = 'world-reveal.html';
-          }, 2000);
+          showKidGameError();
         }
       } catch (error) {
         console.error('Game initialization error:', error);
-        window.location.href = 'world-reveal.html';
+        showKidGameError();
       }
     }
 

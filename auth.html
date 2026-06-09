@@ -277,11 +277,11 @@
     <span class="brand-sub">Parent Portal</span>
   </div>
 
-  <!-- Step dots -->
+  <!-- Step dots: 1 = account, 2 = Build-Your-World (onboarding.html) -->
   <div class="steps" x-show="view !== 'login'">
-    <div class="step-dot" :class="view === 'signup' ? 'on' : (view === 'child' ? 'done' : '')"></div>
+    <div class="step-dot" :class="view === 'signup' ? 'on' : ''"></div>
     <div class="step-line"></div>
-    <div class="step-dot" :class="view === 'child' ? 'on' : ''"></div>
+    <div class="step-dot"></div>
   </div>
 
   <!-- ── ERROR ── -->
@@ -370,54 +370,6 @@
   </div>
 
 
-  <!-- ════ CHILD PROFILE VIEW ════ -->
-  <div x-show="view === 'child'" x-transition>
-    <div class="view-title">Set up your child 🧒</div>
-    <div class="view-sub">Step 2 of 2 — We only need two things.</div>
-
-    <div class="field">
-      <label>Child's First Name</label>
-      <input type="text" x-model="childName" placeholder="e.g. Maya"
-             :class="error ? 'err' : ''" @keydown.enter="createChild()" maxlength="30">
-    </div>
-
-    <div class="field">
-      <label>Age Range</label>
-      <div class="age-group">
-        <button class="age-btn" :class="childAge === '3-4' ? 'sel' : ''"
-                @click="childAge = '3-4'">
-          <span class="emoji">🌱</span>
-          3–4 years
-        </button>
-        <button class="age-btn" :class="childAge === '4-5' ? 'sel' : ''"
-                @click="childAge = '4-5'">
-          <span class="emoji">🌟</span>
-          4–5 years
-        </button>
-      </div>
-    </div>
-
-    <div class="field">
-      <label>Choose a Character</label>
-      <div class="avatar-row">
-        <button class="av-btn" :class="childAvatar === 'Em' ? 'sel' : ''"
-                @click="childAvatar = 'Em'">
-          <span class="av-emoji">🧒</span>Em
-        </button>
-        <button class="av-btn" :class="childAvatar === 'Amara' ? 'sel' : ''"
-                @click="childAvatar = 'Amara'">
-          <span class="av-emoji">👧</span>Amara
-        </button>
-      </div>
-    </div>
-
-    <button class="btn-primary orange" @click="createChild()"
-            :disabled="loading || !childName.trim() || !childAge">
-      <span x-show="!loading">Let's Go! 🚀</span>
-      <span x-show="loading" class="spinner"></span>
-    </button>
-  </div>
-
 </div><!-- /card -->
 
 
@@ -435,14 +387,11 @@
   /* ── Alpine App ── */
   function authApp() {
     return {
-      view:          'login',   // 'login' | 'signup' | 'child'
+      view:          'login',   // 'login' | 'signup'
       email:         '',
       password:      '',
       confirmPassword: '',
       coppa:         false,
-      childName:     '',
-      childAge:      '3-4',
-      childAvatar:   'Em',
       loading:       false,
       error:         '',
       success:       '',
@@ -456,7 +405,9 @@
             window.RK.setActiveChild(children[0]);
             window.location.href = 'dashboard.html';
           } else {
-            this.view = 'child';
+            // Signed in but no child yet — Build-Your-World onboarding
+            // owns child creation (avoids duplicate children rows).
+            window.location.href = 'onboarding.html';
           }
         }
       },
@@ -488,9 +439,9 @@
           window.RK.setActiveChild(children[0]);
           window.location.href = 'dashboard.html';
         } else {
-          // Signed up previously but never completed child profile
-          this.loading = false;
-          this.view = 'child';
+          // Signed up previously but never completed onboarding —
+          // Build-Your-World owns child creation.
+          window.location.href = 'onboarding.html';
         }
       },
 
@@ -536,35 +487,6 @@
         window.location.href = 'onboarding.html';
       },
 
-      // ── Create child profile ─────────────────────────────────
-      async createChild() {
-        this.error = '';
-        if (!this.childName.trim()) {
-          this.error = 'Please enter your child\'s name.'; return;
-        }
-        this.loading = true;
-        const { data: { user } } = await window.sb.auth.getUser();
-        if (!user) {
-          this.error = 'Session expired. Please sign in again.';
-          this.loading = false; this.view = 'login'; return;
-        }
-        const { data, error } = await window.sb
-          .from('children')
-          .insert({
-            parent_id: user.id,
-            name:      this.childName.trim(),
-            age_range: this.childAge,
-            avatar:    this.childAvatar,
-          })
-          .select()
-          .single();
-        if (error) {
-          this.error = 'Could not create profile. Please try again.';
-          this.loading = false; return;
-        }
-        window.RK.setActiveChild(data);
-        window.location.href = 'dashboard.html';
-      },
     };
   }
 </script>
