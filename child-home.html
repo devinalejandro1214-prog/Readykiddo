@@ -27,11 +27,14 @@
         radial-gradient(80% 60% at 100% 110%, rgba(11,95,149,0.18), transparent 60%),
         linear-gradient(180deg, #f6e9c8 0%, #f1d9a2 100%);
       min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      overflow: hidden;
+      /* center the hub when there's room, but allow scrolling on short
+         viewports (e.g. phone/tablet in landscape) so the Play button is
+         always reachable. margin:auto on .home-wrap handles the centering. */
+      overflow-y: auto;
     }
 
     /* ── Parent padlock (top right) ── */
@@ -67,6 +70,7 @@
       width: 100%;
       max-width: 480px;
       text-align: center;
+      margin: auto;   /* vertically center when there is room; scroll when not */
     }
 
     /* ── Zoey character placeholder ── */
@@ -185,6 +189,7 @@
       align-items:center;
       justify-content:center;
       min-height:100vh;
+      min-height:100dvh;
       font-family:'Fredoka',sans-serif;
       font-size:20px;
       color:var(--ready-blue);

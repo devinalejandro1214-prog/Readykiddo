@@ -217,6 +217,53 @@
       font-size: 14px;
       opacity: 0.8;
     }
+
+    /* ── Rotate-to-portrait guard ───────────────────────────────
+       The games are designed portrait-first. On a phone/tablet held
+       in landscape the viewport is too short and the bottom row of
+       interactive elements (answer tiles, buckets, buttons) gets
+       clipped with no way to scroll. Rather than rework 11 game
+       layouts, we ask the child to rotate. Desktop landscape (tall
+       enough) is unaffected — the guard only triggers on SHORT
+       landscape viewports. */
+    .rotate-guard {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      padding: 32px;
+      text-align: center;
+      background: radial-gradient(120% 100% at 50% 0%, #123a63 0%, #0a1428 70%);
+      color: #fff;
+      font-family: 'Fredoka', system-ui, sans-serif;
+    }
+    .rotate-guard__icon {
+      font-size: 64px;
+      animation: rotateHint 2.2s ease-in-out infinite;
+    }
+    .rotate-guard__title {
+      font-size: 26px;
+      font-weight: 700;
+    }
+    .rotate-guard__sub {
+      font-size: 17px;
+      opacity: 0.85;
+      max-width: 22ch;
+      line-height: 1.4;
+    }
+    @keyframes rotateHint {
+      0%, 100% { transform: rotate(-12deg); }
+      50%      { transform: rotate(78deg); }
+    }
+    /* Show only on SHORT landscape (phones/tablets turned sideways).
+       max-height keeps desktops — which are tall in landscape — clear. */
+    @media (orientation: landscape) and (max-height: 600px) {
+      .rotate-guard { display: flex; }
+    }
   </style>
   <link rel="stylesheet" href="assets/css/feedback.css">
   <link rel="stylesheet" href="assets/css/audio.css">
@@ -231,6 +278,13 @@
   <script src="assets/js/zoey-companion.js"></script>
 </head>
 <body>
+  <!-- Rotate-to-portrait guard (shown via CSS only on short landscape) -->
+  <div class="rotate-guard" id="rotateGuard" aria-hidden="true">
+    <div class="rotate-guard__icon">📱</div>
+    <div class="rotate-guard__title">Turn me upright!</div>
+    <div class="rotate-guard__sub">Hold your phone or tablet straight up and down to play. 🚀</div>
+  </div>
+
   <div class="loading-spinner" id="loadingSpinner">
     <div>
       <div class="spinner"></div>
