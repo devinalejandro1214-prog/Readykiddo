@@ -6,3 +6,6 @@ replace*.js
 *-patch.ps1
 # TTS pipeline scratch output
 temp_output.wav
+
+# Generated UI/UX preview deployment bundle
+.uiux-preview-dist/

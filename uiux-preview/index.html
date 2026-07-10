@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fff7e8">
+  <meta name="description" content="ReadyKiddo UI/UX preview — a playful parent-and-child learning journey.">
+  <title>ReadyKiddo UI/UX Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="preview-assets/preview.css">
+</head>
+<body>
+  <a class="skip-link" href="#mainContent">Skip to content</a>
+
+  <div class="preview-ribbon" role="status">
+    <span class="preview-ribbon__dot" aria-hidden="true"></span>
+    Experimental preview
+    <span class="preview-ribbon__detail">Local demo data · production is unchanged</span>
+  </div>
+
+  <div class="loading-screen" id="loadingScreen" aria-label="Loading ReadyKiddo preview">
+    <div class="brand-orbit" aria-hidden="true"><span>★</span></div>
+    <strong>Getting your learning trail ready…</strong>
+    <div class="loading-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+  </div>
+
+  <div class="app-shell" id="appShell">
+    <header class="site-header" id="siteHeader">
+      <button class="brand" type="button" data-route="home" aria-label="ReadyKiddo home">
+        <span class="brand__mark" aria-hidden="true">
+          <svg viewBox="0 0 36 36" role="img"><path d="M8 23.5 18 28l10-4.5V13L18 8.5 8 13v10.5Z" fill="currentColor"/><path d="m18 11.5 2 4.1 4.5.7-3.3 3.2.8 4.5-4-2.1-4 2.1.8-4.5-3.3-3.2 4.5-.7 2-4.1Z" fill="#fff7e8"/></svg>
+        </span>
+        <span><b>Ready</b><em>Kiddo</em></span>
+      </button>
+
+      <nav class="desktop-nav" aria-label="Primary navigation">
+        <button type="button" data-route="home">Today</button>
+        <button type="button" data-route="activities">Activities</button>
+        <button type="button" data-route="milestones">Milestones</button>
+        <button type="button" data-route="parent">Grown-ups</button>
+      </nav>
+
+      <button class="mode-chip" type="button" data-route="parent" aria-label="Switch to grown-up view">
+        <span class="mode-chip__avatar">M</span>
+        <span><small>Kid mode</small><b id="headerChildName">Maya</b></span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+    </header>
+
+    <main id="mainContent" tabindex="-1">
+      <section class="screen screen--landing" data-screen="landing" aria-labelledby="landingTitle">
+        <div class="landing-hero">
+          <img class="landing-hero__art" src="preview-assets/images/story-path.webp" alt="A caregiver and child following a glowing path toward a whimsical learning village">
+          <div class="landing-hero__wash" aria-hidden="true"></div>
+          <div class="landing-hero__content page-width">
+            <div class="landing-copy">
+              <p class="eyebrow"><span aria-hidden="true">✦</span> Little moments. Big beginnings.</p>
+              <h1 id="landingTitle">Learning feels better <span>together.</span></h1>
+              <p class="landing-lead">A playful learning world for ages 3–5, with simple activities for kids and useful guidance for grown-ups.</p>
+              <div class="landing-actions">
+                <button class="button button--primary button--large" type="button" id="beginJourney">
+                  Start our journey
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+                <button class="button button--soft button--large" type="button" data-route="parent">
+                  Preview grown-up view
+                </button>
+              </div>
+              <div class="trust-row" aria-label="ReadyKiddo highlights">
+                <span><b>10</b> playful activities</span>
+                <span><b>No ads</b> in kid mode</span>
+                <span><b>Made</b> for little hands</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="page-width landing-proof">
+          <article class="proof-card">
+            <span class="proof-card__icon proof-card__icon--orange" aria-hidden="true">1</span>
+            <div><h2>Pick their world</h2><p>Choose a character, a favorite setting, and the pace that feels right.</p></div>
+          </article>
+          <article class="proof-card">
+            <span class="proof-card__icon proof-card__icon--mint" aria-hidden="true">2</span>
+            <div><h2>Play a little</h2><p>Short, cheerful activities build early confidence without rushing.</p></div>
+          </article>
+          <article class="proof-card">
+            <span class="proof-card__icon proof-card__icon--blue" aria-hidden="true">3</span>
+            <div><h2>Celebrate progress</h2><p>See meaningful milestones and easy ideas to continue learning offline.</p></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="screen screen--onboarding" data-screen="onboarding" aria-labelledby="onboardingTitle">
+        <div class="page-width onboarding-layout">
+          <aside class="onboarding-story" aria-hidden="true">
+            <div class="onboarding-story__glow"></div>
+            <div class="story-badge">Your learning trail</div>
+            <div class="story-path">
+              <span class="story-stop is-done">1</span><i></i>
+              <span class="story-stop">2</span><i></i>
+              <span class="story-stop">3</span><i></i>
+              <span class="story-stop">4</span>
+            </div>
+            <blockquote>“Every great adventure begins with one curious little step.”</blockquote>
+          </aside>
+
+          <div class="onboarding-card">
+            <div class="onboarding-card__top">
+              <button class="icon-button" id="onboardingBack" type="button" aria-label="Go to previous step">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+              </button>
+              <div class="step-meter" aria-label="Onboarding progress">
+                <span id="stepLabel">Step 1 of 4</span>
+                <div class="step-meter__track"><i id="stepMeterFill"></i></div>
+              </div>
+              <button class="text-button" type="button" id="skipOnboarding">Use demo</button>
+            </div>
+            <div id="onboardingStage" class="onboarding-stage"></div>
+            <div class="onboarding-card__actions">
+              <button class="button button--primary button--wide" type="button" id="onboardingNext">Continue</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen screen--app" data-screen="home" aria-labelledby="todayTitle">
+        <div class="page-width app-page">
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow">Friday’s little adventure</p>
+              <h1 id="todayTitle">Ready when you are, <span data-bind="childName">Maya</span>!</h1>
+              <p>Three playful stops, about 12 minutes altogether.</p>
+            </div>
+            <button class="sound-button" type="button" id="soundToggle" aria-pressed="false">
+              <span aria-hidden="true">♪</span> Sound on
+            </button>
+          </div>
+
+          <section class="today-hero card card--navy" aria-label="Today’s learning plan">
+            <div class="today-hero__copy">
+              <span class="status-pill status-pill--light">Today’s trail</span>
+              <h2>Shapes, sounds, and one big imagination</h2>
+              <p>We’ll begin with a familiar win, try something new, then create together.</p>
+              <button class="button button--primary" type="button" data-route="game">Begin today’s trail</button>
+            </div>
+            <div class="today-hero__character">
+              <span class="character-halo" aria-hidden="true"></span>
+              <img id="homeCharacter" src="assets/images/characters/mica/plain.png" alt="Mica, the selected learning character">
+              <div class="speech-chip">Let’s discover! <span aria-hidden="true">★</span></div>
+            </div>
+          </section>
+
+          <section class="section-block" aria-labelledby="trailStopsTitle">
+            <div class="section-heading">
+              <div><p class="eyebrow">A calm, balanced session</p><h2 id="trailStopsTitle">Today’s trail stops</h2></div>
+              <button class="text-button text-button--arrow" type="button" data-route="activities">See all activities <span aria-hidden="true">→</span></button>
+            </div>
+            <div class="trail-grid">
+              <article class="trail-card is-next">
+                <span class="trail-card__number">01</span>
+                <div class="activity-icon activity-icon--shapes" aria-hidden="true"><i></i><b></b><em></em></div>
+                <div class="trail-card__body"><span class="mini-label">Warm up · 4 min</span><h3>Shape Discovery</h3><p>Match friendly objects to their shapes.</p></div>
+                <button class="round-action" type="button" data-route="game" aria-label="Play Shape Discovery"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button>
+              </article>
+              <article class="trail-card">
+                <span class="trail-card__number">02</span>
+                <div class="activity-icon activity-icon--sound" aria-hidden="true">b</div>
+                <div class="trail-card__body"><span class="mini-label">Try next · 5 min</span><h3>Sound Safari</h3><p>Listen, choose, and feed the friendly alien.</p></div>
+                <span class="locked-dot" aria-label="Available after the first activity">2</span>
+              </article>
+              <article class="trail-card">
+                <span class="trail-card__number">03</span>
+                <div class="activity-icon activity-icon--draw" aria-hidden="true">✎</div>
+                <div class="trail-card__body"><span class="mini-label">Together time · 3 min</span><h3>Draw a Happy Fish</h3><p>Finish with a screen-to-paper creative moment.</p></div>
+                <span class="locked-dot" aria-label="Available after the second activity">3</span>
+              </article>
+            </div>
+          </section>
+
+          <section class="two-column-row">
+            <article class="card gentle-card">
+              <div class="gentle-card__icon" aria-hidden="true">☀</div>
+              <div><p class="eyebrow">Offline idea</p><h2>Shape hunt at home</h2><p>Find one circle, one square, and one triangle together. No supplies needed.</p><button class="text-button text-button--arrow" type="button">Save this idea <span aria-hidden="true">+</span></button></div>
+            </article>
+            <article class="card streak-card">
+              <div class="streak-ring"><strong>3</strong><small>days</small></div>
+              <div><p class="eyebrow">Little learning streak</p><h2>Consistency, not perfection</h2><p>Three short learning moments this week. That’s worth celebrating.</p></div>
+            </article>
+          </section>
+        </div>
+      </section>
+
+      <section class="screen screen--app" data-screen="activities" aria-labelledby="activitiesTitle">
+        <div class="page-width app-page">
+          <div class="page-heading page-heading--with-art">
+            <div><p class="eyebrow">Explore at your own pace</p><h1 id="activitiesTitle">Activity library</h1><p>Short, focused play for growing minds. Pick what feels good today.</p></div>
+            <div class="heading-doodle" aria-hidden="true"><span>★</span><i></i><b></b></div>
+          </div>
+
+          <div class="filter-row" role="group" aria-label="Filter activities">
+            <button class="filter-chip is-active" type="button" data-filter="all">All</button>
+            <button class="filter-chip" type="button" data-filter="numbers">Numbers</button>
+            <button class="filter-chip" type="button" data-filter="language">Language</button>
+            <button class="filter-chip" type="button" data-filter="thinking">Thinking</button>
+            <button class="filter-chip" type="button" data-filter="creative">Creative</button>
+            <button class="filter-chip" type="button" data-filter="saved">Saved</button>
+          </div>
+
+          <div class="activity-grid" id="activityGrid">
+            <article class="activity-card" data-category="thinking" data-game="shape-recognition">
+              <div class="activity-card__art art--shape"><span></span><i></i><b></b><em></em></div>
+              <div class="activity-card__content"><div class="card-meta"><span>Thinking</span><span>4 min</span></div><h2>Shape Discovery</h2><p>Drag and tap shapes into their matching homes.</p><div class="skill-row"><span>Visual matching</span><span>Fine motor</span></div></div>
+              <div class="activity-card__actions"><button class="button button--primary button--small" type="button" data-route="game">Try redesign</button><a class="button button--ghost button--small" href="game-loader.html?game=shape-recognition">Open working game</a></div>
+            </article>
+            <article class="activity-card" data-category="numbers" data-game="number-matching">
+              <div class="activity-card__art art--numbers"><span>1</span><i>2</i><b>3</b></div>
+              <div class="activity-card__content"><div class="card-meta"><span>Numbers</span><span>5 min</span></div><h2>Count & Match</h2><p>Count familiar objects and choose the number that belongs.</p><div class="skill-row"><span>Counting</span><span>One-to-one</span></div></div>
+              <div class="activity-card__actions"><a class="button button--primary button--small" href="game-loader.html?game=number-matching">Play activity</a><button class="icon-save" type="button" aria-label="Save Count and Match">♡</button></div>
+            </article>
+            <article class="activity-card" data-category="language" data-game="feed-by-sound">
+              <div class="activity-card__art art--sound"><span>B</span><i aria-hidden="true">♪</i></div>
+              <div class="activity-card__content"><div class="card-meta"><span>Language</span><span>5 min</span></div><h2>Sound Safari</h2><p>Hear the first sound and find the pictures that match.</p><div class="skill-row"><span>Phonics</span><span>Listening</span></div></div>
+              <div class="activity-card__actions"><a class="button button--primary button--small" href="game-loader.html?game=feed-by-sound">Play activity</a><button class="icon-save" type="button" aria-label="Save Sound Safari">♡</button></div>
+            </article>
+            <article class="activity-card" data-category="creative" data-game="draw-it">
+              <div class="activity-card__art art--draw"><span>✎</span><i></i><b></b></div>
+              <div class="activity-card__content"><div class="card-meta"><span>Creative</span><span>8 min</span></div><h2>Draw It Together</h2><p>Follow a few friendly steps, then bring the drawing into the world.</p><div class="skill-row"><span>Creativity</span><span>Sequencing</span></div></div>
+              <div class="activity-card__actions"><a class="button button--primary button--small" href="game-loader.html?game=draw-it">Play activity</a><button class="icon-save" type="button" aria-label="Save Draw It Together">♡</button></div>
+            </article>
+          </div>
+
+          <div class="empty-state" id="activityEmpty" hidden>
+            <div class="empty-state__art" aria-hidden="true">☆</div><h2>No saved activities yet</h2><p>Tap the heart on any activity and it will wait here for your next learning moment.</p><button class="button button--soft" type="button" data-filter="all">Explore all activities</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen screen--app" data-screen="milestones" aria-labelledby="milestonesTitle">
+        <div class="milestone-hero">
+          <img src="preview-assets/images/learning-garden.webp" alt="A whimsical learning garden with shape, counting, art, and achievement islands">
+          <div class="milestone-hero__overlay"></div>
+          <div class="page-width milestone-hero__content">
+            <p class="eyebrow eyebrow--light">Their growing learning garden</p>
+            <h1 id="milestonesTitle">Small wins become <span>big confidence.</span></h1>
+            <p>Celebrate what <span data-bind="childName">Maya</span> is practicing, not just what they finish.</p>
+          </div>
+        </div>
+
+        <div class="page-width milestone-content">
+          <div class="stat-strip" aria-label="Learning summary">
+            <div><strong id="completedStat">3</strong><span>activities explored</span></div>
+            <div><strong>42</strong><span>happy answers</span></div>
+            <div><strong>3</strong><span>learning days</span></div>
+          </div>
+
+          <div class="section-heading"><div><p class="eyebrow">Progress with purpose</p><h2>Milestone trail</h2></div><button class="text-button" type="button" data-route="parent">See grown-up details</button></div>
+          <div class="milestone-list">
+            <article class="milestone-card is-earned"><span class="milestone-card__badge">★</span><div><small>Earned today</small><h3>Shape Spotter</h3><p>Matched six shapes and tried again after a tricky one.</p></div><span class="status-pill status-pill--mint">Celebrated</span></article>
+            <article class="milestone-card is-growing"><span class="milestone-card__badge">♪</span><div><small>Growing now</small><h3>Sound Explorer</h3><p>Found 3 of 5 beginning sounds. One more short session will help.</p><div class="mini-progress"><i style="width:60%"></i></div></div><span class="status-pill status-pill--blue">60%</span></article>
+            <article class="milestone-card"><span class="milestone-card__badge">✎</span><div><small>Up next</small><h3>Creative Storyteller</h3><p>Complete two guided drawings and tell a tiny story about one.</p></div><span class="status-pill">0 of 2</span></article>
+          </div>
+
+          <article class="card celebration-card"><div><span class="status-pill status-pill--light">Grown-up celebration idea</span><h2>“I noticed how you kept trying.”</h2><p>Specific encouragement helps children connect effort with growth. Try this phrase after today’s activity.</p></div><button class="button button--primary" type="button" id="copyCelebration">Copy phrase</button></article>
+        </div>
+      </section>
+
+      <section class="screen screen--app" data-screen="parent" aria-labelledby="parentTitle">
+        <div class="page-width app-page">
+          <div class="parent-banner">
+            <div><span class="status-pill status-pill--light">Grown-up view</span><h1 id="parentTitle">A clearer look at <span data-bind="childName">Maya</span>’s learning</h1><p>Useful signals, plain-language context, and simple ideas for what to do next.</p></div>
+            <button class="button button--light" type="button" data-route="home">Return to kid mode</button>
+          </div>
+
+          <div class="sync-notice" id="syncNotice" role="status">
+            <span class="sync-notice__icon" aria-hidden="true">↻</span><div><strong>Preview data</strong><p>This redesign uses local mock progress. A real account connection is intentionally disabled.</p></div><button type="button" id="dismissSync">Got it</button>
+          </div>
+
+          <div class="parent-stat-grid">
+            <article class="metric-card"><span class="metric-card__icon metric-card__icon--orange">★</span><div><small>Activities explored</small><strong>3 <em>of 10</em></strong><p>Two more than last week</p></div></article>
+            <article class="metric-card"><span class="metric-card__icon metric-card__icon--mint">✓</span><div><small>Current strength</small><strong>Shapes</strong><p>Recognizes 5 common shapes</p></div></article>
+            <article class="metric-card"><span class="metric-card__icon metric-card__icon--blue">◷</span><div><small>Average session</small><strong>8 min</strong><p>Right in the suggested range</p></div></article>
+          </div>
+
+          <div class="parent-grid">
+            <section class="card insight-card" aria-labelledby="insightTitle">
+              <div class="section-heading"><div><p class="eyebrow">This week</p><h2 id="insightTitle">Learning snapshot</h2></div><span class="status-pill status-pill--mint">Growing steadily</span></div>
+              <div class="skill-bars">
+                <div><span><b>Shapes & colors</b><em>Confident</em></span><div><i style="width:84%"></i></div></div>
+                <div><span><b>Early numbers</b><em>Practicing</em></span><div><i style="width:62%"></i></div></div>
+                <div><span><b>Sounds & letters</b><em>Getting started</em></span><div><i style="width:38%"></i></div></div>
+                <div><span><b>Patterns</b><em>Curious</em></span><div><i style="width:51%"></i></div></div>
+              </div>
+              <div class="insight-note"><span aria-hidden="true">✦</span><p><strong>What this may mean:</strong> <span data-bind="childName">Maya</span> is comfortable with visual matching and ready for short sound-based activities.</p></div>
+            </section>
+
+            <section class="card next-step-card" aria-labelledby="nextStepTitle">
+              <p class="eyebrow">Recommended next</p><h2 id="nextStepTitle">Build sound confidence</h2><p>Try Sound Safari once, then name objects around the kitchen that begin with the same sound.</p>
+              <div class="recommendation"><div class="activity-icon activity-icon--sound">b</div><div><strong>Sound Safari</strong><span>5 minutes · Language</span></div><a href="game-loader.html?game=feed-by-sound" class="round-action" aria-label="Open Sound Safari"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></a></div>
+              <button class="button button--soft button--wide" type="button" data-route="activities">Browse all activities</button>
+            </section>
+          </div>
+
+          <section class="card zoey-card" aria-labelledby="zoeyTitle">
+            <div class="zoey-card__avatar" aria-hidden="true">Z</div>
+            <div class="zoey-card__body"><p class="eyebrow">Parent learning guide · preview</p><h2 id="zoeyTitle">Ask Zoey about the next small step</h2><p>Responses are mocked in this design preview and do not call an AI service.</p><div class="prompt-chips"><button type="button" data-zoey-prompt="What can we practice away from screens?">Practice away from screens</button><button type="button" data-zoey-prompt="What activity should we try next?">Choose our next activity</button></div><div class="zoey-chat" id="zoeyChat" aria-live="polite"></div><form id="zoeyForm" class="chat-form"><label class="sr-only" for="zoeyInput">Ask Zoey a question</label><input id="zoeyInput" maxlength="220" placeholder="Ask about learning progress…"><button type="submit" aria-label="Send question"><svg viewBox="0 0 24 24"><path d="m5 12 14-7-4 14-3-6-7-1Z"/></svg></button></form></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="screen screen--game" data-screen="game" aria-labelledby="gameTitle">
+        <div class="game-preview-shell">
+          <header class="game-topbar">
+            <button class="icon-button icon-button--light" type="button" data-route="home" aria-label="Leave activity"><svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>
+            <div class="game-progress" aria-label="Round progress"><i class="is-done"></i><i class="is-current"></i><i></i><i></i><i></i></div>
+            <button class="icon-button icon-button--light" type="button" aria-label="Pause activity">Ⅱ</button>
+          </header>
+
+          <div class="game-stage">
+            <div class="game-instruction"><span class="game-instruction__icon" aria-hidden="true">◆</span><div><p>Shape Discovery</p><h1 id="gameTitle">Which one is a circle?</h1></div><button class="listen-button" type="button" id="listenPrompt" aria-label="Hear the question"><span aria-hidden="true">♪</span> Listen</button></div>
+            <div class="shape-prompt" aria-hidden="true"><div class="shape-prompt__circle"></div><span>Find my match</span></div>
+            <div class="answer-grid" id="answerGrid" role="group" aria-label="Choose a shape">
+              <button type="button" data-answer="triangle"><span class="answer-shape answer-shape--triangle"></span><b>Triangle</b></button>
+              <button type="button" data-answer="circle"><span class="answer-shape answer-shape--circle"></span><b>Circle</b></button>
+              <button type="button" data-answer="square"><span class="answer-shape answer-shape--square"></span><b>Square</b></button>
+            </div>
+            <div class="game-feedback" id="gameFeedback" aria-live="assertive"></div>
+          </div>
+
+          <footer class="game-footer"><div class="mini-companion"><span class="mini-companion__face">Z</span><p id="companionLine">Take your time. You’ve got this!</p></div><a class="button button--light button--small" href="game-loader.html?game=shape-recognition">Open full working game</a></footer>
+        </div>
+      </section>
+    </main>
+
+    <nav class="mobile-nav" id="mobileNav" aria-label="Mobile navigation">
+      <button type="button" data-route="home"><svg viewBox="0 0 24 24"><path d="m4 11 8-7 8 7v9h-6v-6h-4v6H4v-9Z"/></svg><span>Today</span></button>
+      <button type="button" data-route="activities"><svg viewBox="0 0 24 24"><path d="M5 5h6v6H5V5Zm8 0h6v6h-6V5Zm-8 8h6v6H5v-6Zm8 0h6v6h-6v-6Z"/></svg><span>Activities</span></button>
+      <button class="mobile-nav__play" type="button" data-route="game" aria-label="Start today’s activity"><span>▶</span></button>
+      <button type="button" data-route="milestones"><svg viewBox="0 0 24 24"><path d="m12 3 2.7 5.5 6 .9-4.4 4.3 1.1 6-5.4-2.8-5.4 2.8 1.1-6-4.4-4.3 6-.9L12 3Z"/></svg><span>Milestones</span></button>
+      <button type="button" data-route="parent"><svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 8a7 7 0 0 1 14 0"/></svg><span>Grown-ups</span></button>
+    </nav>
+  </div>
+
+  <button class="feedback-fab" id="feedbackOpen" type="button" aria-haspopup="dialog" aria-controls="feedbackDialog" aria-expanded="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v10H9l-4 4V5Z"/></svg><span>Feedback</span>
+  </button>
+
+  <dialog class="feedback-dialog" id="feedbackDialog" aria-labelledby="feedbackTitle">
+    <form method="dialog" id="feedbackForm">
+      <header><div><p class="eyebrow">Design preview</p><h2 id="feedbackTitle">What should feel better?</h2></div><button class="icon-button" type="button" id="feedbackClose" aria-label="Close feedback"><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button></header>
+      <div class="feedback-types" role="radiogroup" aria-label="Feedback type">
+        <button type="button" role="radio" aria-checked="true" data-feedback-type="Idea">Idea</button><button type="button" role="radio" aria-checked="false" data-feedback-type="Confusing">Confusing</button><button type="button" role="radio" aria-checked="false" data-feedback-type="Delightful">Delightful</button>
+      </div>
+      <label for="feedbackMessage">Your feedback</label><textarea id="feedbackMessage" required minlength="5" maxlength="600" placeholder="Tell us what you noticed…"></textarea>
+      <p class="form-note">Preview only. This form demonstrates success and error states without sending data.</p>
+      <div class="feedback-status" id="feedbackStatus" aria-live="polite"></div>
+      <button class="button button--primary button--wide" type="submit">Save preview feedback</button>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="offline-banner" id="offlineBanner" role="status" hidden>You’re offline. Preview interactions still work locally.</div>
+  <script src="preview-assets/preview.js"></script>
+</body>
+</html>

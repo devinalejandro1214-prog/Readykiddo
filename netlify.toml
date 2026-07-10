@@ -1,5 +1,7 @@
 [build]
-  publish = "."
+  command = "npm run build:uiux-preview"
+  publish = ".uiux-preview-dist"
+  functions = "netlify/functions"
 
 [[redirects]]
   from = "/api/*"

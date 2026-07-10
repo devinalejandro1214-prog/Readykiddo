@@ -6,6 +6,8 @@
     "dev": "npx serve . -l 5500",
     "test": "node scripts/validate-static.js",
     "test:js": "node scripts/validate-static.js",
-    "build": "npm test"
+    "build": "npm test",
+    "build:uiux-preview": "node scripts/build-uiux-preview.js",
+    "preview:uiux": "npx serve .uiux-preview-dist -l 4173"
   }
 }
