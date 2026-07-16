@@ -1,7 +1,7 @@
 # ReadyKiddo production migration audit
 
-**Audit basis:** `main` at `b3559b94bf1101fce5ae48086e662f5a7e3807a4`  
-**Supabase project:** `mqzbecwyubyifbjcvttk`  
+**Audit basis:** `main` at `b3559b94bf1101fce5ae48086e662f5a7e3807a4`
+**Supabase project:** `mqzbecwyubyifbjcvttk`
 **Scope:** static and repository validation only. No production database was connected to or changed.
 
 ## SQL files found and order
