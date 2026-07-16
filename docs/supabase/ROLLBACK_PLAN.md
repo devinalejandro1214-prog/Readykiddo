@@ -2,7 +2,7 @@
 
 ## Safe rollback boundaries
 
-The three timestamped migrations are additive or constraint replacements. The safest rollback is a database restore or a forward corrective migration, not an ad-hoc destructive edit in production.
+The four timestamped migrations are additive or constraint replacements. The safest rollback is a database restore or a forward corrective migration, not an ad-hoc destructive edit in production.
 
 ## Migration-specific notes
 
