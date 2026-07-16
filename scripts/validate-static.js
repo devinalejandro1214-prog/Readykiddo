@@ -15,6 +15,7 @@ const jsFiles = [
     'assets/js/main.js',
     'assets/js/onboarding.js',
     'assets/js/world-reveal.js',
+    'assets/js/supabase-client.js',
     'assets/js/feedback-widget.js',
     'assets/js/audio-manager.js',
     'assets/js/games/color-sort-game.js',

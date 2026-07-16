@@ -12,8 +12,8 @@
 
 (function () {
   // ── Config (swap these out) ──────────────────────────────────
-const SUPABASE_URL      = 'https://wkduplphezadntdaxfpz.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_98989PcVfsmBlZhzVxszVg_f-zMjzEG';
+const SUPABASE_URL      = 'https://mqzbecwyubyifbjcvttk.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_T1cGPZcWizDyxxEq8-5CdA_IS4KuvSY';
   // ────────────────────────────────────────────────────────────
 
   if (!window.supabase) {

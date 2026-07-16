@@ -39,6 +39,7 @@ const styles = [
 const ageGroups = [
   { label:'3–4 Years', value:'3-4', icon:'🌱', desc:'Tap to play' },
   { label:'4–5 Years', value:'4-5', icon:'⭐', desc:'Tap & drag' },
+  { label:'5–6 Years', value:'5-6', icon:'🚀', desc:'Think & explore' },
 ];
 
 // 5 steps: setup → ageGroup → theme → vibe → style
@@ -53,7 +54,7 @@ const steps = [
 // Playful one-liners shown in the hero quip bubble after each selection
 const quips = {
   character: name => `${name} is ready to play!`,
-  ageGroup:  { '3-4':'Tap adventures await! 🌱', '4-5':'Ready to drag and explore! ⭐' },
+  ageGroup:  { '3-4':'Tap adventures await! 🌱', '4-5':'Ready to drag and explore! ⭐', '5-6':'Big ideas are ready to launch! 🚀' },
   theme:     { 'Space':'Blast off! 🚀', 'Jungle':'Into the wild! 🌿', 'Beach':'Sun and waves! 🏖️', 'Castle':'A royal adventure! 🏰', 'Studio':'Lights, camera! 🎬', 'Candy Land':'So sweet! 🍭' },
   vibe:      { 'Cozy':'Warm and snuggly.', 'Exciting':"Let's go go go!", 'Magical':'Sparkles everywhere ✨', 'Silly':'Giggles incoming 😜', 'Brave':'Chin up, hero!' },
   style:     { 'Plain':'Comfy and classic.', 'Hero':'Cape on! 🦸', 'Explorer':'Map in hand 🧭', 'Wizard':'Spells ready 🪄', 'Artist':'Time to create 🎨', 'Scientist':'Eureka! 🔬' },
@@ -85,6 +86,7 @@ const liveEl         = $('liveRegion'),
       optionsRowEl   = $('optionsRow'),
       backBtn        = $('backBtn'),
       toastEl        = $('toast');
+const accountErrorEl = $('accountError');
 
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -137,12 +139,8 @@ async function finishOnboarding() {
   // 1. Local profile — the games read theme/character/style from here.
   localStorage.setItem('userProfile', JSON.stringify(choices));
 
-  // 2. Celebrate immediately (don't wait on the network).
-  $('toastChild').textContent = choices.childName || 'Adventurer';
-  toastEl.classList.add('show');
-  launchConfetti();
-
-  // 3. Persist to the parent's account, if one is active.
+  // Persist to the parent's account before celebrating or redirecting. A
+  // signed-in child must never appear complete if its database row failed.
   try {
     if (window.RK && window.sb) {
       const user = await window.RK.getCurrentUser();
@@ -163,16 +161,22 @@ async function finishOnboarding() {
           .single();
         if (!error && data) {
           window.RK.setActiveChild(data);
-        } else if (error) {
-          console.warn('[Onboarding] could not save child to account:', error.message);
-        }
+        } else if (error) throw new Error(error.message || 'The child profile could not be saved.');
       }
     }
   } catch (e) {
-    console.warn('[Onboarding] account save skipped:', e && e.message);
+    const message = e && e.message ? e.message : 'The child profile could not be saved.';
+    accountErrorEl.textContent = `${message} Please check your connection and try again.`;
+    accountErrorEl.hidden = false;
+    announce(accountErrorEl.textContent);
+    return;
   }
 
-  // 4. On to the world-opening reveal.
+  $('toastChild').textContent = choices.childName || 'Adventurer';
+  toastEl.classList.add('show');
+  launchConfetti();
+
+  // On to the world-opening reveal.
   setTimeout(() => { window.location.href = 'world-reveal.html'; }, 1800);
 }
 
